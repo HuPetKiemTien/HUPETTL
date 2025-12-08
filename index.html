@@ -340,7 +340,7 @@
 
     // DOM Elements
     const authArea = document.getElementById('authArea');
-    const appArea  = document.getElementById('appArea');
+    const appArea  = document.getElementById('appArea'); // sẽ không dùng nữa nhưng có cũng không sao
     const msg      = document.getElementById('msg');
     
     // Inputs
@@ -352,7 +352,7 @@
     const regEmail = document.getElementById('regEmail');
     const regPass  = document.getElementById('regPass');
 
-    // Display Info
+    // Display Info (chỉ còn dùng nếu bạn muốn test hiển thị tại index, nhưng hiện mình để đó)
     const uName    = document.getElementById('uName');
     const uEmail   = document.getElementById('uEmail');
     const uPhone   = document.getElementById('uPhone');
@@ -393,33 +393,15 @@
         }
     };
 
-    // --- 1. LẮNG NGHE TRẠNG THÁI ---
+    // --- 1. LẮNG NGHE TRẠNG THÁI AUTH -> CHUYỂN SANG home.html ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            authArea.style.display = "none";
-            appArea.style.display  = "block";
-            
-            // Mặc định hiển thị từ Auth
-            uName.textContent  = user.displayName || "User";
-            uEmail.textContent = user.email;
-
-            // Lấy dữ liệu chi tiết từ Firestore
-            try {
-                const userRef = doc(db, "users", user.uid);
-                const snap = await getDoc(userRef);
-                if (snap.exists()) {
-                    const data = snap.data();
-                    uPhone.textContent = data.phoneNumber || "Chưa cập nhật";
-                    uBalance.textContent = data.balance ? data.balance.toLocaleString('vi-VN') : "0";
-                    if(data.displayName) uName.textContent = data.displayName;
-                }
-            } catch (e) {
-                console.error("Lỗi lấy data user:", e);
-            }
+            // Đã đăng nhập -> chuyển sang dashboard
+            window.location.href = "home.html";
         } else {
+            // Chưa đăng nhập -> hiện form login/register
             authArea.style.display = "block";
             appArea.style.display  = "none";
-            // Reset form
             document.querySelectorAll('input').forEach(i => i.value = '');
         }
     });
@@ -437,7 +419,6 @@
         }
         if (pass.length < 6) return showMsg("Mật khẩu phải từ 6 ký tự trở lên.");
 
-        // Username chỉ cho phép chữ thường, số, dấu gạch dưới (để dễ query)
         const usernameClean = name.toLowerCase().replace(/\s+/g, '');
         if (usernameClean.length < 3) return showMsg("Tên tài khoản quá ngắn.");
 
@@ -456,22 +437,30 @@
             const userCred = await createUserWithEmailAndPassword(auth, email, pass);
             const user = userCred.user;
 
-            // 2.3 Cập nhật Profile
+            // 2.3 Cập nhật Profile (displayName trên Auth)
             await updateProfile(user, { displayName: name });
 
-            // 2.4 Lưu Firestore
+            // 2.4 Lưu Firestore – ĐỒNG BỘ VỚI home.html (có balance, isAdmin, saving)
             await setDoc(doc(db, "users", user.uid), {
                 uid: user.uid,
                 email: email,
-                displayName: name, // Tên hiển thị
-                username: usernameClean, // Tên đăng nhập (viết thường)
+                displayName: name,
+                username: usernameClean,
                 phoneNumber: phone,
                 balance: 0,
-                createdAt: serverTimestamp()
+                isAdmin: false,
+                createdAt: serverTimestamp(),
+                saving: {
+                    amount: 0,
+                    profit: 0,
+                    ratePerYear: 0.01,
+                    lastUpdateMs: Date.now()
+                }
             });
 
             showMsg("Đăng ký thành công!", "success");
-            // Auth listener sẽ tự chuyển trang
+            // onAuthStateChanged sẽ tự redirect sang home.html
+
         } catch (err) {
             console.error(err);
             let message = err.message;
@@ -495,12 +484,9 @@
 
         try {
             let emailToLogin = input;
-
-            // Kiểm tra xem input là Email hay Username
             const isEmail = input.includes('@');
 
             if (!isEmail) {
-                // Nếu không phải email, tìm email theo username trong Firestore
                 const usernameClean = input.toLowerCase().replace(/\s+/g, '');
                 const q = query(collection(db, "users"), where("username", "==", usernameClean));
                 const querySnapshot = await getDocs(q);
@@ -509,21 +495,22 @@
                     throw new Error("Tên tài khoản không tồn tại.");
                 }
 
-                // Lấy email từ document tìm được
-                querySnapshot.forEach((doc) => {
-                    emailToLogin = doc.data().email;
+                querySnapshot.forEach((docSnap) => {
+                    emailToLogin = docSnap.data().email;
                 });
             }
 
-            // Tiến hành đăng nhập bằng Email tìm được (hoặc email người dùng nhập)
+            // Đăng nhập bằng email (từ input hoặc từ username tra ra)
             await signInWithEmailAndPassword(auth, emailToLogin, pass);
-            
             showMsg("Đăng nhập thành công!", "success");
-            
+            // onAuthStateChanged sẽ redirect sang home.html
+
         } catch (err) {
             console.error(err);
             let message = err.message;
-            if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+            if (err.code === 'auth/user-not-found' ||
+                err.code === 'auth/wrong-password' ||
+                err.code === 'auth/invalid-credential') {
                 message = "Tài khoản hoặc mật khẩu không chính xác.";
             }
             showMsg(message);
@@ -532,9 +519,10 @@
         }
     });
 
-    // --- 4. ĐĂNG XUẤT ---
+    // --- 4. ĐĂNG XUẤT (nếu dùng nút logout ở trang này) ---
     document.getElementById('btnLogout').addEventListener('click', async () => {
         await signOut(auth);
+        // Sau signOut, onAuthStateChanged sẽ đưa về form đăng nhập
     });
 
 </script>
