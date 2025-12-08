@@ -34,7 +34,7 @@
 
         /* --- Header & Nav --- */
         .navbar {
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(10px);
             padding: 15px 20px;
             display: flex;
@@ -80,6 +80,56 @@
         }
         .btn-logout:hover { background: var(--danger-color); color: white; }
 
+        /* --- Sub Navigation Tabs --- */
+        .subnav {
+            background: rgba(15, 23, 42, 0.9);
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 71px; /* Height of navbar */
+            z-index: 99;
+        }
+
+        .subnav-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 10px 20px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            /* Ẩn thanh cuộn nhưng vẫn scroll được */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .subnav-inner::-webkit-scrollbar { display: none; }
+
+        .nav-pill {
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid transparent;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            text-decoration: none;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .nav-pill:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+        }
+
+        .nav-pill.active {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--primary-color);
+            color: #e0e7ff;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+        }
+
         /* --- Layout Container --- */
         .container {
             max-width: 800px;
@@ -113,14 +163,30 @@
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             text-align: center;
             padding: 30px 20px;
+            position: relative;
+            overflow: hidden;
         }
+        /* Hiệu ứng shine nhẹ cho thẻ balance */
+        .balance-card::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+
         .balance-label { font-size: 14px; color: rgba(255,255,255,0.8); }
-        .balance-amount { font-size: 32px; font-weight: 700; margin: 5px 0 10px 0; }
+        .balance-amount { font-size: 32px; font-weight: 700; margin: 5px 0 10px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .role-badge {
             background: rgba(255,255,255,0.2);
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 12px;
+            backdrop-filter: blur(4px);
         }
 
         /* --- Hũ Pet --- */
@@ -135,6 +201,7 @@
             padding: 15px;
             border-radius: 12px;
             text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
         }
         .stat-value { font-size: 18px; font-weight: 600; color: var(--success-color); }
         .stat-label { font-size: 12px; color: var(--text-muted); }
@@ -152,8 +219,9 @@
             border-radius: 10px;
             color: white;
             outline: none;
+            transition: 0.3s;
         }
-        input:focus { border-color: var(--primary-color); }
+        input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
 
         .btn {
             padding: 12px 20px;
@@ -164,9 +232,10 @@
             transition: 0.3s;
         }
         .btn-primary { background: var(--primary-color); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
         
         .btn-secondary { background: #334155; color: white; }
+        .btn-secondary:hover { background: #475569; }
         
         .btn-block { width: 100%; }
 
@@ -182,11 +251,11 @@
             border: 1px solid var(--card-border);
             border-radius: 12px;
             padding: 15px;
-            transition: transform 0.2s;
+            transition: 0.3s;
             position: relative;
             overflow: hidden;
         }
-        .package-item:hover { transform: translateY(-5px); border-color: var(--primary-color); }
+        .package-item:hover { transform: translateY(-5px); border-color: var(--primary-color); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         
         .package-header {
             display: flex;
@@ -271,6 +340,25 @@
         </div>
         <button class="btn-logout" id="btnLogout"><i class="fa-solid fa-right-from-bracket"></i></button>
     </nav>
+
+    <!-- SUB NAV: Chuyển trang -->
+    <div class="subnav">
+        <div class="subnav-inner">
+            <a href="home.html" class="nav-pill" id="navHome">
+                <i class="fa-solid fa-house"></i> Trang chủ
+            </a>
+            <a href="account.html" class="nav-pill" id="navAccount">
+                <i class="fa-solid fa-user"></i> Tài khoản
+            </a>
+            <a href="news.html" class="nav-pill" id="navNews">
+                <i class="fa-solid fa-newspaper"></i> Bảng tin
+            </a>
+            <!-- Chỉ hiện khi là admin -->
+            <a href="admin.html" class="nav-pill" id="navAdmin" style="display:none;">
+                <i class="fa-solid fa-shield-halved"></i> Admin
+            </a>
+        </div>
+    </div>
 
     <div class="container">
         
@@ -359,7 +447,6 @@
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-        // Đã thêm setDoc vào import
         import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
         const app = initializeApp(firebaseConfig);
@@ -410,6 +497,24 @@
         
         const btnLogout      = document.getElementById('btnLogout');
         const toastEl        = document.getElementById('toast');
+
+        // Subnav items
+        const navHome    = document.getElementById('navHome');
+        const navAccount = document.getElementById('navAccount');
+        const navNews    = document.getElementById('navNews');
+        const navAdmin   = document.getElementById('navAdmin');
+
+        // Logic đánh dấu tab active
+        const path = window.location.pathname;
+        if (path.endsWith("home.html") || path.endsWith("/")) {
+            if(navHome) navHome.classList.add("active");
+        } else if (path.endsWith("account.html")) {
+            if(navAccount) navAccount.classList.add("active");
+        } else if (path.endsWith("news.html")) {
+            if(navNews) navNews.classList.add("active");
+        } else if (path.endsWith("admin.html")) {
+            if(navAdmin) navAdmin.classList.add("active");
+        }
 
         // ====== STATE ======
         let currentUser = null;
@@ -466,7 +571,6 @@
             }
 
             const userRef = doc(db, "users", currentUser.uid);
-            // Dùng updateDoc ở đây an toàn vì logic Auth đã đảm bảo doc tồn tại
             await updateDoc(userRef, { saving });
             currentUserData.saving = saving;
             renderSavingUI();
@@ -484,17 +588,22 @@
 
         function renderUserHeader() {
             const d = currentUserData || {};
-            // Tinh gọn logic lấy tên
-            const name = d.displayName || d.name || "Thành viên";
+            
+            // Logic lấy tên fix triệt để
+            const name = d.displayName || d.name || (currentUser && currentUser.displayName) || "Thành viên";
             usernameEl.textContent = name;
             userAvatar.textContent = name.charAt(0).toUpperCase();
-            emailEl.textContent    = d.email || currentUser.email || "";
-            balanceEl.textContent  = formatVND(d.balance || 0);
+
+            // Logic lấy email
+            emailEl.textContent = d.email || (currentUser && currentUser.email) || "";
+            balanceEl.textContent = formatVND(d.balance || 0);
 
             if (d.isAdmin) {
                 roleBadge.textContent = "Quản trị viên";
                 roleBadge.style.background = "#16a34a";
                 roleBadge.style.color = "white";
+                // Hiện tab admin
+                if(navAdmin) navAdmin.style.display = "inline-flex";
             }
         }
 
@@ -621,7 +730,6 @@
         }
 
         async function claimInvestment(inv) {
-            // FIX: Thêm check defensive programming
             const now = Date.now();
             if (now < (inv.finishAtMs || 0)) {
                 showToast("Cảnh báo: Gói này chưa đủ thời gian để nhận!", false);
@@ -656,7 +764,7 @@
             }
         }
 
-        // ====== AUTH LISTENER (ĐÃ SỬA) ======
+        // ====== AUTH LISTENER (AUTO PATCH USER DATA) ======
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = "index.html";
@@ -668,12 +776,13 @@
             const snap = await getDoc(userRef);
             let data;
 
-            // FIX: Dùng setDoc nếu document chưa tồn tại
+            // 1. Tạo mới doc nếu chưa có
             if (!snap.exists()) {
                 console.log("User doc chưa có, tạo mới...");
                 data = {
                     email: user.email || "",
-                    name: user.displayName || "Thành viên", // Dùng name đồng bộ
+                    name: user.displayName || "Thành viên",
+                    displayName: user.displayName || "Thành viên", // Đồng bộ luôn
                     balance: 0,
                     isAdmin: false,
                     createdAt: serverTimestamp(),
@@ -686,8 +795,26 @@
                 };
                 await setDoc(userRef, data);
             } else {
+                // 2. Patch data cũ nếu thiếu
                 data = snap.data();
-                // Patch nếu thiếu saving (user cũ)
+                let needUpdate = false;
+                let updatePayload = {};
+
+                // Patch tên
+                if (!data.displayName && (user.displayName || data.name)) {
+                    data.displayName = user.displayName || data.name;
+                    updatePayload.displayName = data.displayName;
+                    needUpdate = true;
+                }
+
+                // Patch email
+                if (!data.email && user.email) {
+                    data.email = user.email;
+                    updatePayload.email = data.email;
+                    needUpdate = true;
+                }
+
+                // Patch saving
                 if (!data.saving) {
                     data.saving = {
                         amount: 0,
@@ -695,7 +822,13 @@
                         ratePerYear: 0.01,
                         lastUpdateMs: Date.now()
                     };
-                    await updateDoc(userRef, { saving: data.saving });
+                    updatePayload.saving = data.saving;
+                    needUpdate = true;
+                }
+
+                if (needUpdate) {
+                    console.log("Cập nhật dữ liệu user cũ:", updatePayload);
+                    await updateDoc(userRef, updatePayload);
                 }
             }
 
