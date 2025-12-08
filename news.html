@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Tin - Hũ Pet Sinh Lời</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #eab308;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px);
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+        }
+        .user-profile { display: flex; align-items: center; gap: 10px; }
+        .avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(45deg, #ec4899, #8b5cf6);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 18px; color: white;
+        }
+        .user-info h4 { font-size: 14px; margin: 0; }
+        .user-info span { font-size: 12px; color: var(--text-muted); }
+        .btn-logout { background: none; border: none; color: var(--danger); font-size: 20px; cursor: pointer; }
+
+        /* --- Subnav --- */
+        .subnav {
+            background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid var(--border);
+            position: sticky; top: 71px; z-index: 99;
+        }
+        .subnav-inner {
+            max-width: 800px; margin: 0 auto; padding: 10px 20px;
+            display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none;
+        }
+        .subnav-inner::-webkit-scrollbar { display: none; }
+        .nav-pill {
+            padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 500;
+            background: rgba(255, 255, 255, 0.03); color: var(--text-muted); text-decoration: none;
+            white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;
+        }
+        .nav-pill.active {
+            background: rgba(99, 102, 241, 0.15); border: 1px solid var(--primary); color: #e0e7ff;
+        }
+
+        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+
+        /* --- Header Section --- */
+        .page-header {
+            text-align: center; margin-bottom: 30px;
+        }
+        .page-header h2 { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
+        .page-header p { color: var(--text-muted); font-size: 14px; }
+
+        /* --- Admin Editor Box --- */
+        .editor-card {
+            background: rgba(15, 23, 42, 0.8); border: 1px solid var(--primary);
+            border-radius: 16px; padding: 20px; margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+            display: none; /* Hidden by default */
+        }
+        .editor-title { font-size: 14px; font-weight: 600; color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; font-size: 12px; margin-bottom: 6px; color: var(--text-muted); }
+        .form-input {
+            width: 100%; padding: 12px; background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--border); border-radius: 10px;
+            color: white; font-size: 14px; outline: none; transition: 0.3s;
+        }
+        .form-input:focus { border-color: var(--primary); background: rgba(30, 41, 59, 0.8); }
+        textarea.form-input { min-height: 100px; resize: vertical; }
+
+        .editor-actions { display: flex; justify-content: space-between; align-items: center; }
+        .checkbox-wrapper { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+        .checkbox-wrapper input { accent-color: var(--warning); width: 16px; height: 16px; }
+
+        .btn-post {
+            background: var(--primary); color: white; border: none;
+            padding: 10px 24px; border-radius: 10px; font-weight: 600;
+            cursor: pointer; transition: 0.3s;
+        }
+        .btn-post:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+        /* --- News Feed --- */
+        .news-feed { display: flex; flex-direction: column; gap: 20px; }
+
+        .news-card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 16px; padding: 20px; position: relative;
+            backdrop-filter: blur(10px); transition: 0.3s; overflow: hidden;
+        }
+        .news-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.2); }
+
+        /* Pinned Style */
+        .news-card.pinned {
+            border-left: 4px solid var(--warning);
+            background: linear-gradient(to right, rgba(234, 179, 8, 0.05), rgba(30, 41, 59, 0.7));
+        }
+        .pin-badge {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(234, 179, 8, 0.2); color: var(--warning);
+            padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+            display: flex; align-items: center; gap: 5px;
+        }
+
+        .news-meta {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+            font-size: 12px; color: var(--text-muted);
+        }
+        .news-avatar {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: var(--primary); color: white;
+            display: flex; align-items: center; justify-content: center; font-size: 10px;
+        }
+
+        .news-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: #fff; line-height: 1.4; padding-right: 70px; }
+        .news-content { font-size: 14px; color: #cbd5e1; line-height: 1.6; white-space: pre-line; }
+
+        .news-footer {
+            margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 11px; color: var(--text-muted); display: flex; justify-content: flex-end;
+        }
+
+        .empty-state {
+            text-align: center; padding: 40px 20px; color: var(--text-muted);
+            background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px dashed var(--border);
+        }
+
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff;
+            text-align: center; border-radius: 8px; padding: 12px; position: fixed;
+            z-index: 999; left: 50%; bottom: 30px; transform: translateX(-50%);
+            font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="user-profile">
+            <div class="avatar" id="avatar">U</div>
+            <div class="user-info">
+                <h4 id="uName">Loading...</h4>
+                <span id="uEmail">...</span>
+            </div>
+        </div>
+        <button class="btn-logout" id="btnLogout"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </nav>
+
+    <!-- SUBNAV -->
+    <div class="subnav">
+        <div class="subnav-inner">
+            <a href="home.html" class="nav-pill"><i class="fa-solid fa-house"></i> Trang chủ</a>
+            <a href="account.html" class="nav-pill"><i class="fa-solid fa-wallet"></i> Ví của tôi</a>
+            <a href="news.html" class="nav-pill active"><i class="fa-solid fa-newspaper"></i> Bảng tin</a>
+            <a href="admin.html" class="nav-pill" id="navAdmin" style="display:none;"><i class="fa-solid fa-shield-halved"></i> Admin</a>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <div class="page-header">
+            <h2><i class="fa-solid fa-bullhorn" style="color: var(--primary);"></i> Bảng Tin & Thông Báo</h2>
+            <p>Cập nhật tin tức mới nhất từ hệ thống Hũ Pet Sinh Lời</p>
+        </div>
+
+        <!-- ADMIN EDITOR (Hidden by default) -->
+        <div id="adminEditor" class="editor-card">
+            <div class="editor-title">
+                <i class="fa-solid fa-pen-to-square"></i> Đăng thông báo mới
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tiêu đề thông báo</label>
+                <input type="text" id="newsTitle" class="form-input" placeholder="VD: Bảo trì hệ thống 12/2024...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nội dung chi tiết</label>
+                <textarea id="newsContent" class="form-input" placeholder="Nhập nội dung..."></textarea>
+            </div>
+            <div class="editor-actions">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="newsPinned">
+                    <span><i class="fa-solid fa-thumbtack" style="color: var(--warning)"></i> Ghim lên đầu</span>
+                </label>
+                <button class="btn-post" onclick="postNews()">
+                    <i class="fa-solid fa-paper-plane"></i> Đăng Tin
+                </button>
+            </div>
+        </div>
+
+        <!-- NEWS LIST -->
+        <div id="newsFeed" class="news-feed">
+            <div class="empty-state">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 10px;"></i>
+                <p>Đang tải dữ liệu...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="toast">Thông báo</div>
+
+    <script type="module">
+        const firebaseConfig = {
+          apiKey: "AIzaSyAQuq-52qZ4FfsP66pVEVgYCP50zBNVKo4",
+          authDomain: "hc88-dcaab.firebaseapp.com",
+          databaseURL: "https://hc88-dcaab-default-rtdb.firebaseio.com",
+          projectId: "hc88-dcaab",
+          storageBucket: "hc88-dcaab.firebasestorage.app",
+          messagingSenderId: "315665399762",
+          appId: "1:315665399762:web:e5e34287e53381f496920b"
+        };
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        import { 
+            getFirestore, doc, getDoc, setDoc, 
+            collection, addDoc, getDocs, query, orderBy, serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let userData = null;
+
+        // --- Utils ---
+        function showToast(msg, type='success') {
+            const t = document.getElementById("toast");
+            t.textContent = msg;
+            t.style.background = type === 'error' ? '#ef4444' : '#333';
+            t.className = "show";
+            setTimeout(() => t.className = t.className.replace("show", ""), 2500);
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return "Vừa xong";
+            const date = new Date(timestamp.seconds * 1000);
+            return date.toLocaleString('vi-VN', { 
+                hour: '2-digit', minute: '2-digit', 
+                day: '2-digit', month: '2-digit', year: 'numeric' 
+            });
+        }
+
+        // --- Logic ---
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) return window.location.href = "index.html";
+            currentUser = user;
+
+            const ref = doc(db, "users", user.uid);
+            const snap = await getDoc(ref);
+
+            if (snap.exists()) {
+                userData = snap.data();
+            } else {
+                userData = {
+                    email: user.email,
+                    displayName: user.displayName || "Member",
+                    isAdmin: false
+                };
+            }
+
+            // Update UI Header
+            const name = userData.displayName || userData.name || "Member";
+            document.getElementById("uName").textContent = name;
+            document.getElementById("avatar").textContent = name.charAt(0).toUpperCase();
+            document.getElementById("uEmail").textContent = user.email;
+
+            // Check Admin
+            if (userData.isAdmin) {
+                document.getElementById("navAdmin").style.display = "inline-flex";
+                document.getElementById("adminEditor").style.display = "block";
+            }
+
+            loadNews();
+        });
+
+        // Load News
+        async function loadNews() {
+            const container = document.getElementById("newsFeed");
+            try {
+                const q = query(
+                    collection(db, "news"), 
+                    orderBy("pinned", "desc"), // Pinned first
+                    orderBy("createdAt", "desc") // Newest first
+                );
+                const snap = await getDocs(q);
+
+                if (snap.empty) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fa-regular fa-newspaper" style="font-size: 32px; margin-bottom: 10px;"></i>
+                            <p>Chưa có tin tức nào.</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    const isPinned = data.pinned;
+                    const author = data.authorName || "Hệ thống";
+                    
+                    let pinBadge = isPinned ? 
+                        `<div class="pin-badge"><i class="fa-solid fa-thumbtack"></i> Đã Ghim</div>` : '';
+                    
+                    const html = `
+                    <div class="news-card ${isPinned ? 'pinned' : ''}">
+                        ${pinBadge}
+                        <div class="news-meta">
+                            <div class="news-avatar">${author.charAt(0).toUpperCase()}</div>
+                            <span>${author}</span>
+                            <span>•</span>
+                            <span>${formatTime(data.createdAt)}</span>
+                        </div>
+                        <div class="news-title">${data.title}</div>
+                        <div class="news-content">${data.content}</div>
+                    </div>`;
+                    
+                    container.insertAdjacentHTML('beforeend', html);
+                });
+
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = `<div class="empty-state"><p>Lỗi tải tin tức.</p></div>`;
+            }
+        }
+
+        // Post News (Admin)
+        window.postNews = async () => {
+            const title = document.getElementById("newsTitle").value.trim();
+            const content = document.getElementById("newsContent").value.trim();
+            const pinned = document.getElementById("newsPinned").checked;
+
+            if (!title || !content) return showToast("Vui lòng nhập tiêu đề và nội dung", 'error');
+
+            try {
+                await addDoc(collection(db, "news"), {
+                    title,
+                    content,
+                    pinned,
+                    authorUid: currentUser.uid,
+                    authorName: userData.displayName || "Admin",
+                    createdAt: serverTimestamp()
+                });
+
+                showToast("Đăng tin thành công!");
+                // Reset form
+                document.getElementById("newsTitle").value = "";
+                document.getElementById("newsContent").value = "";
+                document.getElementById("newsPinned").checked = false;
+                
+                loadNews();
+            } catch (e) {
+                console.error(e);
+                showToast("Lỗi đăng tin: " + e.message, 'error');
+            }
+        };
+
+        document.getElementById("btnLogout").onclick = async () => {
+            await signOut(auth);
+            window.location.href = "index.html";
+        };
+
+    </script>
+</body>
+</html>
+
