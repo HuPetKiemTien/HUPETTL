@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập - Hũ Pet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        body {
+            background: #0d1117;
+            color: #f9fafb;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+        .app {
+            width: 100%;
+            max-width: 480px;
+            padding: 16px;
+        }
+        h1, h2, h3 { margin-bottom: 8px; }
+        .card {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 6px 0;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+        }
+        input {
+            background: #020617;
+            color: #e5e7eb;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            font-weight: 600;
+        }
+        button.danger { background: #dc2626; }
+        .small { font-size: 12px; color: #9ca3af; }
+        .center { text-align: center; }
+        .mt8 { margin-top: 8px; }
+        .mt12 { margin-top: 12px; }
+        #appArea { display: none; } /* Ẩn phần sau khi login cho đến khi đăng nhập */
+    </style>
+</head>
+<body>
+<div class="app">
+
+    <!-- PHẦN ĐĂNG NHẬP / ĐĂNG KÝ -->
+    <div id="authArea">
+        <h2 class="center">Hũ Pet</h2>
+        <p class="small center mt8">Đăng nhập hoặc đăng ký tài khoản mới</p>
+
+        <div class="card mt12">
+            <h3>Đăng nhập</h3>
+            <input id="loginEmail" type="email" placeholder="Email">
+            <input id="loginPass"  type="password" placeholder="Mật khẩu">
+            <button id="btnLogin">Đăng nhập</button>
+        </div>
+
+        <div class="card">
+            <h3>Đăng ký</h3>
+            <input id="regEmail" type="email" placeholder="Email">
+            <input id="regPass"  type="password" placeholder="Mật khẩu (>= 6)">
+            <input id="regName"  type="text" placeholder="Tên tài khoản hiển thị">
+            <button id="btnRegister">Đăng ký</button>
+        </div>
+
+        <p id="msg" class="small mt8"></p>
+    </div>
+
+    <!-- PHẦN SAU KHI ĐĂNG NHẬP THÀNH CÔNG -->
+    <div id="appArea">
+        <div class="card">
+            <h3>Xin chào, <span id="uName">...</span></h3>
+            <p class="small">Email: <span id="uEmail">...</span></p>
+            <p class="small mt8">
+                Đây là phần test sau khi đăng nhập thành công.<br>
+                Sau này bạn có thể chuyển sang trang <b>home.html</b> hoặc các trang khác.
+            </p>
+            <button class="danger mt8" id="btnLogout">Đăng xuất</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================== FIREBASE + LOGIC ================== -->
+<script type="module">
+    /* CẤU HÌNH FIREBASE CỦA BẠN */
+    const firebaseConfig = {
+      apiKey: "AIzaSyAQuq-52qZ4FfsP66pVEVgYCP50zBNVKo4",
+      authDomain: "hc88-dcaab.firebaseapp.com",
+      databaseURL: "https://hc88-dcaab-default-rtdb.firebaseio.com",
+      projectId: "hc88-dcaab",
+      storageBucket: "hc88-dcaab.firebasestorage.app",
+      messagingSenderId: "315665399762",
+      appId: "1:315665399762:web:e5e34287e53381f496920b",
+      measurementId: "G-9W1W79F84X"
+    };
+
+    // Import từ CDN (Firebase v9)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import {
+        getAuth,
+        onAuthStateChanged,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        signOut,
+        updateProfile
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import {
+        getFirestore,
+        doc,
+        setDoc,
+        getDoc,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    // Khởi tạo Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    // DOM
+    const authArea  = document.getElementById('authArea');
+    const appArea   = document.getElementById('appArea');
+    const msg       = document.getElementById('msg');
+
+    const loginEmail= document.getElementById('loginEmail');
+    const loginPass = document.getElementById('loginPass');
+    const regEmail  = document.getElementById('regEmail');
+    const regPass   = document.getElementById('regPass');
+    const regName   = document.getElementById('regName');
+
+    const uName     = document.getElementById('uName');
+    const uEmail    = document.getElementById('uEmail');
+    const btnLogin  = document.getElementById('btnLogin');
+    const btnRegister = document.getElementById('btnRegister');
+    const btnLogout = document.getElementById('btnLogout');
+
+    // Lắng nghe trạng thái đăng nhập
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // Đã đăng nhập
+            authArea.style.display = "none";
+            appArea.style.display  = "block";
+
+            // Lấy thêm thông tin từ Firestore nếu có
+            const userRef = doc(db, "users", user.uid);
+            const snap = await getDoc(userRef);
+
+            let name = user.displayName || "User";
+            if (snap.exists()) {
+                const data = snap.data();
+                if (data.name) name = data.name;
+            }
+
+            uName.textContent  = name;
+            uEmail.textContent = user.email || "";
+
+        } else {
+            // Chưa đăng nhập
+            authArea.style.display = "block";
+            appArea.style.display  = "none";
+        }
+    });
+
+    // Đăng ký
+    btnRegister.addEventListener('click', async () => {
+        msg.textContent = "";
+        try {
+            const email = regEmail.value.trim();
+            const pass  = regPass.value.trim();
+            const name  = regName.value.trim();
+
+            if (!email || !pass || !name) {
+                msg.textContent = "Vui lòng nhập đủ Email, Mật khẩu và Tên tài khoản.";
+                return;
+            }
+
+            const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+
+            // Cập nhật displayName
+            await updateProfile(userCred.user, { displayName: name });
+
+            // Lưu document user vào Firestore (tuỳ sau này bạn thêm field khác)
+            await setDoc(doc(db, "users", userCred.user.uid), {
+                email,
+                name,
+                balance: 0,
+                isAdmin: false,
+                createdAt: serverTimestamp()
+            });
+
+            msg.textContent = "Đăng ký thành công! Hệ thống đã đăng nhập tài khoản.";
+        } catch (err) {
+            console.error(err);
+            msg.textContent = "Lỗi đăng ký: " + err.message;
+        }
+    });
+
+    // Đăng nhập
+    btnLogin.addEventListener('click', async () => {
+        msg.textContent = "";
+        try {
+            const email = loginEmail.value.trim();
+            const pass  = loginPass.value.trim();
+            if (!email || !pass) {
+                msg.textContent = "Vui lòng nhập Email và Mật khẩu.";
+                return;
+            }
+            await signInWithEmailAndPassword(auth, email, pass);
+            msg.textContent = "Đăng nhập thành công!";
+            // Nếu muốn sau này chuyển sang trang khác:
+            // window.location.href = "home.html";
+        } catch (err) {
+            console.error(err);
+            msg.textContent = "Lỗi đăng nhập: " + err.message;
+        }
+    });
+
+    // Đăng xuất
+    btnLogout.addEventListener('click', async () => {
+        await signOut(auth);
+    });
+</script>
+</body>
+</html>
