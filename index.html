@@ -2,99 +2,304 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Đăng nhập - Hũ Pet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hũ Pet - Đăng Nhập</title>
+    <!-- Font Awesome cho Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --error-color: #ef4444;
+            --success-color: #22c55e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
         body {
-            background: #0d1117;
-            color: #f9fafb;
+            background: var(--bg-gradient);
+            color: var(--text-color);
             min-height: 100vh;
             display: flex;
             justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
         }
-        .app {
+
+        /* Hiệu ứng nền */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: #8b5cf6;
+            filter: blur(100px);
+            opacity: 0.3;
+            border-radius: 50%;
+            top: -50px;
+            left: -50px;
+            z-index: -1;
+        }
+        body::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: #06b6d4;
+            filter: blur(100px);
+            opacity: 0.2;
+            border-radius: 50%;
+            bottom: -50px;
+            right: -50px;
+            z-index: -1;
+        }
+
+        .container {
             width: 100%;
-            max-width: 480px;
-            padding: 16px;
+            max-width: 420px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            position: relative;
+            overflow: hidden;
         }
-        h1, h2, h3 { margin-bottom: 8px; }
-        .card {
-            background: #111827;
-            border: 1px solid #1f2937;
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin: 6px 0;
-            border-radius: 8px;
-            border: none;
-            font-size: 14px;
-        }
-        input {
-            background: #020617;
-            color: #e5e7eb;
-        }
-        button {
-            background: #2563eb;
-            color: white;
+
+        h2 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 10px;
             font-weight: 600;
         }
-        button.danger { background: #dc2626; }
-        .small { font-size: 12px; color: #9ca3af; }
-        .center { text-align: center; }
-        .mt8 { margin-top: 8px; }
-        .mt12 { margin-top: 12px; }
-        #appArea { display: none; } /* Ẩn phần sau khi login cho đến khi đăng nhập */
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        input:focus + i {
+            color: var(--primary-color);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .toggle-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .toggle-text span {
+            color: var(--primary-color);
+            font-weight: 500;
+            cursor: pointer;
+            margin-left: 5px;
+            text-decoration: underline;
+        }
+
+        #msg {
+            text-align: center;
+            font-size: 13px;
+            margin-top: 15px;
+            min-height: 20px;
+        }
+        .msg-error { color: var(--error-color); }
+        .msg-success { color: var(--success-color); }
+
+        /* Ẩn/Hiện Form */
+        .form-section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Phần sau đăng nhập */
+        #appArea {
+            display: none;
+            text-align: center;
+        }
+        .user-info {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .user-info p { margin: 8px 0; font-size: 14px; color: #cbd5e1; }
+        .user-info strong { color: #fff; }
+        .btn-logout { background: #ef4444; margin-top: 20px; }
+        .btn-logout:hover { background: #dc2626; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }
+
+        /* Spinner Loading */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
     </style>
 </head>
 <body>
-<div class="app">
 
-    <!-- PHẦN ĐĂNG NHẬP / ĐĂNG KÝ -->
+<div class="container">
+    
+    <!-- AUTH AREA -->
     <div id="authArea">
-        <h2 class="center">Hũ Pet</h2>
-        <p class="small center mt8">Đăng nhập hoặc đăng ký tài khoản mới</p>
+        <h2>Hũ Pet</h2>
+        <p class="subtitle">Kết nối cộng đồng thú cưng</p>
 
-        <div class="card mt12">
-            <h3>Đăng nhập</h3>
-            <input id="loginEmail" type="email" placeholder="Email">
-            <input id="loginPass"  type="password" placeholder="Mật khẩu">
-            <button id="btnLogin">Đăng nhập</button>
+        <!-- Form Đăng Nhập -->
+        <div id="loginForm" class="form-section active">
+            <div class="input-group">
+                <input id="loginInput" type="text" placeholder="Tên tài khoản hoặc Email">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="input-group">
+                <input id="loginPass" type="password" placeholder="Mật khẩu">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <button id="btnLogin">
+                <span class="btn-text">Đăng Nhập</span>
+                <div class="spinner"></div>
+            </button>
+            <p class="toggle-text">
+                Chưa có tài khoản? <span onclick="switchForm('register')">Đăng ký ngay</span>
+            </p>
         </div>
 
-        <div class="card">
-            <h3>Đăng ký</h3>
-            <input id="regEmail" type="email" placeholder="Email">
-            <input id="regPass"  type="password" placeholder="Mật khẩu (>= 6)">
-            <input id="regName"  type="text" placeholder="Tên tài khoản hiển thị">
-            <button id="btnRegister">Đăng ký</button>
+        <!-- Form Đăng Ký -->
+        <div id="registerForm" class="form-section">
+            <div class="input-group">
+                <input id="regName" type="text" placeholder="Tên tài khoản (Viết liền, không dấu)">
+                <i class="fa-solid fa-user-tag"></i>
+            </div>
+            <div class="input-group">
+                <input id="regPhone" type="tel" placeholder="Số điện thoại">
+                <i class="fa-solid fa-phone"></i>
+            </div>
+            <div class="input-group">
+                <input id="regEmail" type="email" placeholder="Email">
+                <i class="fa-solid fa-envelope"></i>
+            </div>
+            <div class="input-group">
+                <input id="regPass" type="password" placeholder="Mật khẩu (Tối thiểu 6 ký tự)">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <button id="btnRegister">
+                <span class="btn-text">Đăng Ký</span>
+                <div class="spinner"></div>
+            </button>
+            <p class="toggle-text">
+                Đã có tài khoản? <span onclick="switchForm('login')">Đăng nhập</span>
+            </p>
         </div>
 
-        <p id="msg" class="small mt8"></p>
+        <p id="msg"></p>
     </div>
 
-    <!-- PHẦN SAU KHI ĐĂNG NHẬP THÀNH CÔNG -->
+    <!-- APP AREA (Sau khi Login) -->
     <div id="appArea">
-        <div class="card">
-            <h3>Xin chào, <span id="uName">...</span></h3>
-            <p class="small">Email: <span id="uEmail">...</span></p>
-            <p class="small mt8">
-                Đây là phần test sau khi đăng nhập thành công.<br>
-                Sau này bạn có thể chuyển sang trang <b>home.html</b> hoặc các trang khác.
-            </p>
-            <button class="danger mt8" id="btnLogout">Đăng xuất</button>
+        <i class="fa-solid fa-check-circle" style="font-size: 50px; color: #22c55e; margin-bottom: 10px;"></i>
+        <h2>Xin chào, <span id="uName">User</span>!</h2>
+        
+        <div class="user-info">
+            <p><i class="fa-solid fa-envelope width-20"></i> Email: <strong id="uEmail">...</strong></p>
+            <p><i class="fa-solid fa-phone width-20"></i> SĐT: <strong id="uPhone">...</strong></p>
+            <p><i class="fa-solid fa-wallet width-20"></i> Số dư: <strong id="uBalance">0</strong> đ</p>
         </div>
+
+        <button class="btn-logout" id="btnLogout">Đăng xuất</button>
     </div>
 
 </div>
 
-<!-- ================== FIREBASE + LOGIC ================== -->
+<!-- FIREBASE SCRIPT -->
 <script type="module">
-    /* CẤU HÌNH FIREBASE CỦA BẠN */
+    // CẤU HÌNH FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyAQuq-52qZ4FfsP66pVEVgYCP50zBNVKo4",
       authDomain: "hc88-dcaab.firebaseapp.com",
@@ -106,7 +311,7 @@
       measurementId: "G-9W1W79F84X"
     };
 
-    // Import từ CDN (Firebase v9)
+    // Import Modules
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import {
         getAuth,
@@ -121,116 +326,218 @@
         doc,
         setDoc,
         getDoc,
+        collection,
+        query,
+        where,
+        getDocs,
         serverTimestamp
     } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-    // Khởi tạo Firebase
+    // Init
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    // DOM
-    const authArea  = document.getElementById('authArea');
-    const appArea   = document.getElementById('appArea');
-    const msg       = document.getElementById('msg');
+    // DOM Elements
+    const authArea = document.getElementById('authArea');
+    const appArea  = document.getElementById('appArea');
+    const msg      = document.getElementById('msg');
+    
+    // Inputs
+    const loginInput = document.getElementById('loginInput');
+    const loginPass  = document.getElementById('loginPass');
+    
+    const regName  = document.getElementById('regName');
+    const regPhone = document.getElementById('regPhone');
+    const regEmail = document.getElementById('regEmail');
+    const regPass  = document.getElementById('regPass');
 
-    const loginEmail= document.getElementById('loginEmail');
-    const loginPass = document.getElementById('loginPass');
-    const regEmail  = document.getElementById('regEmail');
-    const regPass   = document.getElementById('regPass');
-    const regName   = document.getElementById('regName');
+    // Display Info
+    const uName    = document.getElementById('uName');
+    const uEmail   = document.getElementById('uEmail');
+    const uPhone   = document.getElementById('uPhone');
+    const uBalance = document.getElementById('uBalance');
 
-    const uName     = document.getElementById('uName');
-    const uEmail    = document.getElementById('uEmail');
-    const btnLogin  = document.getElementById('btnLogin');
-    const btnRegister = document.getElementById('btnRegister');
-    const btnLogout = document.getElementById('btnLogout');
+    // Logic UI: Chuyển đổi tab
+    window.switchForm = (type) => {
+        msg.textContent = "";
+        msg.className = "";
+        if (type === 'login') {
+            document.getElementById('loginForm').classList.add('active');
+            document.getElementById('registerForm').classList.remove('active');
+        } else {
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById('registerForm').classList.add('active');
+        }
+    };
 
-    // Lắng nghe trạng thái đăng nhập
+    // Hàm tiện ích: Hiển thị thông báo
+    const showMsg = (text, type = 'error') => {
+        msg.textContent = text;
+        msg.className = type === 'error' ? 'msg-error' : 'msg-success';
+    };
+
+    // Hàm tiện ích: Loading
+    const setLoading = (btnId, isLoading) => {
+        const btn = document.getElementById(btnId);
+        const text = btn.querySelector('.btn-text');
+        const spinner = btn.querySelector('.spinner');
+        if (isLoading) {
+            btn.disabled = true;
+            text.style.display = 'none';
+            spinner.style.display = 'block';
+        } else {
+            btn.disabled = false;
+            text.style.display = 'block';
+            spinner.style.display = 'none';
+        }
+    };
+
+    // --- 1. LẮNG NGHE TRẠNG THÁI ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            // Đã đăng nhập
             authArea.style.display = "none";
             appArea.style.display  = "block";
+            
+            // Mặc định hiển thị từ Auth
+            uName.textContent  = user.displayName || "User";
+            uEmail.textContent = user.email;
 
-            // Lấy thêm thông tin từ Firestore nếu có
-            const userRef = doc(db, "users", user.uid);
-            const snap = await getDoc(userRef);
-
-            let name = user.displayName || "User";
-            if (snap.exists()) {
-                const data = snap.data();
-                if (data.name) name = data.name;
+            // Lấy dữ liệu chi tiết từ Firestore
+            try {
+                const userRef = doc(db, "users", user.uid);
+                const snap = await getDoc(userRef);
+                if (snap.exists()) {
+                    const data = snap.data();
+                    uPhone.textContent = data.phoneNumber || "Chưa cập nhật";
+                    uBalance.textContent = data.balance ? data.balance.toLocaleString('vi-VN') : "0";
+                    if(data.displayName) uName.textContent = data.displayName;
+                }
+            } catch (e) {
+                console.error("Lỗi lấy data user:", e);
             }
-
-            uName.textContent  = name;
-            uEmail.textContent = user.email || "";
-
         } else {
-            // Chưa đăng nhập
             authArea.style.display = "block";
             appArea.style.display  = "none";
+            // Reset form
+            document.querySelectorAll('input').forEach(i => i.value = '');
         }
     });
 
-    // Đăng ký
-    btnRegister.addEventListener('click', async () => {
-        msg.textContent = "";
-        try {
-            const email = regEmail.value.trim();
-            const pass  = regPass.value.trim();
-            const name  = regName.value.trim();
+    // --- 2. ĐĂNG KÝ (CHECK TRÙNG USERNAME) ---
+    document.getElementById('btnRegister').addEventListener('click', async () => {
+        showMsg("");
+        const name = regName.value.trim();
+        const phone = regPhone.value.trim();
+        const email = regEmail.value.trim();
+        const pass = regPass.value.trim();
 
-            if (!email || !pass || !name) {
-                msg.textContent = "Vui lòng nhập đủ Email, Mật khẩu và Tên tài khoản.";
-                return;
+        if (!name || !phone || !email || !pass) {
+            return showMsg("Vui lòng điền đầy đủ thông tin.");
+        }
+        if (pass.length < 6) return showMsg("Mật khẩu phải từ 6 ký tự trở lên.");
+
+        // Username chỉ cho phép chữ thường, số, dấu gạch dưới (để dễ query)
+        const usernameClean = name.toLowerCase().replace(/\s+/g, '');
+        if (usernameClean.length < 3) return showMsg("Tên tài khoản quá ngắn.");
+
+        setLoading('btnRegister', true);
+
+        try {
+            // 2.1 Kiểm tra Username đã tồn tại chưa
+            const q = query(collection(db, "users"), where("username", "==", usernameClean));
+            const querySnapshot = await getDocs(q);
+            
+            if (!querySnapshot.empty) {
+                throw new Error("Tên tài khoản này đã được sử dụng. Vui lòng chọn tên khác.");
             }
 
+            // 2.2 Tạo Auth
             const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+            const user = userCred.user;
 
-            // Cập nhật displayName
-            await updateProfile(userCred.user, { displayName: name });
+            // 2.3 Cập nhật Profile
+            await updateProfile(user, { displayName: name });
 
-            // Lưu document user vào Firestore (tuỳ sau này bạn thêm field khác)
-            await setDoc(doc(db, "users", userCred.user.uid), {
-                email,
-                name,
+            // 2.4 Lưu Firestore
+            await setDoc(doc(db, "users", user.uid), {
+                uid: user.uid,
+                email: email,
+                displayName: name, // Tên hiển thị
+                username: usernameClean, // Tên đăng nhập (viết thường)
+                phoneNumber: phone,
                 balance: 0,
-                isAdmin: false,
                 createdAt: serverTimestamp()
             });
 
-            msg.textContent = "Đăng ký thành công! Hệ thống đã đăng nhập tài khoản.";
+            showMsg("Đăng ký thành công!", "success");
+            // Auth listener sẽ tự chuyển trang
         } catch (err) {
             console.error(err);
-            msg.textContent = "Lỗi đăng ký: " + err.message;
+            let message = err.message;
+            if (err.code === 'auth/email-already-in-use') message = "Email này đã được đăng ký.";
+            if (err.code === 'auth/invalid-email') message = "Email không hợp lệ.";
+            showMsg(message);
+        } finally {
+            setLoading('btnRegister', false);
         }
     });
 
-    // Đăng nhập
-    btnLogin.addEventListener('click', async () => {
-        msg.textContent = "";
+    // --- 3. ĐĂNG NHẬP (HỖ TRỢ USERNAME HOẶC EMAIL) ---
+    document.getElementById('btnLogin').addEventListener('click', async () => {
+        showMsg("");
+        const input = loginInput.value.trim();
+        const pass = loginPass.value.trim();
+
+        if (!input || !pass) return showMsg("Vui lòng nhập tài khoản và mật khẩu.");
+
+        setLoading('btnLogin', true);
+
         try {
-            const email = loginEmail.value.trim();
-            const pass  = loginPass.value.trim();
-            if (!email || !pass) {
-                msg.textContent = "Vui lòng nhập Email và Mật khẩu.";
-                return;
+            let emailToLogin = input;
+
+            // Kiểm tra xem input là Email hay Username
+            const isEmail = input.includes('@');
+
+            if (!isEmail) {
+                // Nếu không phải email, tìm email theo username trong Firestore
+                const usernameClean = input.toLowerCase().replace(/\s+/g, '');
+                const q = query(collection(db, "users"), where("username", "==", usernameClean));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    throw new Error("Tên tài khoản không tồn tại.");
+                }
+
+                // Lấy email từ document tìm được
+                querySnapshot.forEach((doc) => {
+                    emailToLogin = doc.data().email;
+                });
             }
-            await signInWithEmailAndPassword(auth, email, pass);
-            msg.textContent = "Đăng nhập thành công!";
-            // Nếu muốn sau này chuyển sang trang khác:
-            // window.location.href = "home.html";
+
+            // Tiến hành đăng nhập bằng Email tìm được (hoặc email người dùng nhập)
+            await signInWithEmailAndPassword(auth, emailToLogin, pass);
+            
+            showMsg("Đăng nhập thành công!", "success");
+            
         } catch (err) {
             console.error(err);
-            msg.textContent = "Lỗi đăng nhập: " + err.message;
+            let message = err.message;
+            if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+                message = "Tài khoản hoặc mật khẩu không chính xác.";
+            }
+            showMsg(message);
+        } finally {
+            setLoading('btnLogin', false);
         }
     });
 
-    // Đăng xuất
-    btnLogout.addEventListener('click', async () => {
+    // --- 4. ĐĂNG XUẤT ---
+    document.getElementById('btnLogout').addEventListener('click', async () => {
         await signOut(auth);
     });
+
 </script>
 </body>
 </html>
+
