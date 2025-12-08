@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Hũ Pet Sinh Lời</title>
+    
+    <!-- Font Awesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary-bg: rgba(255, 255, 255, 0.05);
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* --- Header & Nav --- */
+        .navbar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #ec4899, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: white;
+        }
+
+        .user-info h4 { font-size: 14px; margin: 0; }
+        .user-info span { font-size: 12px; color: var(--text-muted); }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+        .btn-logout:hover { background: var(--danger-color); color: white; }
+
+        /* --- Layout Container --- */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* --- Cards --- */
+        .card {
+            background: var(--secondary-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #cbd5e1;
+        }
+        .section-title i { color: var(--primary-color); }
+
+        /* --- Balance Card --- */
+        .balance-card {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .balance-label { font-size: 14px; color: rgba(255,255,255,0.8); }
+        .balance-amount { font-size: 32px; font-weight: 700; margin: 5px 0 10px 0; }
+        .role-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        /* --- Hũ Pet --- */
+        .saving-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-box {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-value { font-size: 18px; font-weight: 600; color: var(--success-color); }
+        .stat-label { font-size: 12px; color: var(--text-muted); }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        input {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            padding: 12px;
+            border-radius: 10px;
+            color: white;
+            outline: none;
+        }
+        input:focus { border-color: var(--primary-color); }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        
+        .btn-secondary { background: #334155; color: white; }
+        
+        .btn-block { width: 100%; }
+
+        /* --- Packages Grid --- */
+        .packages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .package-item {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 15px;
+            transition: transform 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .package-item:hover { transform: translateY(-5px); border-color: var(--primary-color); }
+        
+        .package-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        .pkg-price { font-size: 20px; font-weight: bold; color: var(--warning-color); }
+        .pkg-profit { color: var(--success-color); font-size: 13px; font-weight: 600; }
+        
+        .pkg-details { font-size: 13px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.5; }
+        
+        /* --- Active Investments List --- */
+        .investment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary-color);
+        }
+        .inv-info h5 { margin-bottom: 4px; font-size: 15px; }
+        .inv-info p { font-size: 12px; color: var(--text-muted); }
+        
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .bg-running { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .bg-success { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .bg-done { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+
+        .btn-claim {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+
+        /* --- Toast Notification --- */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 999;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+    </style>
+</head>
+<body>
+
+    <!-- NAV BAR -->
+    <nav class="navbar">
+        <div class="user-profile">
+            <div class="avatar" id="userAvatar">U</div>
+            <div class="user-info">
+                <h4 id="username">Loading...</h4>
+                <span id="email">...</span>
+            </div>
+        </div>
+        <button class="btn-logout" id="btnLogout"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </nav>
+
+    <div class="container">
+        
+        <!-- BALANCE CARD -->
+        <div class="card balance-card">
+            <p class="balance-label">Tổng tài sản ví chính</p>
+            <h1 class="balance-amount"><span id="balance">0</span> đ</h1>
+            <span id="roleBadge" class="role-badge">Thành viên</span>
+        </div>
+
+        <!-- 2.1 HŨ PET SINH LỜI -->
+        <div class="card">
+            <div class="section-title">
+                <i class="fa-solid fa-piggy-bank"></i>
+                <h3>Hũ Pet Sinh Lời</h3>
+            </div>
+            
+            <div class="saving-stats">
+                <div class="stat-box">
+                    <p class="stat-label">Tiền gốc gửi</p>
+                    <p class="stat-value" id="savingAmount">0 đ</p>
+                </div>
+                <div class="stat-box">
+                    <p class="stat-label">Lãi tích luỹ</p>
+                    <p class="stat-value" id="savingProfit" style="color: #facc15;">0 đ</p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 15px;">
+                <p style="font-size: 12px; color: var(--text-muted);">
+                    <i class="fa-solid fa-chart-line"></i> Lãi suất: <b id="savingRate">1%/năm</b>
+                    • Cập nhật: <span id="savingUpdatedAt">--</span>
+                </p>
+            </div>
+
+            <div class="input-group">
+                <input id="inputSavingDeposit" type="number" min="1000" placeholder="Nhập số tiền gửi (VNĐ)">
+                <button class="btn btn-primary" id="btnSavingDeposit">Gửi</button>
+            </div>
+            
+            <button class="btn btn-secondary btn-block" id="btnSavingWithdraw">
+                <i class="fa-solid fa-money-bill-transfer"></i> Rút toàn bộ (Gốc + Lãi)
+            </button>
+        </div>
+
+        <!-- 2.2 CÁC GÓI ĐẦU TƯ -->
+        <div class="card">
+            <div class="section-title">
+                <i class="fa-solid fa-box-open"></i>
+                <h3>Gói Đầu Tư Siêu Lời</h3>
+            </div>
+            <div id="packagesList" class="packages-grid">
+                <!-- JS will render items here -->
+            </div>
+        </div>
+
+        <!-- DANH SÁCH ĐÃ MUA -->
+        <div class="card">
+            <div class="section-title">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <h3>Gói Đang Chạy</h3>
+            </div>
+            <div id="userInvestmentsList">
+                <p class="text-center small" style="color:var(--text-muted); text-align:center;">Chưa có gói nào đang chạy.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast">Thông báo</div>
+
+    <!-- ============= FIREBASE + LOGIC ============= -->
+    <script type="module">
+        // Cấu hình Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyAQuq-52qZ4FfsP66pVEVgYCP50zBNVKo4",
+          authDomain: "hc88-dcaab.firebaseapp.com",
+          databaseURL: "https://hc88-dcaab-default-rtdb.firebaseio.com",
+          projectId: "hc88-dcaab",
+          storageBucket: "hc88-dcaab.firebasestorage.app",
+          messagingSenderId: "315665399762",
+          appId: "1:315665399762:web:e5e34287e53381f496920b",
+          measurementId: "G-9W1W79F84X"
+        };
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        // Đã thêm setDoc vào import
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+        // ====== CONSTANTS ======
+        const SECONDS_PER_YEAR = 365 * 24 * 60 * 60;
+        const PACKAGES = [
+            {
+                id: "pk01",
+                name: "Gói Trải Nghiệm",
+                investAmount: 5000,
+                payoutAmount: 10000,
+                durationMs: 2 * 60 * 60 * 1000, // 2 giờ
+                description: "Thích hợp cho người mới. Đầu tư 5k nhận ngay 10k chỉ sau 2 tiếng.",
+                icon: "fa-bolt"
+            },
+            {
+                id: "pk02",
+                name: "Gói Sinh Viên",
+                investAmount: 50000,
+                payoutAmount: 60000,
+                durationMs: 24 * 60 * 60 * 1000, // 1 ngày
+                description: "Đầu tư an toàn. Lãi suất 20% chỉ sau 24h.",
+                icon: "fa-graduation-cap"
+            }
+        ];
+
+        // ====== DOM ======
+        const usernameEl     = document.getElementById('username');
+        const emailEl        = document.getElementById('email');
+        const balanceEl      = document.getElementById('balance');
+        const roleBadge      = document.getElementById('roleBadge');
+        const userAvatar     = document.getElementById('userAvatar');
+
+        const savingAmountEl   = document.getElementById('savingAmount');
+        const savingProfitEl   = document.getElementById('savingProfit');
+        const savingRateEl     = document.getElementById('savingRate');
+        const savingUpdatedAtEl= document.getElementById('savingUpdatedAt');
+
+        const inputSavingDeposit = document.getElementById('inputSavingDeposit');
+        const btnSavingDeposit   = document.getElementById('btnSavingDeposit');
+        const btnSavingWithdraw  = document.getElementById('btnSavingWithdraw');
+        
+        const packagesListEl      = document.getElementById('packagesList');
+        const userInvestmentsListEl = document.getElementById('userInvestmentsList');
+        
+        const btnLogout      = document.getElementById('btnLogout');
+        const toastEl        = document.getElementById('toast');
+
+        // ====== STATE ======
+        let currentUser = null;
+        let currentUserData = null;
+        let userInvestments = []; 
+
+        // ====== UTIL ======
+        function showToast(message, isSuccess = true) {
+            toastEl.textContent = message;
+            toastEl.style.backgroundColor = isSuccess ? "rgba(34, 197, 94, 0.9)" : "rgba(239, 68, 68, 0.9)";
+            toastEl.className = "show";
+            setTimeout(function(){ toastEl.className = toastEl.className.replace("show", ""); }, 3000);
+        }
+
+        function formatVND(n) {
+            return Number(n || 0).toLocaleString('vi-VN');
+        }
+
+        function formatTimeFromMs(ms) {
+            if (!ms) return "--";
+            const d = new Date(ms);
+            return d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0') + ' ' + d.getDate() + '/' + (d.getMonth()+1);
+        }
+
+        function formatDuration(ms) {
+            if (ms <= 0) return "Hoàn thành";
+            const totalSec = Math.floor(ms / 1000);
+            const d = Math.floor(totalSec / (24*3600));
+            const h = Math.floor((totalSec % (24*3600)) / 3600);
+            const m = Math.floor((totalSec % 3600) / 60);
+            if (d > 0) return `${d} ngày ${h} giờ`;
+            if (h > 0) return `${h} giờ ${m} phút`;
+            return `${m} phút`;
+        }
+
+        // ====== LOGIC ======
+        async function applySavingInterest() {
+            if (!currentUser || !currentUserData) return;
+            let saving = currentUserData.saving || {};
+            const nowMs = Date.now();
+
+            if (!saving.lastUpdateMs) {
+                saving.lastUpdateMs = nowMs;
+            } else {
+                const deltaSeconds = Math.max(0, (nowMs - saving.lastUpdateMs) / 1000);
+                const principal = Number(saving.amount || 0);
+                const rateYear = Number(saving.ratePerYear || 0.01); 
+
+                if (principal > 0 && deltaSeconds > 0) {
+                    const interest = principal * rateYear * (deltaSeconds / SECONDS_PER_YEAR);
+                    saving.profit = Number(saving.profit || 0) + interest;
+                }
+                saving.lastUpdateMs = nowMs;
+            }
+
+            const userRef = doc(db, "users", currentUser.uid);
+            // Dùng updateDoc ở đây an toàn vì logic Auth đã đảm bảo doc tồn tại
+            await updateDoc(userRef, { saving });
+            currentUserData.saving = saving;
+            renderSavingUI();
+        }
+
+        function renderSavingUI() {
+            const d = currentUserData || {};
+            const saving = d.saving || {};
+            savingAmountEl.textContent = formatVND(saving.amount || 0) + " đ";
+            savingProfitEl.textContent = formatVND(saving.profit || 0) + " đ";
+            const rateYear = Number(saving.ratePerYear || 0.01);
+            savingRateEl.textContent = (rateYear * 100).toFixed(2) + "%/năm";
+            savingUpdatedAtEl.textContent = formatTimeFromMs(saving.lastUpdateMs);
+        }
+
+        function renderUserHeader() {
+            const d = currentUserData || {};
+            // Tinh gọn logic lấy tên
+            const name = d.displayName || d.name || "Thành viên";
+            usernameEl.textContent = name;
+            userAvatar.textContent = name.charAt(0).toUpperCase();
+            emailEl.textContent    = d.email || currentUser.email || "";
+            balanceEl.textContent  = formatVND(d.balance || 0);
+
+            if (d.isAdmin) {
+                roleBadge.textContent = "Quản trị viên";
+                roleBadge.style.background = "#16a34a";
+                roleBadge.style.color = "white";
+            }
+        }
+
+        // ====== RENDER GÓI ĐẦU TƯ ======
+        function renderPackages() {
+            packagesListEl.innerHTML = "";
+            PACKAGES.forEach(pkg => {
+                const div = document.createElement('div');
+                div.className = "package-item";
+                div.innerHTML = `
+                    <div class="package-header">
+                        <i class="fa-solid ${pkg.icon || 'fa-box'}" style="color: #6366f1; font-size: 24px;"></i>
+                        <span class="badge bg-running">${formatDuration(pkg.durationMs)}</span>
+                    </div>
+                    <h4 style="margin-bottom: 5px;">${pkg.name}</h4>
+                    <p class="pkg-price">${formatVND(pkg.investAmount)} đ</p>
+                    <p class="pkg-profit"><i class="fa-solid fa-arrow-trend-up"></i> Nhận: ${formatVND(pkg.payoutAmount)} đ</p>
+                    <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;">
+                    <p class="pkg-details">${pkg.description}</p>
+                    <button class="btn btn-primary btn-block" id="btn-buy-${pkg.id}">Mua Ngay</button>
+                `;
+                
+                div.querySelector(`#btn-buy-${pkg.id}`).addEventListener('click', () => buyPackage(pkg));
+                packagesListEl.appendChild(div);
+            });
+        }
+
+        function renderUserInvestments() {
+            userInvestmentsListEl.innerHTML = "";
+            if (!userInvestments.length) {
+                userInvestmentsListEl.innerHTML = `<p class="text-center small" style="color:var(--text-muted); padding: 20px;">Bạn chưa tham gia gói đầu tư nào.</p>`;
+                return;
+            }
+
+            const now = Date.now();
+            userInvestments.sort((a,b) => (a.status === 'claimed' ? 1 : -1));
+
+            userInvestments.forEach(inv => {
+                const div = document.createElement('div');
+                div.className = "investment-item";
+
+                const remainingMs = (inv.finishAtMs || 0) - now;
+                let statusBadge = "";
+                let actionBtn = "";
+
+                if (inv.status === "claimed") {
+                    statusBadge = `<span class="badge bg-done">Đã nhận tiền</span>`;
+                    div.style.opacity = "0.6";
+                    div.style.borderLeftColor = "#94a3b8";
+                } else {
+                    if (remainingMs > 0) {
+                        statusBadge = `<span class="badge bg-running"><i class="fa-solid fa-spinner fa-spin"></i> Còn ${formatDuration(remainingMs)}</span>`;
+                    } else {
+                        statusBadge = `<span class="badge bg-success">Hoàn thành</span>`;
+                        actionBtn = `<button class="btn-claim" id="btn-claim-${inv.id}">Nhận ${formatVND(inv.payoutAmount)}</button>`;
+                    }
+                }
+
+                div.innerHTML = `
+                    <div class="inv-info">
+                        <h5>${inv.packageName}</h5>
+                        <p>Đầu tư: ${formatVND(inv.investAmount)} đ • Hạn: ${formatTimeFromMs(inv.finishAtMs)}</p>
+                        <div style="margin-top:5px;">${statusBadge}</div>
+                    </div>
+                    <div>${actionBtn}</div>
+                `;
+
+                if(actionBtn) {
+                     div.querySelector(`#btn-claim-${inv.id}`).addEventListener('click', () => claimInvestment(inv));
+                }
+
+                userInvestmentsListEl.appendChild(div);
+            });
+        }
+
+        // ====== ACTIONS ======
+        async function loadUserInvestments() {
+            if (!currentUser) return;
+            const q = query(collection(db, "investments"), where("userId", "==", currentUser.uid));
+            const snap = await getDocs(q);
+            userInvestments = [];
+            snap.forEach(docSnap => {
+                userInvestments.push({ id: docSnap.id, ...docSnap.data() });
+            });
+            renderUserInvestments();
+        }
+
+        async function buyPackage(pkg) {
+            if (!currentUser || !currentUserData) return;
+            const balance = Number(currentUserData.balance || 0);
+            
+            if (balance < pkg.investAmount) {
+                showToast("Số dư không đủ để mua gói này!", false);
+                return;
+            }
+            
+            const newBalance = balance - pkg.investAmount;
+            const nowMs = Date.now();
+            const finishAtMs = nowMs + pkg.durationMs;
+            
+            try {
+                await updateDoc(doc(db, "users", currentUser.uid), { balance: newBalance });
+                
+                await addDoc(collection(db, "investments"), {
+                    userId: currentUser.uid,
+                    packageId: pkg.id,
+                    packageName: pkg.name,
+                    investAmount: pkg.investAmount,
+                    payoutAmount: pkg.payoutAmount,
+                    durationMs: pkg.durationMs,
+                    startAtMs: nowMs,
+                    finishAtMs: finishAtMs,
+                    status: "running"
+                });
+
+                currentUserData.balance = newBalance;
+                balanceEl.textContent = formatVND(newBalance);
+                await loadUserInvestments();
+                showToast("Mua gói thành công!", true);
+            } catch (err) {
+                console.error(err);
+                showToast("Lỗi: " + err.message, false);
+            }
+        }
+
+        async function claimInvestment(inv) {
+            // FIX: Thêm check defensive programming
+            const now = Date.now();
+            if (now < (inv.finishAtMs || 0)) {
+                showToast("Cảnh báo: Gói này chưa đủ thời gian để nhận!", false);
+                return;
+            }
+            if (inv.status === "claimed") {
+                showToast("Gói này đã được nhận rồi.", false);
+                return;
+            }
+
+            try {
+                const balance = Number(currentUserData.balance || 0);
+                const newBalance = balance + Number(inv.payoutAmount || 0);
+
+                await updateDoc(doc(db, "users", currentUser.uid), { balance: newBalance });
+                await updateDoc(doc(db, "investments", inv.id), { 
+                    status: "claimed", 
+                    claimedAtMs: Date.now() 
+                });
+
+                currentUserData.balance = newBalance;
+                balanceEl.textContent = formatVND(newBalance);
+                
+                const index = userInvestments.findIndex(x => x.id === inv.id);
+                if (index >= 0) userInvestments[index].status = "claimed";
+                
+                renderUserInvestments();
+                showToast(`Đã nhận ${formatVND(inv.payoutAmount)} đ`, true);
+            } catch (err) {
+                console.error(err);
+                showToast("Lỗi: " + err.message, false);
+            }
+        }
+
+        // ====== AUTH LISTENER (ĐÃ SỬA) ======
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "index.html";
+                return;
+            }
+            currentUser = user;
+            
+            const userRef = doc(db, "users", user.uid);
+            const snap = await getDoc(userRef);
+            let data;
+
+            // FIX: Dùng setDoc nếu document chưa tồn tại
+            if (!snap.exists()) {
+                console.log("User doc chưa có, tạo mới...");
+                data = {
+                    email: user.email || "",
+                    name: user.displayName || "Thành viên", // Dùng name đồng bộ
+                    balance: 0,
+                    isAdmin: false,
+                    createdAt: serverTimestamp(),
+                    saving: {
+                        amount: 0,
+                        profit: 0,
+                        ratePerYear: 0.01,
+                        lastUpdateMs: Date.now()
+                    }
+                };
+                await setDoc(userRef, data);
+            } else {
+                data = snap.data();
+                // Patch nếu thiếu saving (user cũ)
+                if (!data.saving) {
+                    data.saving = {
+                        amount: 0,
+                        profit: 0,
+                        ratePerYear: 0.01,
+                        lastUpdateMs: Date.now()
+                    };
+                    await updateDoc(userRef, { saving: data.saving });
+                }
+            }
+
+            currentUserData = data;
+            await applySavingInterest();
+            renderUserHeader();
+            renderSavingUI();
+            renderPackages();
+            await loadUserInvestments();
+        });
+
+        // ====== UI EVENTS ======
+        btnSavingDeposit.addEventListener('click', async () => {
+            const amount = Number(inputSavingDeposit.value);
+            if (!amount || amount < 1000) return showToast("Số tiền tối thiểu 1.000đ", false);
+            if (amount > (currentUserData.balance || 0)) return showToast("Số dư không đủ", false);
+
+            await applySavingInterest(); 
+            
+            const newBalance = (currentUserData.balance || 0) - amount;
+            const newSaving = (currentUserData.saving.amount || 0) + amount;
+            
+            currentUserData.saving.amount = newSaving;
+            currentUserData.saving.lastUpdateMs = Date.now();
+            currentUserData.balance = newBalance;
+
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                balance: newBalance,
+                saving: currentUserData.saving
+            });
+
+            balanceEl.textContent = formatVND(newBalance);
+            renderSavingUI();
+            inputSavingDeposit.value = "";
+            showToast("Gửi tiền vào hũ thành công!");
+        });
+
+        btnSavingWithdraw.addEventListener('click', async () => {
+            await applySavingInterest();
+            const total = (currentUserData.saving.amount || 0) + (currentUserData.saving.profit || 0);
+            if(total <= 0) return showToast("Hũ rỗng, không có gì để rút", false);
+
+            const newBalance = (currentUserData.balance || 0) + total;
+            currentUserData.saving.amount = 0;
+            currentUserData.saving.profit = 0;
+            currentUserData.saving.lastUpdateMs = Date.now();
+            currentUserData.balance = newBalance;
+
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                balance: newBalance,
+                saving: currentUserData.saving
+            });
+            
+            balanceEl.textContent = formatVND(newBalance);
+            renderSavingUI();
+            showToast("Rút tiền về ví thành công!");
+        });
+
+        btnLogout.addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = "index.html";
+        });
+
+    </script>
+</body>
+</html>
+
+
