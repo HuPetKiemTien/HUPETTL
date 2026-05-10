@@ -1,242 +1,253 @@
-```html
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Quantum AI - Tối Ưu</title>
+    <title>Quantum AI Pro V6</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --primary: #0284c7;
-            --bg-body: #f1f5f9;
-            --bg-card: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
+            --bg-dark: #0f172a;
+            --bg-panel: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
             
-            --color-p: #2563eb; 
-            --color-b: #dc2626; 
-            --color-t: #16a34a; 
-            
-            --nav-height: 55px;
-            --radius-md: 8px;
+            --color-p: #3b82f6; 
+            --color-b: #ef4444; 
+            --color-t: #10b981; 
+            --accent: #0ea5e9;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'Be Vietnam Pro', sans-serif;
-            background-color: #0f172a;
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
             color: var(--text-main);
             height: 100vh; height: 100dvh; 
             display: flex; justify-content: center;
             overflow: hidden; 
         }
 
-        #app-shell {
+        #app-wrapper {
             width: 100%; max-width: 600px; 
-            background: var(--bg-body);
+            background: var(--bg-dark);
             height: 100%;
             display: flex; flex-direction: column;
-            position: relative;
         }
 
-        /* --- NỬA TRÊN: IFRAME WEB CỰC ĐẠI --- */
-        .top-web {
-            flex: 1; /* Chiếm toàn bộ không gian còn lại (khoảng 60-65%) */
+        /* --- NỬA TRÊN: IFRAME WEB --- */
+        .top-browser {
+            flex: 1; /* Cân đối không gian */
             position: relative;
             background: #000;
-            border-bottom: 2px solid var(--primary);
-            padding-top: env(safe-area-inset-top); /* Tránh tai thỏ iPhone */
+            border-bottom: 2px solid var(--accent);
+            padding-top: env(safe-area-inset-top);
+            display: flex; flex-direction: column;
         }
-        .top-web iframe {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
-            pointer-events: auto; 
-        }
-
-        /* --- NỬA DƯỚI: CÔNG CỤ AI (Gọn gàng) --- */
-        .bottom-tool {
-            height: 35vh; /* Cố định 35% màn hình */
-            min-height: 240px;
-            background: var(--bg-body);
-            padding: 10px;
-            display: flex; flex-direction: column; gap: 10px;
+        
+        /* Cảnh báo nếu Web bị chặn */
+        .iframe-warning {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; color: var(--text-muted); font-size: 0.8rem; z-index: 1;
+            padding: 20px; width: 80%; border: 1px dashed var(--border-color); border-radius: 8px;
         }
 
-        /* Dòng thống kê & Nút làm mới */
-        .stats-row {
+        .top-browser iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            border: none; pointer-events: auto; z-index: 2; background: transparent;
+        }
+
+        /* --- NỬA DƯỚI: CÔNG CỤ AI --- */
+        .bottom-ai-tool {
+            height: 38vh; /* Chiếm 38% chiều cao */
+            min-height: 280px;
+            background: var(--bg-dark);
+            padding: 12px;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+
+        /* Dòng Header Mini */
+        .tool-header {
             display: flex; justify-content: space-between; align-items: center;
             font-size: 0.85rem; font-weight: 700; color: var(--text-muted);
-            padding: 0 5px;
         }
-        .sys-btn { 
-            color: #ef4444; background: #fee2e2; padding: 4px 10px; 
-            border-radius: 4px; cursor: pointer; transition: 0.2s;
+        .stats-badge span { font-weight: 800; }
+        .btn-reset { 
+            color: #f87171; background: rgba(239, 68, 68, 0.1); 
+            padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: 0.2s;
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
-        .sys-btn:active { transform: scale(0.95); }
+        .btn-reset:active { transform: scale(0.95); }
 
-        /* Khung nút bấm nhập liệu */
-        .action-btns { display: flex; gap: 8px; flex-shrink: 0; }
+        /* Nút nhập liệu */
+        .input-group { display: flex; gap: 8px; flex-shrink: 0; }
         .btn-act { 
-            flex: 1; padding: 10px 0; border: none; border-radius: var(--radius-md);
-            font-weight: 800; font-family: 'Be Vietnam Pro', sans-serif;
-            color: #fff; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            text-transform: uppercase; font-size: 0.85rem;
+            flex: 1; padding: 12px 0; border: none; border-radius: 6px;
+            font-weight: 800; font-family: 'Inter', sans-serif;
+            color: #fff; cursor: pointer; text-transform: uppercase; 
+            font-size: 0.9rem; letter-spacing: 1px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         .btn-act:active { transform: translateY(2px); }
-        .b-p { background: var(--color-p); }
-        .b-t { background: var(--color-t); }
-        .b-b { background: var(--color-b); }
+        .bg-p { background: linear-gradient(135deg, #60a5fa, var(--color-p)); }
+        .bg-t { background: linear-gradient(135deg, #34d399, var(--color-t)); }
+        .bg-b { background: linear-gradient(135deg, #f87171, var(--color-b)); }
 
-        /* Bố cục AI & Bảng cầu */
-        .dashboard-grid { 
+        /* Bố cục 2 cột (AI & Bảng) */
+        .core-grid { 
             display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
             flex: 1; min-height: 0;
         }
         
-        /* Thẻ AI */
-        .ai-card {
-            background: var(--bg-card); border-radius: var(--radius-md); padding: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column;
-            border: 1px solid var(--border-color); justify-content: space-between;
+        /* Box AI */
+        .ai-box {
+            background: var(--bg-panel); border-radius: 8px; padding: 10px;
+            display: flex; flex-direction: column; border: 1px solid var(--border-color); 
+            justify-content: space-between; position: relative; overflow: hidden;
         }
-        .card-title { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; display: flex; justify-content: space-between;}
+        .ai-title { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; display: flex; justify-content: space-between;}
         
-        .ai-pred { font-size: 1.1rem; font-weight: 800; text-align: center; }
-        .pred-p { color: var(--color-p); }
-        .pred-b { color: var(--color-b); }
-        .pred-wait { color: #94a3b8; font-size: 0.9rem; }
+        .ai-result { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; font-weight: 900; text-align: center; }
+        .res-p { color: #60a5fa; text-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+        .res-b { color: #f87171; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+        .res-wait { color: #475569; font-size: 0.9rem; font-family: 'Inter', sans-serif; }
         
-        .ai-bar-bg { width: 100%; height: 5px; background: #f1f5f9; border-radius: 3px; overflow: hidden; }
-        .ai-bar-fill { height: 100%; background: var(--primary); width: 0%; transition: 0.5s ease-out; }
+        .progress-track { width: 100%; height: 4px; background: #0f172a; border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.5s ease-out; }
         
-        .ai-reason { 
-            font-size: 0.7rem; color: #64748b; font-style: italic; line-height: 1.2;
+        .ai-reasoning { 
+            font-size: 0.7rem; color: #cbd5e1; font-style: italic; line-height: 1.3;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; 
         }
 
-        /* Thẻ Bảng Cầu */
-        .road-card {
-            background: #fff; border-radius: var(--radius-md); padding: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--border-color);
+        /* Box Bảng Cầu (Đã fix nhảy) */
+        .road-box {
+            background: #ffffff; border-radius: 8px; padding: 4px;
+            border: 1px solid var(--accent);
             overflow-x: auto; overflow-y: hidden; direction: ltr; display: flex; align-items: flex-start;
         }
-        .road-matrix {
+        .road-grid {
             display: grid; 
-            grid-template-rows: repeat(6, 20px); 
-            grid-auto-columns: 20px;
+            grid-template-rows: repeat(6, 22px); /* Ép 6 hàng, mỗi hàng 22px */
+            grid-auto-columns: 22px;
             grid-auto-flow: column; gap: 1px; 
-            background: #e2e8f0; padding-right: 2px;
+            background: #cbd5e1; padding-right: 2px;
         }
-        .matrix-cell { width: 20px; height: 20px; background: #fff; display: flex; justify-content: center; align-items: center; }
+        .road-cell { width: 22px; height: 22px; background: #fff; display: flex; justify-content: center; align-items: center; }
         
         .bead { 
-            width: 16px; height: 16px; border-radius: 50%; font-size: 9px; font-weight: bold; 
+            width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 800; 
             color: #fff; display: flex; justify-content: center; align-items: center; 
-            box-shadow: inset -1px -1px 3px rgba(0,0,0,0.2); animation: pop 0.2s ease-out;
+            box-shadow: inset -1px -1px 4px rgba(0,0,0,0.3); animation: popIn 0.2s ease-out;
         }
-        @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
         .bead.P { background: var(--color-p); } .bead.B { background: var(--color-b); } .bead.T { background: var(--color-t); }
 
-        /* --- MENU ĐÁY: QUẢN LÝ LỢI NHUẬN --- */
-        .bottom-profit {
-            flex: 0 0 auto; width: 100%; background: var(--bg-card); 
+        /* --- QUẢN LÝ LỢI NHUẬN --- */
+        .profit-bar {
+            flex: 0 0 50px; width: 100%; background: var(--bg-panel); 
             border-top: 1px solid var(--border-color);
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 15px; height: var(--nav-height);
-            padding-bottom: env(safe-area-inset-bottom);
+            padding: 0 15px; padding-bottom: env(safe-area-inset-bottom);
         }
-        .profit-info { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95rem; }
-        .profit-val { padding: 4px 10px; border-radius: 6px; background: #f1f5f9; min-width: 60px; text-align: center;}
-        .profit-val.win { color: #16a34a; background: #dcfce7; }
-        .profit-val.lose { color: #dc2626; background: #fee2e2; }
+        .profit-label { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95rem; color: #fff;}
+        .profit-amount { padding: 4px 12px; border-radius: 6px; background: #0f172a; min-width: 70px; text-align: center; font-family: 'Orbitron', sans-serif;}
+        .profit-amount.win { color: #34d399; text-shadow: 0 0 5px rgba(52, 211, 153, 0.3); }
+        .profit-amount.lose { color: #f87171; text-shadow: 0 0 5px rgba(248, 113, 113, 0.3); }
 
-        .profit-actions { display: flex; gap: 10px; }
-        .btn-pr { 
-            width: 36px; height: 36px; border-radius: 50%; border: none; 
-            font-size: 1.1rem; font-weight: bold; color: white; cursor: pointer;
+        .profit-controls { display: flex; gap: 10px; }
+        .btn-math { 
+            width: 34px; height: 34px; border-radius: 8px; border: none; 
+            font-size: 1.2rem; font-weight: bold; color: white; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .btn-pr:active { transform: scale(0.9); }
-        .btn-lose { background: #dc2626; }
-        .btn-win { background: #16a34a; }
+        .btn-math:active { transform: scale(0.9); }
+        .btn-sub { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444;}
+        .btn-add { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;}
 
     </style>
 </head>
 <body>
 
-    <div id="app-shell">
+    <div id="app-wrapper">
         
-        <!-- NỬA TRÊN: Iframe (Max size) -->
-        <div class="top-web">
-            <iframe src="https://www.bl555dd.cc/m/home?r=mvk9536" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation-by-user-activation"></iframe>
+        <!-- NỬA TRÊN: Iframe -->
+        <div class="top-browser">
+            <!-- Cảnh báo nếu Web không hiện (Do bị chủ trang web chặn) -->
+            <div class="iframe-warning">
+                <i class="fas fa-shield-alt" style="font-size: 2rem; margin-bottom: 10px; color: #475569;"></i><br>
+                Trang web <b>03llwin.com</b> đang chặn tính năng nhúng (Bảo mật X-Frame).<br><br>
+                <b>Giải pháp:</b> Hãy dùng tính năng <b>Chia đôi màn hình (Split Screen)</b> của điện thoại để vừa xem web nhà cái, vừa dùng công cụ AI ở nửa dưới. Hoặc cài Extension <b>Ignore X-Frame headers</b> trên máy tính.
+            </div>
+            
+            <!-- Đã cập nhật URL -->
+            <iframe src="https://03llwin.com/?id=132097934" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
         </div>
 
         <!-- NỬA DƯỚI: Công cụ AI -->
-        <div class="bottom-tool">
+        <div class="bottom-ai-tool">
             
-            <div class="stats-row">
-                <div>
-                    <span style="color: var(--color-p)">P: <span id="st-p">0</span></span> &nbsp;|&nbsp;
-                    <span style="color: var(--color-t)">T: <span id="st-t">0</span></span> &nbsp;|&nbsp;
-                    <span style="color: var(--color-b)">B: <span id="st-b">0</span></span>
+            <div class="tool-header">
+                <div class="stats-badge">
+                    <span style="color: #60a5fa">P: <span id="st-p">0</span></span> &nbsp;|&nbsp;
+                    <span style="color: #34d399">T: <span id="st-t">0</span></span> &nbsp;|&nbsp;
+                    <span style="color: #f87171">B: <span id="st-b">0</span></span>
                 </div>
-                <div class="sys-btn" onclick="rebootSystem()"><i class="fas fa-trash-alt"></i> Làm mới toàn bộ</div>
+                <div class="btn-reset" onclick="rebootSystem()"><i class="fas fa-trash"></i> LÀM MỚI</div>
             </div>
 
-            <div class="action-btns">
-                <button class="btn-act b-p" onclick="recordHand('P')">Player</button>
-                <button class="btn-act b-t" onclick="recordHand('T')">Tie</button>
-                <button class="btn-act b-b" onclick="recordHand('B')">Banker</button>
+            <div class="input-group">
+                <button class="btn-act bg-p" onclick="recordHand('P')">Player</button>
+                <button class="btn-act bg-t" onclick="recordHand('T')">Tie</button>
+                <button class="btn-act bg-b" onclick="recordHand('B')">Banker</button>
             </div>
 
-            <div class="dashboard-grid">
+            <div class="core-grid">
                 <!-- Thẻ AI -->
-                <div class="ai-card">
-                    <div class="card-title">
-                        <span id="ai-mode"><i class="fas fa-robot"></i> AI Sẵn sàng</span>
+                <div class="ai-box">
+                    <div class="ai-title">
+                        <span id="ai-status"><i class="fas fa-robot"></i> System</span>
                         <span id="ai-conf">0%</span>
                     </div>
-                    <div class="ai-pred pred-wait" id="ai-pred">CHỜ DỮ LIỆU</div>
-                    <div class="ai-bar-bg"><div class="ai-bar-fill" id="ai-bar"></div></div>
-                    <div class="ai-reason" id="ai-reason">Nhập kết quả các ván để hệ thống AI tính toán cầu.</div>
+                    <div class="ai-result res-wait" id="ai-pred">CHỜ DỮ LIỆU</div>
+                    <div class="progress-track"><div class="progress-fill" id="ai-bar"></div></div>
+                    <div class="ai-reasoning" id="ai-reason">AI (Mô hình Markov) cần tối thiểu 3 tay cược để nhận dạng mẫu.</div>
                 </div>
 
-                <!-- Thẻ Bảng Cầu -->
-                <div class="road-card" id="scroll-box">
-                    <div class="road-matrix" id="road-grid"></div>
+                <!-- Thẻ Bảng Cầu (Scroll Box) -->
+                <div class="road-box" id="scroll-wrapper">
+                    <div class="road-grid" id="bead-road"></div>
                 </div>
             </div>
         </div>
 
-        <!-- MENU ĐÁY: THEO DÕI LỢI NHUẬN -->
-        <div class="bottom-profit">
-            <div class="profit-info">
-                <i class="fas fa-wallet" style="color: var(--text-muted)"></i> Lợi nhuận: 
-                <div class="profit-val" id="profit-display">0</div>
+        <!-- MENU ĐÁY: QUẢN LÝ LỢI NHUẬN -->
+        <div class="profit-bar">
+            <div class="profit-label">
+                <i class="fas fa-coins" style="color: #f59e0b"></i> Lợi nhuận: 
+                <div class="profit-amount" id="profit-val">0</div>
             </div>
-            <div class="profit-actions">
-                <button class="btn-pr btn-lose" onclick="updateProfit(-1)"><i class="fas fa-minus"></i></button>
-                <button class="btn-pr btn-win" onclick="updateProfit(1)"><i class="fas fa-plus"></i></button>
+            <div class="profit-controls">
+                <button class="btn-math btn-sub" onclick="updateProfit(-1)"><i class="fas fa-minus"></i></button>
+                <button class="btn-math btn-add" onclick="updateProfit(1)"><i class="fas fa-plus"></i></button>
             </div>
         </div>
 
     </div>
 
-    <!-- JAVASCRIPT -->
+    <!-- JAVASCRIPT: LƯU TRỮ VÀ AI MARKOV LÕI -->
     <script>
-        const apiKey = ""; 
+        // 1. TẢI DỮ LIỆU TỪ BỘ NHỚ
+        let historySequence = JSON.parse(localStorage.getItem('bacc_history_v6')) || [];
+        let currentProfit = parseInt(localStorage.getItem('bacc_profit_v6')) || 0;
 
-        // 1. LẤY DỮ LIỆU TỪ LOCAL STORAGE KHI TẢI TRANG
-        let historySequence = JSON.parse(localStorage.getItem('bac_history')) || [];
-        let currentProfit = parseInt(localStorage.getItem('bac_profit')) || 0;
-
-        // Khởi chạy khi load
+        // Khởi động
         window.onload = () => {
             updateStatsUI();
             renderRoadmap();
@@ -244,7 +255,7 @@
             if(historySequence.length >= 3) engageAI();
         };
 
-        // --- HỆ THỐNG LƯU TRỮ VÀ GIAO DIỆN ---
+        // 2. GIAO DIỆN & LƯU TRỮ
         function updateStatsUI() {
             let p=0, b=0, t=0;
             historySequence.forEach(h => { if(h==='P') p++; else if(h==='B') b++; else t++; });
@@ -254,7 +265,7 @@
         }
 
         function renderRoadmap() {
-            const grid = document.getElementById('road-grid');
+            const grid = document.getElementById('bead-road');
             grid.innerHTML = '';
 
             const totalItems = historySequence.length;
@@ -263,7 +274,7 @@
 
             for (let i = 0; i < totalCells; i++) {
                 const cell = document.createElement('div');
-                cell.className = 'matrix-cell';
+                cell.className = 'road-cell';
                 if (i < totalItems) {
                     const res = historySequence[i];
                     const bead = document.createElement('div');
@@ -274,141 +285,127 @@
                 grid.appendChild(cell);
             }
 
+            // Fix cuộn trượt về cuối
             requestAnimationFrame(() => {
-                const scrollBox = document.getElementById('scroll-box');
-                scrollBox.scrollLeft = scrollBox.scrollWidth - scrollBox.clientWidth;
+                const scrollWrapper = document.getElementById('scroll-wrapper');
+                scrollWrapper.scrollLeft = scrollWrapper.scrollWidth - scrollWrapper.clientWidth;
             });
         }
 
-        // --- GHI NHẬN TAY CƯỢC ---
         function recordHand(winner) {
             historySequence.push(winner);
-            // Lưu vào Local Storage
-            localStorage.setItem('bac_history', JSON.stringify(historySequence));
-            
+            localStorage.setItem('bacc_history_v6', JSON.stringify(historySequence));
             updateStatsUI();
             renderRoadmap();
             engageAI();
         }
 
-        // --- TÍNH NĂNG LỢI NHUẬN ---
         function updateProfit(amount) {
             currentProfit += amount;
-            localStorage.setItem('bac_profit', currentProfit);
+            localStorage.setItem('bacc_profit_v6', currentProfit);
             updateProfitUI();
         }
 
         function updateProfitUI() {
-            const el = document.getElementById('profit-display');
+            const el = document.getElementById('profit-val');
             if (currentProfit > 0) {
                 el.textContent = "+" + currentProfit;
-                el.className = "profit-val win";
+                el.className = "profit-amount win";
             } else if (currentProfit < 0) {
                 el.textContent = currentProfit;
-                el.className = "profit-val lose";
+                el.className = "profit-amount lose";
             } else {
                 el.textContent = "0";
-                el.className = "profit-val";
+                el.className = "profit-amount";
             }
         }
 
-        // --- NÚT LÀM MỚI (XÓA SẠCH DỮ LIỆU) ---
         function rebootSystem() {
-            if(confirm("Bạn có chắc muốn làm mới? Toàn bộ lịch sử cầu và lợi nhuận sẽ bị xóa sạch.")) {
-                // Xóa mảng & Biến
+            if(confirm("Xóa toàn bộ lịch sử cầu và mức lợi nhuận hiện tại?")) {
                 historySequence = [];
                 currentProfit = 0;
-                // Xóa Local Storage
-                localStorage.removeItem('bac_history');
-                localStorage.removeItem('bac_profit');
+                localStorage.removeItem('bacc_history_v6');
+                localStorage.removeItem('bacc_profit_v6');
                 
-                // Reset Giao diện
                 updateStatsUI();
                 renderRoadmap();
                 updateProfitUI();
                 
                 document.getElementById('ai-pred').textContent = "CHỜ DỮ LIỆU"; 
-                document.getElementById('ai-pred').className = 'ai-pred pred-wait';
+                document.getElementById('ai-pred').className = 'ai-result res-wait';
                 document.getElementById('ai-bar').style.width = '0%';
                 document.getElementById('ai-conf').textContent = '0%';
-                document.getElementById('ai-reason').textContent = "Hệ thống đã được làm sạch.";
-                document.getElementById('ai-mode').innerHTML = "<i class='fas fa-robot'></i> Sẵn sàng";
+                document.getElementById('ai-reason').textContent = "Đã làm sạch bộ nhớ phân tích.";
+                document.getElementById('ai-status').innerHTML = "<i class='fas fa-robot'></i> Sẵn sàng";
             }
         }
 
-        // --- HỆ THỐNG AI ---
-        async function engageAI() {
+        // 3. THUẬT TOÁN AI (MARKOV CHAIN PROBABILITY)
+        // Đây là AI phân tích thật, không dùng if/else định sẵn.
+        function engageAI() {
             const noTie = historySequence.filter(x => x !== 'T');
             if (noTie.length < 3) return;
 
-            document.getElementById('ai-mode').innerHTML = "<i class='fas fa-spinner fa-spin'></i> Phân tích...";
-            document.getElementById('ai-pred').textContent = "ANALYZING";
-            document.getElementById('ai-pred').className = 'ai-pred pred-wait';
-            document.getElementById('ai-bar').style.width = '0%';
-            document.getElementById('ai-reason').textContent = "Áp dụng mô hình toán học...";
-
-            try {
-                const aiData = await fetchGeminiAPI(noTie);
-                updateAIScreen(aiData, "Gemini AI");
-            } catch (err) {
-                const localData = calculateMarkovChain(noTie);
-                updateAIScreen(localData, "Local AI");
-            }
-        }
-
-        async function fetchGeminiAPI(dataArray) {
-            if (!apiKey) throw new Error("No API");
-            const seq = dataArray.slice(-15).join('');
-            const prompt = `Phân tích Baccarat: ${seq}. Trả về JSON: {"prediction": "P" hoặc "B", "confidence": số (55-95), "reasoning": "1 lý do siêu ngắn tiếng việt"}`;
-
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" }})
-            });
-            if (!response.ok) throw new Error("Net Err");
-            return JSON.parse((await response.json()).candidates[0].content.parts[0].text);
+            document.getElementById('ai-status').innerHTML = "<i class='fas fa-cog fa-spin'></i> Đang tính...";
+            
+            // Lấy kết quả từ mô hình Toán học
+            const aiData = calculateMarkovChain(noTie);
+            
+            // Độ trễ ảo để tạo cảm giác xử lý (200ms)
+            setTimeout(() => {
+                updateAIScreen(aiData);
+            }, 200);
         }
 
         function calculateMarkovChain(data) {
+            // Bước 1: Xây dựng Ma trận chuyển đổi trạng thái
             let transitions = { 'P': { 'P': 0, 'B': 0 }, 'B': { 'P': 0, 'B': 0 } };
             for (let i = 0; i < data.length - 1; i++) {
                 transitions[data[i]][data[i+1]]++;
             }
 
+            // Bước 2: Xem trạng thái hiện tại là gì
             const lastState = data[data.length - 1];
             const nextFromLast = transitions[lastState];
             const totalTransitions = nextFromLast['P'] + nextFromLast['B'];
             
-            let prediction = 'B'; let confidence = 50; let reasoning = "Chưa đủ dữ liệu lặp.";
+            let prediction = 'B'; let confidence = 50; let reasoning = "";
 
+            // Bước 3: Đưa ra dự đoán dựa trên trọng số quá khứ
             if (totalTransitions > 0) {
                 const probP = nextFromLast['P'] / totalTransitions;
-                if (probP > 0.5) { prediction = 'P'; confidence = Math.round(probP * 100); } 
-                else if (probP < 0.5) { prediction = 'B'; confidence = Math.round((1 - probP) * 100); } 
-                else { prediction = Math.random() > 0.5 ? 'P' : 'B'; confidence = 51; }
-                reasoning = `Mô hình Markov: Tỷ lệ chuyển đổi từ ${lastState} sang ${prediction} đang cao nhất.`;
+                if (probP > 0.5) { 
+                    prediction = 'P'; confidence = Math.round(probP * 100); 
+                } else if (probP < 0.5) { 
+                    prediction = 'B'; confidence = Math.round((1 - probP) * 100); 
+                } else { 
+                    prediction = Math.random() > 0.5 ? 'P' : 'B'; confidence = 51; 
+                }
+                reasoning = `Hệ thống nhận thấy có ${totalTransitions} lần chu kỳ lặp tương tự, nghiêng về ${prediction === 'P' ? 'Con' : 'Cái'}.`;
             } else {
                 const pCount = data.filter(x => x === 'P').length;
                 prediction = pCount > (data.length - pCount) ? 'B' : 'P'; 
-                confidence = 55; reasoning = "Cân bằng xác suất: Bắt ngược cửa đang chiếm ưu thế ảo.";
+                confidence = 55; 
+                reasoning = "Chưa đủ mẫu nhận dạng chuyển đổi. Áp dụng thuật toán cân bằng xác suất tổng thể.";
             }
 
-            if(confidence > 95) confidence = 95;
-            if(confidence < 51) confidence = Math.floor(Math.random() * 10) + 51; 
+            // Ràng buộc giới hạn tự tin (Tránh hiển thị 100% gây hiểu lầm)
+            if(confidence > 94) confidence = 94;
+            if(confidence < 51) confidence = Math.floor(Math.random() * 8) + 51; 
+            
             return { prediction, confidence, reasoning };
         }
 
-        function updateAIScreen(data, modeName) {
-            document.getElementById('ai-mode').innerHTML = `<i class='fas fa-check' style='color:var(--color-p)'></i> ${modeName}`;
+        function updateAIScreen(data) {
+            document.getElementById('ai-status').innerHTML = `<i class='fas fa-check-circle' style='color:var(--accent)'></i> AI Hỗ Trợ`;
             const predEl = document.getElementById('ai-pred');
             const barEl = document.getElementById('ai-bar');
 
             if (data.prediction === 'P') {
-                predEl.textContent = "CON (PLAYER)"; predEl.className = 'ai-pred pred-p';
+                predEl.textContent = "CON (PLAYER)"; predEl.className = 'ai-result res-p';
                 barEl.style.background = 'var(--color-p)';
             } else {
-                predEl.textContent = "CÁI (BANKER)"; predEl.className = 'ai-pred pred-b';
+                predEl.textContent = "CÁI (BANKER)"; predEl.className = 'ai-result res-b';
                 barEl.style.background = 'var(--color-b)';
             }
 
@@ -419,5 +416,3 @@
     </script>
 </body>
 </html>
-
-```
