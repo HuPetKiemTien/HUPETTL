@@ -4,415 +4,405 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Quantum AI Pro V6</title>
+    <title>Quantum AI V12.5 (Compact Trinity)</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --bg-panel: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            
-            --color-p: #3b82f6; 
-            --color-b: #ef4444; 
-            --color-t: #10b981; 
-            --accent: #0ea5e9;
+            --bg-dark: #09090b; --bg-panel: #18181b; --text-main: #f8fafc; --text-muted: #a1a1aa; --border-color: #27272a;
+            --color-p: #3b82f6; --color-b: #ef4444; --color-t: #10b981; --color-w: #f59e0b;
+            --accent: #8b5cf6;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #020617;
-            color: var(--text-main);
-            height: 100vh; height: 100dvh; 
-            display: flex; justify-content: center;
-            overflow: hidden; 
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #000; color: var(--text-main); height: 100vh; height: 100dvh; display: flex; justify-content: center; overflow: hidden; }
+        #app-wrapper { width: 100%; max-width: 600px; background: var(--bg-dark); height: 100%; display: flex; flex-direction: column; }
 
-        #app-wrapper {
-            width: 100%; max-width: 600px; 
-            background: var(--bg-dark);
-            height: 100%;
-            display: flex; flex-direction: column;
-        }
+        /* --- IFRAME WEB (ĐƯỢC MỞ RỘNG TỐI ĐA) --- */
+        .top-browser { flex: 1; position: relative; background: #000; border-bottom: 2px solid var(--accent); padding-top: env(safe-area-inset-top); display: flex; flex-direction: column; z-index: 1;}
+        .iframe-warning { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: var(--text-muted); font-size: 0.8rem; z-index: 1; padding: 20px; width: 80%; border: 1px dashed var(--border-color); border-radius: 8px; }
+        .top-browser iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; pointer-events: auto; z-index: 2; background: transparent; }
 
-        /* --- NỬA TRÊN: IFRAME WEB --- */
-        .top-browser {
-            flex: 1; /* Cân đối không gian */
-            position: relative;
-            background: #000;
-            border-bottom: 2px solid var(--accent);
-            padding-top: env(safe-area-inset-top);
-            display: flex; flex-direction: column;
-        }
+        /* --- CÔNG CỤ AI (THU GỌN VÀ SẮP XẾP LẠI) --- */
+        .bottom-panel { padding: 8px 10px; padding-bottom: calc(8px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 8px; background: var(--bg-dark); z-index: 10; flex-shrink: 0; }
+
+        /* 1. Header Mini */
+        .tool-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
+        .stats-badge span { color: #fff; font-family: 'JetBrains Mono', monospace; }
+        .btn-reset { color: #f87171; cursor: pointer; display: flex; align-items: center; gap: 4px; border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 6px; border-radius: 4px; background: rgba(239, 68, 68, 0.1);}
+
+        /* 2. Lưới Phân Tích (AI trái, Data phải) */
+        .core-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px; }
         
-        /* Cảnh báo nếu Web bị chặn */
-        .iframe-warning {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            text-align: center; color: var(--text-muted); font-size: 0.8rem; z-index: 1;
-            padding: 20px; width: 80%; border: 1px dashed var(--border-color); border-radius: 8px;
-        }
-
-        .top-browser iframe {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            border: none; pointer-events: auto; z-index: 2; background: transparent;
-        }
-
-        /* --- NỬA DƯỚI: CÔNG CỤ AI --- */
-        .bottom-ai-tool {
-            height: 38vh; /* Chiếm 38% chiều cao */
-            min-height: 280px;
-            background: var(--bg-dark);
-            padding: 12px;
-            display: flex; flex-direction: column; gap: 12px;
-        }
-
-        /* Dòng Header Mini */
-        .tool-header {
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 0.85rem; font-weight: 700; color: var(--text-muted);
-        }
-        .stats-badge span { font-weight: 800; }
-        .btn-reset { 
-            color: #f87171; background: rgba(239, 68, 68, 0.1); 
-            padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: 0.2s;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-        .btn-reset:active { transform: scale(0.95); }
-
-        /* Nút nhập liệu */
-        .input-group { display: flex; gap: 8px; flex-shrink: 0; }
-        .btn-act { 
-            flex: 1; padding: 12px 0; border: none; border-radius: 6px;
-            font-weight: 800; font-family: 'Inter', sans-serif;
-            color: #fff; cursor: pointer; text-transform: uppercase; 
-            font-size: 0.9rem; letter-spacing: 1px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .btn-act:active { transform: translateY(2px); }
-        .bg-p { background: linear-gradient(135deg, #60a5fa, var(--color-p)); }
-        .bg-t { background: linear-gradient(135deg, #34d399, var(--color-t)); }
-        .bg-b { background: linear-gradient(135deg, #f87171, var(--color-b)); }
-
-        /* Bố cục 2 cột (AI & Bảng) */
-        .core-grid { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
-            flex: 1; min-height: 0;
-        }
+        /* 2.1 Cột Trái: AI Trinity */
+        .ai-box { background: var(--bg-panel); border-radius: 6px; padding: 6px; display: flex; flex-direction: column; border: 1px solid var(--border-color); position: relative; overflow: hidden; justify-content: space-between;}
         
-        /* Box AI */
-        .ai-box {
-            background: var(--bg-panel); border-radius: 8px; padding: 10px;
-            display: flex; flex-direction: column; border: 1px solid var(--border-color); 
-            justify-content: space-between; position: relative; overflow: hidden;
-        }
-        .ai-title { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; display: flex; justify-content: space-between;}
-        
-        .ai-result { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; font-weight: 900; text-align: center; }
-        .res-p { color: #60a5fa; text-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
-        .res-b { color: #f87171; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
-        .res-wait { color: #475569; font-size: 0.9rem; font-family: 'Inter', sans-serif; }
-        
-        .progress-track { width: 100%; height: 4px; background: #0f172a; border-radius: 2px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.5s ease-out; }
-        
-        .ai-reasoning { 
-            font-size: 0.7rem; color: #cbd5e1; font-style: italic; line-height: 1.3;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; 
-        }
+        .trinity-indicators { display: flex; justify-content: space-between; gap: 2px; z-index: 2;}
+        .tri-badge { font-size: 0.5rem; padding: 2px 4px; border-radius: 3px; background: #000; border: 1px solid #3f3f46; color: #71717a; font-weight: 700; text-align: center; flex: 1;}
+        .tri-badge.active-p { background: rgba(59, 130, 246, 0.15); border-color: var(--color-p); color: var(--color-p); box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);}
+        .tri-badge.active-b { background: rgba(239, 68, 68, 0.15); border-color: var(--color-b); color: var(--color-b); box-shadow: 0 0 5px rgba(239, 68, 68, 0.3);}
 
-        /* Box Bảng Cầu (Đã fix nhảy) */
-        .road-box {
-            background: #ffffff; border-radius: 8px; padding: 4px;
-            border: 1px solid var(--accent);
-            overflow-x: auto; overflow-y: hidden; direction: ltr; display: flex; align-items: flex-start;
-        }
-        .road-grid {
-            display: grid; 
-            grid-template-rows: repeat(6, 22px); /* Ép 6 hàng, mỗi hàng 22px */
-            grid-auto-columns: 22px;
-            grid-auto-flow: column; gap: 1px; 
-            background: #cbd5e1; padding-right: 2px;
-        }
-        .road-cell { width: 22px; height: 22px; background: #fff; display: flex; justify-content: center; align-items: center; }
+        .ai-result { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 900; text-align: center; z-index: 2; margin: 4px 0;}
+        .res-p { color: #60a5fa; text-shadow: 0 0 10px rgba(59, 130, 246, 0.8); }
+        .res-b { color: #f87171; text-shadow: 0 0 10px rgba(239, 68, 68, 0.8); }
+        .res-w { color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.8); } 
+        .res-wait { color: #52525b; font-size: 0.8rem; font-family: 'Inter', sans-serif; }
+
+        .progress-track { width: 100%; height: 3px; background: #000; border-radius: 2px; overflow: hidden; z-index: 2; margin-bottom: 2px; display: flex;}
+        .pt-p { height: 100%; background: var(--color-p); transition: width 0.4s;}
+        .pt-b { height: 100%; background: var(--color-b); transition: width 0.4s;}
         
-        .bead { 
-            width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 800; 
-            color: #fff; display: flex; justify-content: center; align-items: center; 
-            box-shadow: inset -1px -1px 4px rgba(0,0,0,0.3); animation: popIn 0.2s ease-out;
-        }
-        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        .ai-reasoning { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: #a1a1aa; line-height: 1.3; display: flex; flex-direction: column; gap: 2px; z-index: 2; height: 42px; overflow-y: auto;}
+        .ai-reasoning::-webkit-scrollbar { display: none;} /* Ẩn scrollbar cho đẹp */
+        .ai-reasoning span { padding-left: 4px; border-left: 2px solid #3f3f46; margin-bottom: 1px;}
+
+        .ai-box.scanning::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: rgba(139, 92, 246, 0.9); box-shadow: 0 0 10px #8b5cf6, 0 0 20px #8b5cf6; animation: scanline 0.8s linear infinite alternate; z-index: 1; pointer-events: none;}
+        @keyframes scanline { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+
+        /* 2.2 Cột Phải: Bảng Cầu & Data */
+        .right-col { display: flex; flex-direction: column; gap: 4px; }
+        .road-box { background: #ffffff; border-radius: 4px; padding: 2px; border: 1px solid #3f3f46; overflow-x: auto; overflow-y: hidden; direction: ltr; display: flex; align-items: flex-start; height: 78px; }
+        .road-grid { display: grid; grid-template-rows: repeat(6, 12px); grid-auto-columns: 12px; grid-auto-flow: column; gap: 1px; background: #cbd5e1; padding-right: 2px; }
+        .road-cell { width: 12px; height: 12px; background: #fff; display: flex; justify-content: center; align-items: center; }
+        .bead { width: 9px; height: 9px; border-radius: 50%; font-size: 5px; font-weight: 800; color: #fff; display: flex; justify-content: center; align-items: center; box-shadow: inset -1px -1px 2px rgba(0,0,0,0.3); }
         .bead.P { background: var(--color-p); } .bead.B { background: var(--color-b); } .bead.T { background: var(--color-t); }
 
-        /* --- QUẢN LÝ LỢI NHUẬN --- */
-        .profit-bar {
-            flex: 0 0 50px; width: 100%; background: var(--bg-panel); 
-            border-top: 1px solid var(--border-color);
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 15px; padding-bottom: env(safe-area-inset-bottom);
-        }
-        .profit-label { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95rem; color: #fff;}
-        .profit-amount { padding: 4px 12px; border-radius: 6px; background: #0f172a; min-width: 70px; text-align: center; font-family: 'Orbitron', sans-serif;}
-        .profit-amount.win { color: #34d399; text-shadow: 0 0 5px rgba(52, 211, 153, 0.3); }
-        .profit-amount.lose { color: #f87171; text-shadow: 0 0 5px rgba(248, 113, 113, 0.3); }
+        .neural-stats { background: #000; border-radius: 4px; padding: 4px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .nn-node { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+        .nn-label { font-size: 0.45rem; color: var(--text-muted); text-transform: uppercase;}
+        .nn-val { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: #fff; font-weight: 700;}
+        .icon-eye { width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--accent); } 
+        .icon-small { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); } 
+        .icon-roach { width: 8px; height: 2px; background: var(--accent); transform: rotate(-45deg); }
 
-        .profit-controls { display: flex; gap: 10px; }
-        .btn-math { 
-            width: 34px; height: 34px; border-radius: 8px; border: none; 
-            font-size: 1.2rem; font-weight: bold; color: white; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .btn-math:active { transform: scale(0.9); }
-        .btn-sub { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444;}
-        .btn-add { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;}
+        /* 3. Chuỗi Thắng Thua (Sắp xếp gọn lại) */
+        .streak-row { display: flex; align-items: center; gap: 8px; background: #000; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-color);}
+        .win-rate-badge { font-size: 0.65rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 4px; border-right: 1px solid #3f3f46; padding-right: 8px;}
+        .streak-history { display: flex; gap: 4px; overflow-x: auto; flex: 1; align-items: center;}
+        .streak-history::-webkit-scrollbar { display: none; }
+        .st-dot { width: 16px; height: 16px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 8px; font-weight: 900; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .st-w { background: #10b981; color: #fff; border: 1px solid #059669; } 
+        .st-l { background: #ef4444; color: #fff; border: 1px solid #b91c1c; } 
+
+        /* 4. Nhập liệu (Nằm dưới cùng tiện thao tác ngón cái) */
+        .input-group { display: flex; gap: 6px; flex-shrink: 0; margin-top: 2px;}
+        .btn-act { flex: 1; padding: 10px 0; border: none; border-radius: 6px; font-weight: 800; font-family: 'Inter', sans-serif; color: #fff; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);}
+        .btn-act:active { transform: translateY(1px); }
+        .bg-p { background: linear-gradient(135deg, #60a5fa, var(--color-p)); border: 1px solid #2563eb;}
+        .bg-t { background: linear-gradient(135deg, #34d399, var(--color-t)); border: 1px solid #059669;}
+        .bg-b { background: linear-gradient(135deg, #f87171, var(--color-b)); border: 1px solid #dc2626;}
 
     </style>
 </head>
 <body>
 
     <div id="app-wrapper">
-        
-        <!-- NỬA TRÊN: Iframe -->
+        <!-- Iframe -->
         <div class="top-browser">
-            <!-- Cảnh báo nếu Web không hiện (Do bị chủ trang web chặn) -->
             <div class="iframe-warning">
-                <i class="fas fa-shield-alt" style="font-size: 2rem; margin-bottom: 10px; color: #475569;"></i><br>
-                Trang web <b>03llwin.com</b> đang chặn tính năng nhúng (Bảo mật X-Frame).<br><br>
-                <b>Giải pháp:</b> Hãy dùng tính năng <b>Chia đôi màn hình (Split Screen)</b> của điện thoại để vừa xem web nhà cái, vừa dùng công cụ AI ở nửa dưới. Hoặc cài Extension <b>Ignore X-Frame headers</b> trên máy tính.
+                <i class="fas fa-expand-arrows-alt" style="font-size: 2rem; margin-bottom: 10px; color: #71717a;"></i><br>
+                <b>Mẹo:</b> Giao diện đã được thu gọn tối đa.<br>Hãy dùng tính năng Chia đôi màn hình để xem live.
             </div>
-            
-            <!-- Đã cập nhật URL -->
+            <!-- Thay link web nhà cái tại đây -->
             <iframe src="https://03llwin.com/?id=132097934" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
         </div>
 
-        <!-- NỬA DƯỚI: Công cụ AI -->
-        <div class="bottom-ai-tool">
+        <!-- Bảng điều khiển thu gọn -->
+        <div class="bottom-panel">
             
+            <!-- Hàng 1: Header (Stats & Reset) -->
             <div class="tool-header">
                 <div class="stats-badge">
-                    <span style="color: #60a5fa">P: <span id="st-p">0</span></span> &nbsp;|&nbsp;
-                    <span style="color: #34d399">T: <span id="st-t">0</span></span> &nbsp;|&nbsp;
-                    <span style="color: #f87171">B: <span id="st-b">0</span></span>
+                    <span style="color:#60a5fa">P:<span id="st-p">0</span></span> &nbsp;
+                    <span style="color:#34d399">T:<span id="st-t">0</span></span> &nbsp;
+                    <span style="color:#f87171">B:<span id="st-b">0</span></span>
                 </div>
-                <div class="btn-reset" onclick="rebootSystem()"><i class="fas fa-trash"></i> LÀM MỚI</div>
+                <div class="btn-reset" onclick="rebootSystem()"><i class="fas fa-trash"></i> Xóa data</div>
             </div>
 
+            <!-- Hàng 2: Lưới AI (Trái) & Dữ liệu (Phải) -->
+            <div class="core-grid">
+                
+                <div class="ai-box" id="ai-container">
+                    <div class="trinity-indicators">
+                        <div class="tri-badge" id="tri-form">FORM</div>
+                        <div class="tri-badge" id="tri-ai">AI</div>
+                        <div class="tri-badge" id="tri-road">PHỤ</div>
+                    </div>
+                    
+                    <div class="ai-result res-wait" id="ai-pred">CHỜ DỮ LIỆU</div>
+                    
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.5rem; color:#a1a1aa; padding:0 2px; margin-bottom:1px;">
+                            <span id="rate-p">50%</span><span id="rate-b">50%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="pt-p" id="bar-p" style="width: 50%;"></div>
+                            <div class="pt-b" id="bar-b" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-reasoning" id="ai-reason">
+                        <span>> Khởi tạo Trinity V12.5...</span>
+                        <span>> Tích hợp 11 Form & Mạng Nơ-ron.</span>
+                        <span>> Yêu cầu: Nhập tối thiểu 4 tay.</span>
+                    </div>
+                </div>
+
+                <div class="right-col">
+                    <div class="road-box" id="scroll-wrapper"><div class="road-grid" id="bead-road"></div></div>
+                    <div class="neural-stats">
+                        <div class="nn-node"><div class="icon-eye"></div><span class="nn-label">M.Lớn</span><span class="nn-val" id="w-eye">1.0</span></div>
+                        <div class="nn-node"><div class="icon-small"></div><span class="nn-label">C.Tiểu</span><span class="nn-val" id="w-small">1.0</span></div>
+                        <div class="nn-node"><div class="icon-roach"></div><span class="nn-label">C.Gián</span><span class="nn-val" id="w-roach">1.0</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hàng 3: Chuỗi Thắng/Thua -->
+            <div class="streak-row">
+                <div class="win-rate-badge">
+                    <i class="fas fa-crosshairs" style="color:var(--accent);"></i>
+                    <span id="win-rate">0%</span>
+                </div>
+                <div class="streak-history" id="streak-container">
+                    <span style="color: #52525b; font-size: 0.65rem; font-style: italic;">Chưa có lệnh...</span>
+                </div>
+            </div>
+
+            <!-- Hàng 4: Nút Bấm Nhập Liệu -->
             <div class="input-group">
                 <button class="btn-act bg-p" onclick="recordHand('P')">Player</button>
                 <button class="btn-act bg-t" onclick="recordHand('T')">Tie</button>
                 <button class="btn-act bg-b" onclick="recordHand('B')">Banker</button>
             </div>
 
-            <div class="core-grid">
-                <!-- Thẻ AI -->
-                <div class="ai-box">
-                    <div class="ai-title">
-                        <span id="ai-status"><i class="fas fa-robot"></i> System</span>
-                        <span id="ai-conf">0%</span>
-                    </div>
-                    <div class="ai-result res-wait" id="ai-pred">CHỜ DỮ LIỆU</div>
-                    <div class="progress-track"><div class="progress-fill" id="ai-bar"></div></div>
-                    <div class="ai-reasoning" id="ai-reason">AI (Mô hình Markov) cần tối thiểu 3 tay cược để nhận dạng mẫu.</div>
-                </div>
-
-                <!-- Thẻ Bảng Cầu (Scroll Box) -->
-                <div class="road-box" id="scroll-wrapper">
-                    <div class="road-grid" id="bead-road"></div>
-                </div>
-            </div>
         </div>
-
-        <!-- MENU ĐÁY: QUẢN LÝ LỢI NHUẬN -->
-        <div class="profit-bar">
-            <div class="profit-label">
-                <i class="fas fa-coins" style="color: #f59e0b"></i> Lợi nhuận: 
-                <div class="profit-amount" id="profit-val">0</div>
-            </div>
-            <div class="profit-controls">
-                <button class="btn-math btn-sub" onclick="updateProfit(-1)"><i class="fas fa-minus"></i></button>
-                <button class="btn-math btn-add" onclick="updateProfit(1)"><i class="fas fa-plus"></i></button>
-            </div>
-        </div>
-
     </div>
 
-    <!-- JAVASCRIPT: LƯU TRỮ VÀ AI MARKOV LÕI -->
+    <!-- LOGIC AI TRINITY (Kế thừa bản V12) -->
     <script>
-        // 1. TẢI DỮ LIỆU TỪ BỘ NHỚ
-        let historySequence = JSON.parse(localStorage.getItem('bacc_history_v6')) || [];
-        let currentProfit = parseInt(localStorage.getItem('bacc_profit_v6')) || 0;
+        let historySequence = JSON.parse(localStorage.getItem('bacc_hist_v125')) || [];
+        let aiStreak = JSON.parse(localStorage.getItem('bacc_stk_v125')) || []; 
+        let currentAiPrediction = localStorage.getItem('bacc_curr_v125') || null; 
+        let neuralWeights = JSON.parse(localStorage.getItem('bacc_wgt_v125')) || { eye: 1.0, small: 1.0, roach: 1.0 };
+        let lastPredictions = JSON.parse(localStorage.getItem('bacc_preds_v125')) || null;
+        let isAnalyzing = false;
 
-        // Khởi động
         window.onload = () => {
-            updateStatsUI();
-            renderRoadmap();
-            updateProfitUI();
-            if(historySequence.length >= 3) engageAI();
+            updateStatsUI(); renderRoadmap(); updateWeightsUI(); updateStreakUI();
+            if(currentAiPrediction && currentAiPrediction !== 'SKIP') {
+                document.getElementById('ai-pred').textContent = "ĐANG THEO LỆNH";
+                addLog(`[TRINITY] Giữ dự đoán cửa ${currentAiPrediction === 'P' ? 'CON' : 'CÁI'}.`);
+            } else if(historySequence.filter(x=>x!=='T').length >= 4) {
+                document.getElementById('ai-pred').textContent = "SẴN SÀNG";
+            }
         };
 
-        // 2. GIAO DIỆN & LƯU TRỮ
         function updateStatsUI() {
-            let p=0, b=0, t=0;
-            historySequence.forEach(h => { if(h==='P') p++; else if(h==='B') b++; else t++; });
-            document.getElementById('st-p').textContent = p;
-            document.getElementById('st-b').textContent = b;
-            document.getElementById('st-t').textContent = t;
+            let p=0, b=0, t=0; historySequence.forEach(h => { if(h==='P') p++; else if(h==='B') b++; else t++; });
+            document.getElementById('st-p').textContent = p; document.getElementById('st-b').textContent = b; document.getElementById('st-t').textContent = t;
         }
 
         function renderRoadmap() {
-            const grid = document.getElementById('bead-road');
-            grid.innerHTML = '';
-
-            const totalItems = historySequence.length;
-            const requiredCols = Math.max(12, Math.ceil(totalItems / 6)); 
-            const totalCells = requiredCols * 6;
-
-            for (let i = 0; i < totalCells; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'road-cell';
-                if (i < totalItems) {
-                    const res = historySequence[i];
+            const grid = document.getElementById('bead-road'); grid.innerHTML = '';
+            const total = historySequence.length; const cols = Math.max(12, Math.ceil(total / 6)); 
+            for (let i = 0; i < cols * 6; i++) {
+                const cell = document.createElement('div'); cell.className = 'road-cell';
+                if (i < total) {
                     const bead = document.createElement('div');
-                    bead.className = `bead ${res}`;
-                    bead.textContent = res;
+                    bead.className = `bead ${historySequence[i]}`; bead.textContent = historySequence[i];
                     cell.appendChild(bead);
                 }
                 grid.appendChild(cell);
             }
-
-            // Fix cuộn trượt về cuối
-            requestAnimationFrame(() => {
-                const scrollWrapper = document.getElementById('scroll-wrapper');
-                scrollWrapper.scrollLeft = scrollWrapper.scrollWidth - scrollWrapper.clientWidth;
-            });
-        }
-
-        function recordHand(winner) {
-            historySequence.push(winner);
-            localStorage.setItem('bacc_history_v6', JSON.stringify(historySequence));
-            updateStatsUI();
-            renderRoadmap();
-            engageAI();
-        }
-
-        function updateProfit(amount) {
-            currentProfit += amount;
-            localStorage.setItem('bacc_profit_v6', currentProfit);
-            updateProfitUI();
-        }
-
-        function updateProfitUI() {
-            const el = document.getElementById('profit-val');
-            if (currentProfit > 0) {
-                el.textContent = "+" + currentProfit;
-                el.className = "profit-amount win";
-            } else if (currentProfit < 0) {
-                el.textContent = currentProfit;
-                el.className = "profit-amount lose";
-            } else {
-                el.textContent = "0";
-                el.className = "profit-amount";
-            }
+            requestAnimationFrame(() => { const w = document.getElementById('scroll-wrapper'); w.scrollLeft = w.scrollWidth; });
         }
 
         function rebootSystem() {
-            if(confirm("Xóa toàn bộ lịch sử cầu và mức lợi nhuận hiện tại?")) {
-                historySequence = [];
-                currentProfit = 0;
-                localStorage.removeItem('bacc_history_v6');
-                localStorage.removeItem('bacc_profit_v6');
-                
-                updateStatsUI();
-                renderRoadmap();
-                updateProfitUI();
-                
-                document.getElementById('ai-pred').textContent = "CHỜ DỮ LIỆU"; 
-                document.getElementById('ai-pred').className = 'ai-result res-wait';
-                document.getElementById('ai-bar').style.width = '0%';
-                document.getElementById('ai-conf').textContent = '0%';
-                document.getElementById('ai-reason').textContent = "Đã làm sạch bộ nhớ phân tích.";
-                document.getElementById('ai-status').innerHTML = "<i class='fas fa-robot'></i> Sẵn sàng";
+            if(isAnalyzing) return;
+            if(confirm("Xóa trắng dữ liệu cấu trúc Trinity?")) {
+                historySequence = []; aiStreak = []; currentAiPrediction = null; lastPredictions = null;
+                neuralWeights = { eye: 1.0, small: 1.0, roach: 1.0 };
+                localStorage.clear();
+                updateStatsUI(); renderRoadmap(); updateWeightsUI(); updateStreakUI();
+                resetTrinityBadges();
+                document.getElementById('ai-pred').textContent = "CHỜ DỮ LIỆU"; document.getElementById('ai-pred').className = 'ai-result res-wait';
+                document.getElementById('bar-p').style.width = '50%'; document.getElementById('bar-b').style.width = '50%';
+                document.getElementById('rate-p').textContent = '50%'; document.getElementById('rate-b').textContent = '50%';
+                document.getElementById('ai-reason').innerHTML = '<span>> Đã khôi phục cài đặt gốc.</span>';
             }
         }
 
-        // 3. THUẬT TOÁN AI (MARKOV CHAIN PROBABILITY)
-        // Đây là AI phân tích thật, không dùng if/else định sẵn.
-        function engageAI() {
-            const noTie = historySequence.filter(x => x !== 'T');
-            if (noTie.length < 3) return;
-
-            document.getElementById('ai-status').innerHTML = "<i class='fas fa-cog fa-spin'></i> Đang tính...";
-            
-            // Lấy kết quả từ mô hình Toán học
-            const aiData = calculateMarkovChain(noTie);
-            
-            // Độ trễ ảo để tạo cảm giác xử lý (200ms)
-            setTimeout(() => {
-                updateAIScreen(aiData);
-            }, 200);
+        function updateWeightsUI() {
+            document.getElementById('w-eye').textContent = neuralWeights.eye.toFixed(1);
+            document.getElementById('w-small').textContent = neuralWeights.small.toFixed(1);
+            document.getElementById('w-roach').textContent = neuralWeights.roach.toFixed(1);
         }
 
-        function calculateMarkovChain(data) {
-            // Bước 1: Xây dựng Ma trận chuyển đổi trạng thái
-            let transitions = { 'P': { 'P': 0, 'B': 0 }, 'B': { 'P': 0, 'B': 0 } };
-            for (let i = 0; i < data.length - 1; i++) {
-                transitions[data[i]][data[i+1]]++;
-            }
+        function addLog(text) {
+            const box = document.getElementById('ai-reason');
+            const span = document.createElement('span'); span.textContent = text;
+            box.appendChild(span); box.scrollTop = box.scrollHeight;
+        }
 
-            // Bước 2: Xem trạng thái hiện tại là gì
-            const lastState = data[data.length - 1];
-            const nextFromLast = transitions[lastState];
-            const totalTransitions = nextFromLast['P'] + nextFromLast['B'];
-            
-            let prediction = 'B'; let confidence = 50; let reasoning = "";
+        function clearLog() { document.getElementById('ai-reason').innerHTML = ''; }
 
-            // Bước 3: Đưa ra dự đoán dựa trên trọng số quá khứ
-            if (totalTransitions > 0) {
-                const probP = nextFromLast['P'] / totalTransitions;
-                if (probP > 0.5) { 
-                    prediction = 'P'; confidence = Math.round(probP * 100); 
-                } else if (probP < 0.5) { 
-                    prediction = 'B'; confidence = Math.round((1 - probP) * 100); 
-                } else { 
-                    prediction = Math.random() > 0.5 ? 'P' : 'B'; confidence = 51; 
+        function updateStreakUI() {
+            const container = document.getElementById('streak-container'); const rateLabel = document.getElementById('win-rate');
+            if (aiStreak.length === 0) { container.innerHTML = '<span style="color: #52525b; font-size: 0.65rem; font-style: italic;">Chưa chốt lệnh...</span>'; rateLabel.textContent = "0%"; return; }
+            container.innerHTML = '';
+            let winCount = aiStreak.filter(x => x === 'W').length;
+            aiStreak.forEach((res) => {
+                const dot = document.createElement('div'); dot.className = `st-dot ${res === 'W' ? 'st-w' : 'st-l'}`;
+                dot.innerHTML = res; container.appendChild(dot);
+            });
+            const winRate = Math.round((winCount / aiStreak.length) * 100);
+            rateLabel.textContent = `${winRate}%`; rateLabel.style.color = winRate >= 70 ? '#34d399' : (winRate <= 40 ? '#f87171' : '#fff');
+        }
+
+        function setTriBadge(id, side) {
+            const el = document.getElementById(id); el.className = 'tri-badge';
+            if(side === 'P') el.classList.add('active-p'); else if(side === 'B') el.classList.add('active-b');
+        }
+        function resetTrinityBadges() { setTriBadge('tri-form', null); setTriBadge('tri-ai', null); setTriBadge('tri-road', null); }
+
+        function getColumnsData(data) {
+            let cols = []; let cur = null; let count = 0;
+            data.forEach(r => { if(r !== cur) { if(cur) cols.push({val: cur, count: count}); cur = r; count = 1; } else { count++; } });
+            if(cur) cols.push({val: cur, count: count}); return cols;
+        }
+
+        function detectForm(noTieHistory) {
+            if(noTieHistory.length < 4) return null;
+            let cols = getColumnsData(noTieHistory); let lastCol = cols[cols.length-1]; let len = cols.length;
+
+            if(lastCol.val === 'B' && lastCol.count >= 3) return { suggest: 'B', name: "Bệt Cái" };
+            if(lastCol.val === 'P' && lastCol.count >= 3) return { suggest: 'P', name: "Bệt Con" };
+            if(len >= 4 && cols.slice(-4).every(c => c.count === 1)) return { suggest: lastCol.val === 'P' ? 'B' : 'P', name: "Cầu 1-1" };
+            if(len >= 3) {
+                let isDouble = true; for(let i=len-3; i<len-1; i++) { if(cols[i].count !== 2) isDouble = false; }
+                if(isDouble) {
+                    if(lastCol.count === 1) return { suggest: lastCol.val, name: "Cầu 2-2" };
+                    if(lastCol.count === 2) return { suggest: lastCol.val === 'P' ? 'B' : 'P', name: "Cầu 2-2" };
                 }
-                reasoning = `Hệ thống nhận thấy có ${totalTransitions} lần chu kỳ lặp tương tự, nghiêng về ${prediction === 'P' ? 'Con' : 'Cái'}.`;
-            } else {
-                const pCount = data.filter(x => x === 'P').length;
-                prediction = pCount > (data.length - pCount) ? 'B' : 'P'; 
-                confidence = 55; 
-                reasoning = "Chưa đủ mẫu nhận dạng chuyển đổi. Áp dụng thuật toán cân bằng xác suất tổng thể.";
             }
-
-            // Ràng buộc giới hạn tự tin (Tránh hiển thị 100% gây hiểu lầm)
-            if(confidence > 94) confidence = 94;
-            if(confidence < 51) confidence = Math.floor(Math.random() * 8) + 51; 
-            
-            return { prediction, confidence, reasoning };
+            if(len >= 3 && cols.slice(-3).every(c => c.count >= 2) && lastCol.count === 1) return { suggest: lastCol.val, name: "Cầu 232" };
+            return null;
         }
 
-        function updateAIScreen(data) {
-            document.getElementById('ai-status').innerHTML = `<i class='fas fa-check-circle' style='color:var(--accent)'></i> AI Hỗ Trợ`;
-            const predEl = document.getElementById('ai-pred');
-            const barEl = document.getElementById('ai-bar');
-
-            if (data.prediction === 'P') {
-                predEl.textContent = "CON (PLAYER)"; predEl.className = 'ai-result res-p';
-                barEl.style.background = 'var(--color-p)';
-            } else {
-                predEl.textContent = "CÁI (BANKER)"; predEl.className = 'ai-result res-b';
-                barEl.style.background = 'var(--color-b)';
+        function recordHand(result) {
+            if(isAnalyzing) return;
+            if (currentAiPrediction !== null && currentAiPrediction !== 'SKIP' && result !== 'T') {
+                if (result === currentAiPrediction) aiStreak.unshift('W'); else aiStreak.unshift('L');
+                if (aiStreak.length > 20) aiStreak.pop(); 
+                localStorage.setItem('bacc_stk_v125', JSON.stringify(aiStreak));
+                updateStreakUI();
             }
 
-            document.getElementById('ai-conf').textContent = `${data.confidence}%`;
-            barEl.style.width = `${data.confidence}%`;
-            document.getElementById('ai-reason').textContent = data.reasoning;
+            historySequence.push(result); localStorage.setItem('bacc_hist_v125', JSON.stringify(historySequence));
+            updateStatsUI(); renderRoadmap();
+            if (result !== 'T') { trainNeural(result); engageTrinity(); }
+        }
+
+        function trainNeural(actualResult) {
+            if (!lastPredictions) return;
+            const lr = 0.15;
+            if (lastPredictions.eye === actualResult) neuralWeights.eye += lr; else neuralWeights.eye -= lr;
+            if (lastPredictions.small === actualResult) neuralWeights.small += lr; else neuralWeights.small -= lr;
+            if (lastPredictions.roach === actualResult) neuralWeights.roach += lr; else neuralWeights.roach -= lr;
+            for(let key in neuralWeights) { neuralWeights[key] = Math.max(0.1, Math.min(neuralWeights[key], 3.0)); }
+            localStorage.setItem('bacc_wgt_v125', JSON.stringify(neuralWeights)); updateWeightsUI();
+        }
+
+        function getColsArray(data) { let c=[], cur=null, col=[]; data.forEach(r=>{if(r!==cur){if(col.length)c.push(col);col=[r];cur=r;}else col.push(r);}); if(col.length)c.push(col); return c; }
+        function getDeriv(cols, off) {
+            if(cols.length <= off+1) return null;
+            const r = cols[cols.length-1].length-1, c = cols.length-1;
+            if(r===0) return cols[c-1].length === cols[c-(off+1)].length ? 'R' : 'B';
+            return (r < cols[c-off].length || r > cols[c-off].length) ? 'R' : 'B';
+        }
+        function testDerived(test, data) {
+            let f = [...data, test], c = getColsArray(f);
+            return { eye: getDeriv(c, 1), small: getDeriv(c, 2), roach: getDeriv(c, 3) };
+        }
+
+        function engageTrinity() {
+            const noTie = historySequence.filter(x => x !== 'T');
+            if (noTie.length < 4) { currentAiPrediction = null; localStorage.removeItem('bacc_curr_v125'); return; }
+            
+            isAnalyzing = true; clearLog(); resetTrinityBadges();
+            const aiContainer = document.getElementById('ai-container'); aiContainer.classList.add('scanning');
+            document.getElementById('ai-pred').className = 'ai-result res-wait'; document.getElementById('ai-pred').textContent = "FUSION...";
+            addLog("> Chạy bộ lọc 3 màng...");
+            
+            let glitch = setInterval(() => {
+                document.getElementById('bar-p').style.width = Math.floor(Math.random() * 80 + 10) + "%";
+                document.getElementById('bar-b').style.width = Math.floor(Math.random() * 80 + 10) + "%";
+            }, 50);
+
+            setTimeout(() => { clearInterval(glitch); aiContainer.classList.remove('scanning'); processFusion(noTie); isAnalyzing = false; }, 1000);
+        }
+
+        function processFusion(noTie) {
+            clearLog(); let scoreP = 0, scoreB = 0;
+            
+            let form = detectForm(noTie);
+            if(form) {
+                if(form.suggest === 'P') { scoreP += 35; setTriBadge('tri-form', 'P'); addLog(`[FORM] ${form.name}: CON`); }
+                else { scoreB += 35; setTriBadge('tri-form', 'B'); addLog(`[FORM] ${form.name}: CÁI`); }
+            } else { setTriBadge('tri-form', null); addLog(`[FORM] Không rõ khuôn mẫu.`); }
+
+            let dP = testDerived('P', noTie); let dB = testDerived('B', noTie);
+            let rP_c = (dP.eye==='R'?1:0) + (dP.small==='R'?1:0) + (dP.roach==='R'?1:0);
+            let rB_c = (dB.eye==='R'?1:0) + (dB.small==='R'?1:0) + (dB.roach==='R'?1:0);
+            scoreP += (rP_c * 10); scoreB += (rB_c * 10);
+            
+            if(rP_c > rB_c) { setTriBadge('tri-road', 'P'); addLog(`[C.PHỤ] ${rP_c}/3 thế đỏ cho CON`); }
+            else if(rB_c > rP_c) { setTriBadge('tri-road', 'B'); addLog(`[C.PHỤ] ${rB_c}/3 thế đỏ cho CÁI`); }
+            else { setTriBadge('tri-road', null); addLog(`[C.PHỤ] Phân nhánh hỗn loạn.`); }
+
+            let nnP = 0, nnB = 0;
+            if(dP.eye === 'R') nnP += neuralWeights.eye; else if(dB.eye === 'R') nnB += neuralWeights.eye;
+            if(dP.small === 'R') nnP += neuralWeights.small; else if(dB.small === 'R') nnB += neuralWeights.small;
+            if(dP.roach === 'R') nnP += neuralWeights.roach; else if(dB.roach === 'R') nnB += neuralWeights.roach;
+            nnB += 0.05; 
+
+            if(nnP > nnB) { scoreP += 35; setTriBadge('tri-ai', 'P'); addLog(`[NƠ-RON] Máy học ưu tiên CON`); }
+            else { scoreB += 35; setTriBadge('tri-ai', 'B'); addLog(`[NƠ-RON] Máy học ưu tiên CÁI`); }
+
+            lastPredictions = { eye: dP.eye === 'R' ? 'P' : (dB.eye === 'R' ? 'B' : null), small: dP.small === 'R' ? 'P' : (dB.small === 'R' ? 'B' : null), roach: dP.roach === 'R' ? 'P' : (dB.roach === 'R' ? 'B' : null) };
+            localStorage.setItem('bacc_preds_v125', JSON.stringify(lastPredictions));
+
+            let total = scoreP + scoreB; if(total === 0) total = 1; 
+            let probP = Math.round((scoreP / total) * 100); let probB = Math.round((scoreB / total) * 100);
+            
+            document.getElementById('rate-p').textContent = `${probP}%`; document.getElementById('rate-b').textContent = `${probB}%`;
+            document.getElementById('bar-p').style.width = `${probP}%`; document.getElementById('bar-b').style.width = `${probB}%`;
+
+            const predEl = document.getElementById('ai-pred');
+            let isSkip = false; let finalPred = probP > probB ? 'P' : 'B'; let maxProb = Math.max(probP, probB);
+
+            if (maxProb < 70) {
+                isSkip = true; addLog(`[LỆNH] Rủi ro cao (${maxProb}% < 70%). BỎ QUA.`);
+            } else if (aiStreak.length > 5 && (aiStreak.filter(x=>x==='W').length / aiStreak.length) < 0.3) {
+                isSkip = true; addLog(`[LỆNH] Phong độ AI tụt giảm. BỎ QUA.`);
+            }
+
+            if (isSkip) {
+                currentAiPrediction = 'SKIP'; predEl.textContent = "BỎ QUA CẦU"; predEl.className = 'ai-result res-w';
+            } else {
+                currentAiPrediction = finalPred;
+                if (finalPred === 'P') { predEl.textContent = "CHỐT: PLAYER"; predEl.className = 'ai-result res-p'; } 
+                else { predEl.textContent = "CHỐT: BANKER"; predEl.className = 'ai-result res-b'; }
+                addLog(`[LỆNH] An toàn. Vào tiền ${finalPred === 'P' ? 'CON' : 'CÁI'}.`);
+            }
+            localStorage.setItem('bacc_curr_v125', currentAiPrediction);
         }
     </script>
 </body>
 </html>
+
