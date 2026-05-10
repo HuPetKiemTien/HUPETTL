@@ -34,24 +34,23 @@
         
         .app-container { display: flex; flex-direction: column; height: 100vh; }
         
-        /* --- NỬA TRÊN: TRÌNH DUYỆT --- */
+        /* --- NỬA TRÊN: TRÌNH DUYỆT SẠCH, TƯƠNG TÁC 100% --- */
         .top-browser { 
             height: 60vh; 
-            position: relative;
             border-bottom: 2px solid var(--neon-blue); 
             box-shadow: 0 5px 20px rgba(0, 243, 255, 0.2); 
             z-index: 10; 
-            background: #000; /* Tránh viền trắng khi iframe tải */
+            background: #111; /* Nền tối phòng khi web load chậm */
         }
-        iframe { width: 100%; height: 100%; border: none; display: block; }
-        
-        .top-browser::after {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(to bottom, transparent, rgba(0,243,255,0.1) 50%, transparent);
-            height: 20px; pointer-events: none;
-            animation: holoScan 3s linear infinite;
+        /* Iframe hiển thị web được cấp full quyền tương tác */
+        iframe { 
+            width: 100%; 
+            height: 100%; 
+            border: none; 
+            display: block; 
+            /* Cho phép tương tác chạm, kéo thả thoải mái */
+            pointer-events: auto; 
         }
-        @keyframes holoScan { 0% { top: -20px; } 100% { top: 100%; } }
 
         /* --- NỬA DƯỚI: AI DASHBOARD --- */
         .bottom-dashboard { 
@@ -143,19 +142,16 @@
             overflow: hidden; text-overflow: ellipsis;
         }
 
-        /* CỘT PHẢI: BẢNG CẦU (ĐÃ SỬA LỖI CUỘN) */
+        /* CỘT PHẢI: BẢNG CẦU */
         .right-panel {
             background: #fff; border-radius: 4px; 
             border: 1px solid var(--neon-blue); box-shadow: 0 0 10px rgba(0,243,255,0.1);
-            overflow-x: auto; /* Chỉ cho cuộn ngang */
-            overflow-y: hidden; /* Cấm cuộn dọc */
+            overflow-x: auto; 
+            overflow-y: hidden; 
             padding: 2px;
             display: flex;
             align-items: flex-start;
             min-width: 0; min-height: 0;
-            
-            /* Quan trọng: Định hướng hướng đọc từ trái sang phải (LTR) 
-               để thanh cuộn hoạt động chuẩn trên các thiết bị */
             direction: ltr; 
         }
 
@@ -166,8 +162,6 @@
             grid-auto-flow: column;
             gap: 1px; 
             background: #e5e7eb;
-            
-            /* Thêm padding-right để ô cuối không sát viền khi cuộn */
             padding-right: 2px; 
         }
 
@@ -191,9 +185,13 @@
 <body>
 
 <div class="app-container">
-    <!-- Đã nhúng web yêu cầu -->
+    <!-- Cấp full quyền bằng sandbox cho Iframe thao tác bình thường -->
     <div class="top-browser">
-        <iframe src="https://www.bl555dd.cc/m/home?r=mvk9536" title="Live Casino"></iframe>
+        <iframe 
+            src="https://www.bl555dd.cc/m/home?r=mvk9536" 
+            title="Live Casino"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation-by-user-activation"
+        ></iframe>
     </div>
 
     <div class="bottom-dashboard">
@@ -207,7 +205,6 @@
         </div>
 
         <div class="core-layout">
-            
             <div class="left-panel">
                 <div class="input-group">
                     <button class="cyber-btn btn-p" onclick="recordHand('P')">PLAYER</button>
@@ -227,11 +224,10 @@
                 <div class="sys-btn" onclick="rebootSystem()">[ REBOOT SYSTEM ]</div>
             </div>
 
-            <!-- Bảng cầu bọc trong container có thuộc tính cuộn (Scroll-box) -->
+            <!-- Scroll box đã fix cuộn mượt mà -->
             <div class="right-panel" id="scroll-box">
                 <div class="road-matrix" id="road-grid"></div>
             </div>
-
         </div>
     </div>
 </div>
@@ -245,7 +241,6 @@
         grid.innerHTML = '';
 
         const totalItems = historySequence.length;
-        // Luôn tạo tối thiểu 15 cột để nhìn bảng ko bị trống rỗng lúc đầu
         const requiredCols = Math.max(15, Math.ceil(totalItems / 6));
         const totalCells = requiredCols * 6;
 
@@ -263,9 +258,7 @@
             grid.appendChild(cell);
         }
 
-        // --- FIX LỖI SCROLL ---
-        // Sử dụng requestAnimationFrame để đảm bảo DOM đã render xong (tạo cột mới xong) 
-        // thì mới ra lệnh cuộn. Dùng scrollLeft trượt về điểm cuối cùng.
+        // Tự động nhảy thanh cuộn về cuối cùng khi có kết quả mới
         requestAnimationFrame(() => {
             const scrollBox = document.getElementById('scroll-box');
             scrollBox.scrollLeft = scrollBox.scrollWidth - scrollBox.clientWidth;
