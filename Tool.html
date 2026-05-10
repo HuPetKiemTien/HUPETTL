@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Quantum AI V12.5 (Compact Trinity)</title>
+    <title>Quantum AI V16.2 (Compact Flex)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,59 +18,103 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
 
-        body { font-family: 'Inter', sans-serif; background-color: #000; color: var(--text-main); height: 100vh; height: 100dvh; display: flex; justify-content: center; overflow: hidden; }
-        #app-wrapper { width: 100%; max-width: 600px; background: var(--bg-dark); height: 100%; display: flex; flex-direction: column; }
+        body { font-family: 'Inter', sans-serif; background-color: #000; color: var(--text-main); height: 100vh; height: 100dvh; display: flex; justify-content: center; overflow: hidden; position: relative; }
+        
+        #app-wrapper { width: 100%; max-width: 600px; background: #000; height: 100%; display: flex; flex-direction: column; position: relative; overflow: hidden; }
 
-        /* --- IFRAME WEB (ĐƯỢC MỞ RỘNG TỐI ĐA) --- */
-        .top-browser { flex: 1; position: relative; background: #000; border-bottom: 2px solid var(--accent); padding-top: env(safe-area-inset-top); display: flex; flex-direction: column; z-index: 1;}
+        /* --- 1. WEB NHÀ CÁI (CHIẾM ~70% MÀN HÌNH KHI TOOL MỞ) --- */
+        .top-browser { 
+            flex: 1; min-height: 0;
+            position: relative; background: #000; 
+            padding-top: env(safe-area-inset-top); 
+            display: flex; flex-direction: column; 
+            z-index: 1; transition: flex 0.3s ease;
+        }
+        
         .iframe-warning { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: var(--text-muted); font-size: 0.8rem; z-index: 1; padding: 20px; width: 80%; border: 1px dashed var(--border-color); border-radius: 8px; }
         .top-browser iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; pointer-events: auto; z-index: 2; background: transparent; }
+        #drag-shield { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 9998; display: none; background: rgba(0,0,0,0.1); }
 
-        /* --- CÔNG CỤ AI (THU GỌN VÀ SẮP XẾP LẠI) --- */
-        .bottom-panel { padding: 8px 10px; padding-bottom: calc(8px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 8px; background: var(--bg-dark); z-index: 10; flex-shrink: 0; }
+        /* --- 2. NÚT NỔI DI CHUYỂN --- */
+        #fab {
+            position: absolute; top: 75%; right: 15px; 
+            width: 48px; height: 48px; border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.5), inset 0 0 10px rgba(255,255,255,0.2);
+            color: #fff; font-size: 1.3rem;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999; cursor: grab; touch-action: none; 
+            animation: breathe 2s infinite alternate;
+            border: 2px solid rgba(255,255,255,0.4);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s, left 0.3s, top 0.3s;
+        }
+        #fab:active { cursor: grabbing; transform: scale(0.9); }
+        #fab.hidden { opacity: 0 !important; transform: scale(0) !important; pointer-events: none !important; }
+        @keyframes breathe { 0% { box-shadow: 0 0 10px rgba(139, 92, 246, 0.5); } 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.9); } }
 
-        /* 1. Header Mini */
-        .tool-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
+        /* --- 3. BẢNG TOOL AI (CHIẾM ĐÚNG 30-35% MÀN HÌNH) --- */
+        .bottom-panel { 
+            height: 0; opacity: 0; overflow: hidden;
+            background: var(--bg-dark); z-index: 10; flex-shrink: 0; 
+            transition: height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s ease, padding 0.3s ease;
+            display: flex; flex-direction: column; gap: 6px;
+            border-top: 0px solid var(--accent);
+            padding: 0 10px;
+        }
+        
+        .bottom-panel.open { 
+            height: 35vh; /* CHIẾM 35% CHIỀU CAO MÀN HÌNH */
+            min-height: 290px; /* Chống méo trên iPhone đời cũ */
+            max-height: 380px; 
+            opacity: 1;
+            padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) 10px; 
+            border-top: 2px solid var(--accent);
+            box-shadow: 0 -10px 20px rgba(0,0,0,0.5);
+        }
+
+        /* HEADER CÓ NÚT X ĐÓNG TOOL */
+        .tool-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); flex-shrink: 0; height: 24px;}
         .stats-badge span { color: #fff; font-family: 'JetBrains Mono', monospace; }
-        .btn-reset { color: #f87171; cursor: pointer; display: flex; align-items: center; gap: 4px; border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 6px; border-radius: 4px; background: rgba(239, 68, 68, 0.1);}
+        .header-actions { display: flex; gap: 8px; }
+        .btn-reset { color: #f87171; cursor: pointer; display: flex; align-items: center; gap: 4px; border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 6px; border-radius: 4px; background: rgba(239, 68, 68, 0.1); transition: 0.2s;}
+        .btn-reset:active { transform: scale(0.95); }
+        .btn-close { color: #fff; cursor: pointer; display: flex; align-items: center; gap: 4px; border: 1px solid rgba(255, 255, 255, 0.3); padding: 2px 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.15); transition: 0.2s;}
+        .btn-close:active { transform: scale(0.95); background: rgba(255,255,255,0.3);}
 
-        /* 2. Lưới Phân Tích (AI trái, Data phải) */
-        .core-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px; }
+        /* LƯỚI TỰ ĐỘNG CO GIÃN ĐỂ PHÙ HỢP VỚI 35VH */
+        .core-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 6px; flex: 1; min-height: 0;}
         
-        /* 2.1 Cột Trái: AI Trinity */
-        .ai-box { background: var(--bg-panel); border-radius: 6px; padding: 6px; display: flex; flex-direction: column; border: 1px solid var(--border-color); position: relative; overflow: hidden; justify-content: space-between;}
-        
-        .trinity-indicators { display: flex; justify-content: space-between; gap: 2px; z-index: 2;}
-        .tri-badge { font-size: 0.5rem; padding: 2px 4px; border-radius: 3px; background: #000; border: 1px solid #3f3f46; color: #71717a; font-weight: 700; text-align: center; flex: 1;}
+        .ai-box { background: var(--bg-panel); border-radius: 6px; padding: 6px; display: flex; flex-direction: column; border: 1px solid #3f3f46; position: relative; overflow: hidden; justify-content: flex-start; gap: 2px; height: 100%;}
+        .trinity-indicators { display: flex; justify-content: space-between; gap: 4px; z-index: 2; flex-shrink: 0;}
+        .tri-badge { font-size: 0.45rem; padding: 2px 0; border-radius: 3px; background: #000; border: 1px solid #3f3f46; color: #71717a; font-weight: 700; text-align: center; flex: 1;}
         .tri-badge.active-p { background: rgba(59, 130, 246, 0.15); border-color: var(--color-p); color: var(--color-p); box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);}
         .tri-badge.active-b { background: rgba(239, 68, 68, 0.15); border-color: var(--color-b); color: var(--color-b); box-shadow: 0 0 5px rgba(239, 68, 68, 0.3);}
 
-        .ai-result { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 900; text-align: center; z-index: 2; margin: 4px 0;}
+        .ai-result { flex-shrink: 0; font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 900; text-align: center; z-index: 2; margin-top: 2px;}
         .res-p { color: #60a5fa; text-shadow: 0 0 10px rgba(59, 130, 246, 0.8); }
         .res-b { color: #f87171; text-shadow: 0 0 10px rgba(239, 68, 68, 0.8); }
         .res-w { color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.8); } 
         .res-wait { color: #52525b; font-size: 0.8rem; font-family: 'Inter', sans-serif; }
 
-        .progress-track { width: 100%; height: 3px; background: #000; border-radius: 2px; overflow: hidden; z-index: 2; margin-bottom: 2px; display: flex;}
-        .pt-p { height: 100%; background: var(--color-p); transition: width 0.4s;}
-        .pt-b { height: 100%; background: var(--color-b); transition: width 0.4s;}
+        .progress-wrapper { flex-shrink: 0; margin-bottom: 2px;}
+        .progress-track { width: 100%; height: 3px; background: #000; border-radius: 2px; overflow: hidden; z-index: 2; display: flex; }
+        .pt-p { height: 100%; background: var(--color-p); transition: width 0.3s;}
+        .pt-b { height: 100%; background: var(--color-b); transition: width 0.3s;}
         
-        .ai-reasoning { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: #a1a1aa; line-height: 1.3; display: flex; flex-direction: column; gap: 2px; z-index: 2; height: 42px; overflow-y: auto;}
-        .ai-reasoning::-webkit-scrollbar { display: none;} /* Ẩn scrollbar cho đẹp */
-        .ai-reasoning span { padding-left: 4px; border-left: 2px solid #3f3f46; margin-bottom: 1px;}
+        .ai-reasoning { flex: 1; min-height: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: #a1a1aa; line-height: 1.3; display: flex; flex-direction: column; gap: 2px; z-index: 2; overflow-y: auto;}
+        .ai-reasoning span { padding-left: 5px; border-left: 2px solid #3f3f46;}
 
         .ai-box.scanning::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: rgba(139, 92, 246, 0.9); box-shadow: 0 0 10px #8b5cf6, 0 0 20px #8b5cf6; animation: scanline 0.8s linear infinite alternate; z-index: 1; pointer-events: none;}
         @keyframes scanline { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
 
-        /* 2.2 Cột Phải: Bảng Cầu & Data */
-        .right-col { display: flex; flex-direction: column; gap: 4px; }
-        .road-box { background: #ffffff; border-radius: 4px; padding: 2px; border: 1px solid #3f3f46; overflow-x: auto; overflow-y: hidden; direction: ltr; display: flex; align-items: flex-start; height: 78px; }
-        .road-grid { display: grid; grid-template-rows: repeat(6, 12px); grid-auto-columns: 12px; grid-auto-flow: column; gap: 1px; background: #cbd5e1; padding-right: 2px; }
-        .road-cell { width: 12px; height: 12px; background: #fff; display: flex; justify-content: center; align-items: center; }
-        .bead { width: 9px; height: 9px; border-radius: 50%; font-size: 5px; font-weight: 800; color: #fff; display: flex; justify-content: center; align-items: center; box-shadow: inset -1px -1px 2px rgba(0,0,0,0.3); }
+        .right-col { display: flex; flex-direction: column; gap: 4px; height: 100%;}
+        .road-box { background: #ffffff; border-radius: 4px; padding: 2px; border: 1px solid #3f3f46; overflow-x: auto; overflow-y: hidden; direction: ltr; display: flex; align-items: flex-start; flex: 1; min-height: 0;}
+        .road-grid { display: grid; grid-template-rows: repeat(6, 1fr); grid-auto-columns: 12px; grid-auto-flow: column; gap: 1px; background: #cbd5e1; padding-right: 2px; height: 100%; min-width: 100%;}
+        .road-cell { width: 12px; height: 100%; background: #fff; display: flex; justify-content: center; align-items: center; }
+        .bead { width: 8px; height: 8px; border-radius: 50%; font-size: 5px; font-weight: 800; color: #fff; display: flex; justify-content: center; align-items: center; box-shadow: inset -1px -1px 2px rgba(0,0,0,0.3); }
         .bead.P { background: var(--color-p); } .bead.B { background: var(--color-b); } .bead.T { background: var(--color-t); }
 
-        .neural-stats { background: #000; border-radius: 4px; padding: 4px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .neural-stats { background: #000; border-radius: 4px; padding: 4px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; height: 26px; min-height: 26px;}
         .nn-node { display: flex; flex-direction: column; align-items: center; gap: 1px; }
         .nn-label { font-size: 0.45rem; color: var(--text-muted); text-transform: uppercase;}
         .nn-val { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: #fff; font-weight: 700;}
@@ -78,19 +122,17 @@
         .icon-small { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); } 
         .icon-roach { width: 8px; height: 2px; background: var(--accent); transform: rotate(-45deg); }
 
-        /* 3. Chuỗi Thắng Thua (Sắp xếp gọn lại) */
-        .streak-row { display: flex; align-items: center; gap: 8px; background: #000; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-color);}
-        .win-rate-badge { font-size: 0.65rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 4px; border-right: 1px solid #3f3f46; padding-right: 8px;}
+        .streak-row { display: flex; align-items: center; gap: 8px; background: #000; padding: 4px 8px; border-radius: 6px; border: 1px solid #3f3f46; height: 30px; min-height: 30px; flex-shrink: 0;}
+        .win-rate-badge { font-size: 0.7rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 4px; border-right: 1px solid #3f3f46; padding-right: 8px;}
         .streak-history { display: flex; gap: 4px; overflow-x: auto; flex: 1; align-items: center;}
         .streak-history::-webkit-scrollbar { display: none; }
-        .st-dot { width: 16px; height: 16px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 8px; font-weight: 900; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .st-dot { width: 14px; height: 14px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 7px; font-weight: 900; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
         .st-w { background: #10b981; color: #fff; border: 1px solid #059669; } 
         .st-l { background: #ef4444; color: #fff; border: 1px solid #b91c1c; } 
 
-        /* 4. Nhập liệu (Nằm dưới cùng tiện thao tác ngón cái) */
-        .input-group { display: flex; gap: 6px; flex-shrink: 0; margin-top: 2px;}
-        .btn-act { flex: 1; padding: 10px 0; border: none; border-radius: 6px; font-weight: 800; font-family: 'Inter', sans-serif; color: #fff; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);}
-        .btn-act:active { transform: translateY(1px); }
+        .input-group { display: flex; gap: 8px; height: 42px; min-height: 42px; flex-shrink: 0; margin-top: auto;}
+        .btn-act { flex: 1; padding: 0; height: 100%; border: none; border-radius: 6px; font-weight: 800; font-family: 'Inter', sans-serif; color: #fff; cursor: pointer; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.1s;}
+        .btn-act:active { transform: translateY(2px); box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
         .bg-p { background: linear-gradient(135deg, #60a5fa, var(--color-p)); border: 1px solid #2563eb;}
         .bg-t { background: linear-gradient(135deg, #34d399, var(--color-t)); border: 1px solid #059669;}
         .bg-b { background: linear-gradient(135deg, #f87171, var(--color-b)); border: 1px solid #dc2626;}
@@ -100,32 +142,34 @@
 <body>
 
     <div id="app-wrapper">
-        <!-- Iframe -->
+        
+        <!-- 1. KHU VỰC WEB (SẼ HIỂN THỊ RẤT RỘNG RÃI) -->
         <div class="top-browser">
             <div class="iframe-warning">
-                <i class="fas fa-expand-arrows-alt" style="font-size: 2rem; margin-bottom: 10px; color: #71717a;"></i><br>
-                <b>Mẹo:</b> Giao diện đã được thu gọn tối đa.<br>Hãy dùng tính năng Chia đôi màn hình để xem live.
+                <i class="fas fa-satellite-dish" style="font-size: 2rem; margin-bottom: 10px; color: #52525b;"></i><br>
+                Đang kết nối tín hiệu...<br><span style="font-size:0.75rem; color: var(--accent);">Bấm Nút Tròn để Mở Tool</span>
             </div>
-            <!-- Thay link web nhà cái tại đây -->
             <iframe src="https://03llwin.com/?id=132097934" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+            <div id="drag-shield"></div>
         </div>
 
-        <!-- Bảng điều khiển thu gọn -->
-        <div class="bottom-panel">
-            
-            <!-- Hàng 1: Header (Stats & Reset) -->
+        <!-- 2. BẢNG TOOL AI (CHIẾM ĐÚNG 35% MÀN HÌNH DƯỚI) -->
+        <div class="bottom-panel" id="ai-tool">
             <div class="tool-header">
                 <div class="stats-badge">
-                    <span style="color:#60a5fa">P:<span id="st-p">0</span></span> &nbsp;
-                    <span style="color:#34d399">T:<span id="st-t">0</span></span> &nbsp;
-                    <span style="color:#f87171">B:<span id="st-b">0</span></span>
+                    <span style="color:#60a5fa">P: <span id="st-p">0</span></span> &nbsp;
+                    <span style="color:#34d399">T: <span id="st-t">0</span></span> &nbsp;
+                    <span style="color:#f87171">B: <span id="st-b">0</span></span>
                 </div>
-                <div class="btn-reset" onclick="rebootSystem()"><i class="fas fa-trash"></i> Xóa data</div>
+                <!-- CỤM NÚT ĐÓNG TOOL -->
+                <div class="header-actions">
+                    <div class="btn-reset" onclick="rebootSystem()"><i class="fas fa-trash"></i></div>
+                    <div class="btn-close" onclick="closeTool()"><i class="fas fa-times"></i> Đóng</div>
+                </div>
             </div>
 
-            <!-- Hàng 2: Lưới AI (Trái) & Dữ liệu (Phải) -->
             <div class="core-grid">
-                
+                <!-- Cột AI (Co giãn linh hoạt) -->
                 <div class="ai-box" id="ai-container">
                     <div class="trinity-indicators">
                         <div class="tri-badge" id="tri-form">FORM</div>
@@ -133,10 +177,10 @@
                         <div class="tri-badge" id="tri-road">PHỤ</div>
                     </div>
                     
-                    <div class="ai-result res-wait" id="ai-pred">CHỜ DỮ LIỆU</div>
+                    <div class="ai-result res-wait" id="ai-pred">CHỜ DATA</div>
                     
-                    <div>
-                        <div style="display:flex; justify-content:space-between; font-size:0.5rem; color:#a1a1aa; padding:0 2px; margin-bottom:1px;">
+                    <div class="progress-wrapper">
+                        <div style="display:flex; justify-content:space-between; font-size:0.5rem; color:#a1a1aa; padding:0 2px; margin-bottom:2px;">
                             <span id="rate-p">50%</span><span id="rate-b">50%</span>
                         </div>
                         <div class="progress-track">
@@ -146,12 +190,13 @@
                     </div>
                     
                     <div class="ai-reasoning" id="ai-reason">
-                        <span>> Khởi tạo Trinity V12.5...</span>
-                        <span>> Tích hợp 11 Form & Mạng Nơ-ron.</span>
-                        <span>> Yêu cầu: Nhập tối thiểu 4 tay.</span>
+                        <span>> Khởi động Trinity Compact Flex...</span>
+                        <span>> Tối ưu hóa không gian 35%.</span>
+                        <span>> Nhập 4 tay cược để chạy AI.</span>
                     </div>
                 </div>
 
+                <!-- Cột Bảng -->
                 <div class="right-col">
                     <div class="road-box" id="scroll-wrapper"><div class="road-grid" id="bead-road"></div></div>
                     <div class="neural-stats">
@@ -162,41 +207,127 @@
                 </div>
             </div>
 
-            <!-- Hàng 3: Chuỗi Thắng/Thua -->
             <div class="streak-row">
                 <div class="win-rate-badge">
                     <i class="fas fa-crosshairs" style="color:var(--accent);"></i>
                     <span id="win-rate">0%</span>
                 </div>
                 <div class="streak-history" id="streak-container">
-                    <span style="color: #52525b; font-size: 0.65rem; font-style: italic;">Chưa có lệnh...</span>
+                    <span style="color: #52525b; font-size: 0.65rem; font-style: italic;">Chưa có lệnh chốt...</span>
                 </div>
             </div>
 
-            <!-- Hàng 4: Nút Bấm Nhập Liệu -->
             <div class="input-group">
-                <button class="btn-act bg-p" onclick="recordHand('P')">Player</button>
-                <button class="btn-act bg-t" onclick="recordHand('T')">Tie</button>
-                <button class="btn-act bg-b" onclick="recordHand('B')">Banker</button>
+                <button class="btn-act bg-p" onclick="recordHand('P')">PLAYER</button>
+                <button class="btn-act bg-t" onclick="recordHand('T')">TIE</button>
+                <button class="btn-act bg-b" onclick="recordHand('B')">BANKER</button>
             </div>
-
         </div>
+
+        <!-- 3. NÚT NỔI (CHỈ ĐỂ MỞ TOOL) -->
+        <div id="fab">
+            <i class="fas fa-robot"></i>
+        </div>
+
     </div>
 
-    <!-- LOGIC AI TRINITY (Kế thừa bản V12) -->
     <script>
-        let historySequence = JSON.parse(localStorage.getItem('bacc_hist_v125')) || [];
-        let aiStreak = JSON.parse(localStorage.getItem('bacc_stk_v125')) || []; 
-        let currentAiPrediction = localStorage.getItem('bacc_curr_v125') || null; 
-        let neuralWeights = JSON.parse(localStorage.getItem('bacc_wgt_v125')) || { eye: 1.0, small: 1.0, roach: 1.0 };
-        let lastPredictions = JSON.parse(localStorage.getItem('bacc_preds_v125')) || null;
+        // ==========================================
+        // 1. LOGIC GIAO DIỆN: NÚT FAB & ĐÓNG MỞ TOOL
+        // ==========================================
+        const fab = document.getElementById('fab');
+        const aiTool = document.getElementById('ai-tool');
+        const dragShield = document.getElementById('drag-shield');
+        
+        let isDragging = false;
+        let hasMoved = false; 
+        let startX, startY, initialFabX, initialFabY;
+
+        const dragStart = (e) => {
+            isDragging = true; hasMoved = false;
+            let event = e.type.includes('mouse') ? e : e.touches[0];
+            startX = event.clientX; startY = event.clientY;
+            initialFabX = fab.offsetLeft; initialFabY = fab.offsetTop;
+            
+            dragShield.style.display = 'block'; 
+            fab.style.transition = 'none'; 
+        };
+
+        const dragAction = (e) => {
+            if (!isDragging) return;
+            let event = e.type.includes('mouse') ? e : e.touches[0];
+            let diffX = event.clientX - startX;
+            let diffY = event.clientY - startY;
+
+            if (Math.abs(diffX) > 5 || Math.abs(diffY) > 5) hasMoved = true;
+
+            let newX = initialFabX + diffX;
+            let newY = initialFabY + diffY;
+
+            newX = Math.max(5, Math.min(newX, window.innerWidth - fab.offsetWidth - 5));
+            newY = Math.max(5, Math.min(newY, window.innerHeight - fab.offsetHeight - 5));
+
+            fab.style.left = newX + 'px';
+            fab.style.top = newY + 'px';
+        };
+
+        const dragEnd = () => {
+            isDragging = false;
+            dragShield.style.display = 'none';
+            fab.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s, left 0.3s, top 0.3s';
+            
+            if (hasMoved) {
+                let currentX = fab.offsetLeft;
+                if (currentX < window.innerWidth / 2) {
+                    fab.style.left = '10px';
+                } else {
+                    fab.style.left = (window.innerWidth - fab.offsetWidth - 10) + 'px';
+                }
+            } else {
+                openTool();
+            }
+        };
+
+        fab.addEventListener('mousedown', dragStart);
+        fab.addEventListener('touchstart', dragStart, {passive: false});
+        document.addEventListener('mousemove', dragAction);
+        document.addEventListener('touchmove', dragAction, {passive: false});
+        document.addEventListener('mouseup', dragEnd);
+        document.addEventListener('touchend', dragEnd);
+
+        // HÀM MỞ TOOL
+        function openTool() {
+            aiTool.classList.add('open');
+            fab.classList.add('hidden');
+            
+            setTimeout(() => {
+                const w = document.getElementById('scroll-wrapper');
+                if(w) w.scrollLeft = w.scrollWidth;
+            }, 300);
+        }
+
+        // HÀM ĐÓNG TOOL
+        function closeTool() {
+            aiTool.classList.remove('open');
+            fab.classList.remove('hidden');
+        }
+
+
+        // ==========================================
+        // 2. LOGIC AI (TRINITY ENGINE)
+        // ==========================================
+        let historySequence = JSON.parse(localStorage.getItem('bacc_hist_v162')) || [];
+        let aiStreak = JSON.parse(localStorage.getItem('bacc_stk_v162')) || []; 
+        let currentAiPrediction = localStorage.getItem('bacc_curr_v162') || null; 
+        let neuralWeights = JSON.parse(localStorage.getItem('bacc_wgt_v162')) || { eye: 1.0, small: 1.0, roach: 1.0 };
+        let lastPredictions = JSON.parse(localStorage.getItem('bacc_preds_v162')) || null;
         let isAnalyzing = false;
 
         window.onload = () => {
             updateStatsUI(); renderRoadmap(); updateWeightsUI(); updateStreakUI();
             if(currentAiPrediction && currentAiPrediction !== 'SKIP') {
                 document.getElementById('ai-pred').textContent = "ĐANG THEO LỆNH";
-                addLog(`[TRINITY] Giữ dự đoán cửa ${currentAiPrediction === 'P' ? 'CON' : 'CÁI'}.`);
+                addLog(`[HỆ THỐNG] Đang chốt lệnh ${currentAiPrediction === 'P' ? 'CON' : 'CÁI'}. Nhập kết quả để xem độ chuẩn.`);
             } else if(historySequence.filter(x=>x!=='T').length >= 4) {
                 document.getElementById('ai-pred').textContent = "SẴN SÀNG";
             }
@@ -209,7 +340,7 @@
 
         function renderRoadmap() {
             const grid = document.getElementById('bead-road'); grid.innerHTML = '';
-            const total = historySequence.length; const cols = Math.max(12, Math.ceil(total / 6)); 
+            const total = historySequence.length; const cols = Math.max(14, Math.ceil(total / 6)); 
             for (let i = 0; i < cols * 6; i++) {
                 const cell = document.createElement('div'); cell.className = 'road-cell';
                 if (i < total) {
@@ -224,7 +355,7 @@
 
         function rebootSystem() {
             if(isAnalyzing) return;
-            if(confirm("Xóa trắng dữ liệu cấu trúc Trinity?")) {
+            if(confirm("Xóa trắng bản đồ cầu và bộ nhớ học máy AI?")) {
                 historySequence = []; aiStreak = []; currentAiPrediction = null; lastPredictions = null;
                 neuralWeights = { eye: 1.0, small: 1.0, roach: 1.0 };
                 localStorage.clear();
@@ -233,7 +364,7 @@
                 document.getElementById('ai-pred').textContent = "CHỜ DỮ LIỆU"; document.getElementById('ai-pred').className = 'ai-result res-wait';
                 document.getElementById('bar-p').style.width = '50%'; document.getElementById('bar-b').style.width = '50%';
                 document.getElementById('rate-p').textContent = '50%'; document.getElementById('rate-b').textContent = '50%';
-                document.getElementById('ai-reason').innerHTML = '<span>> Đã khôi phục cài đặt gốc.</span>';
+                document.getElementById('ai-reason').innerHTML = '<span>> Đã reset hệ thống.</span>';
             }
         }
 
@@ -246,14 +377,16 @@
         function addLog(text) {
             const box = document.getElementById('ai-reason');
             const span = document.createElement('span'); span.textContent = text;
-            box.appendChild(span); box.scrollTop = box.scrollHeight;
+            box.appendChild(span);
+            if(box.children.length > 6) box.removeChild(box.firstChild);
+            box.scrollTop = box.scrollHeight;
         }
 
         function clearLog() { document.getElementById('ai-reason').innerHTML = ''; }
 
         function updateStreakUI() {
             const container = document.getElementById('streak-container'); const rateLabel = document.getElementById('win-rate');
-            if (aiStreak.length === 0) { container.innerHTML = '<span style="color: #52525b; font-size: 0.65rem; font-style: italic;">Chưa chốt lệnh...</span>'; rateLabel.textContent = "0%"; return; }
+            if (aiStreak.length === 0) { container.innerHTML = '<span style="color: #52525b; font-size: 0.65rem; font-style: italic;">Chưa có lệnh...</span>'; rateLabel.textContent = "0%"; return; }
             container.innerHTML = '';
             let winCount = aiStreak.filter(x => x === 'W').length;
             aiStreak.forEach((res) => {
@@ -298,12 +431,12 @@
             if(isAnalyzing) return;
             if (currentAiPrediction !== null && currentAiPrediction !== 'SKIP' && result !== 'T') {
                 if (result === currentAiPrediction) aiStreak.unshift('W'); else aiStreak.unshift('L');
-                if (aiStreak.length > 20) aiStreak.pop(); 
-                localStorage.setItem('bacc_stk_v125', JSON.stringify(aiStreak));
+                if (aiStreak.length > 25) aiStreak.pop(); 
+                localStorage.setItem('bacc_stk_v162', JSON.stringify(aiStreak));
                 updateStreakUI();
             }
 
-            historySequence.push(result); localStorage.setItem('bacc_hist_v125', JSON.stringify(historySequence));
+            historySequence.push(result); localStorage.setItem('bacc_hist_v162', JSON.stringify(historySequence));
             updateStatsUI(); renderRoadmap();
             if (result !== 'T') { trainNeural(result); engageTrinity(); }
         }
@@ -315,7 +448,7 @@
             if (lastPredictions.small === actualResult) neuralWeights.small += lr; else neuralWeights.small -= lr;
             if (lastPredictions.roach === actualResult) neuralWeights.roach += lr; else neuralWeights.roach -= lr;
             for(let key in neuralWeights) { neuralWeights[key] = Math.max(0.1, Math.min(neuralWeights[key], 3.0)); }
-            localStorage.setItem('bacc_wgt_v125', JSON.stringify(neuralWeights)); updateWeightsUI();
+            localStorage.setItem('bacc_wgt_v162', JSON.stringify(neuralWeights)); updateWeightsUI();
         }
 
         function getColsArray(data) { let c=[], cur=null, col=[]; data.forEach(r=>{if(r!==cur){if(col.length)c.push(col);col=[r];cur=r;}else col.push(r);}); if(col.length)c.push(col); return c; }
@@ -332,19 +465,14 @@
 
         function engageTrinity() {
             const noTie = historySequence.filter(x => x !== 'T');
-            if (noTie.length < 4) { currentAiPrediction = null; localStorage.removeItem('bacc_curr_v125'); return; }
+            if (noTie.length < 4) { currentAiPrediction = null; localStorage.removeItem('bacc_curr_v162'); return; }
             
             isAnalyzing = true; clearLog(); resetTrinityBadges();
             const aiContainer = document.getElementById('ai-container'); aiContainer.classList.add('scanning');
-            document.getElementById('ai-pred').className = 'ai-result res-wait'; document.getElementById('ai-pred').textContent = "FUSION...";
-            addLog("> Chạy bộ lọc 3 màng...");
+            document.getElementById('ai-pred').className = 'ai-result res-wait'; document.getElementById('ai-pred').textContent = "FUSION START...";
+            addLog("> Đang tổng hợp 3 luồng dữ liệu...");
             
-            let glitch = setInterval(() => {
-                document.getElementById('bar-p').style.width = Math.floor(Math.random() * 80 + 10) + "%";
-                document.getElementById('bar-b').style.width = Math.floor(Math.random() * 80 + 10) + "%";
-            }, 50);
-
-            setTimeout(() => { clearInterval(glitch); aiContainer.classList.remove('scanning'); processFusion(noTie); isAnalyzing = false; }, 1000);
+            setTimeout(() => { aiContainer.classList.remove('scanning'); processFusion(noTie); isAnalyzing = false; }, 900);
         }
 
         function processFusion(noTie) {
@@ -361,9 +489,9 @@
             let rB_c = (dB.eye==='R'?1:0) + (dB.small==='R'?1:0) + (dB.roach==='R'?1:0);
             scoreP += (rP_c * 10); scoreB += (rB_c * 10);
             
-            if(rP_c > rB_c) { setTriBadge('tri-road', 'P'); addLog(`[C.PHỤ] ${rP_c}/3 thế đỏ cho CON`); }
-            else if(rB_c > rP_c) { setTriBadge('tri-road', 'B'); addLog(`[C.PHỤ] ${rB_c}/3 thế đỏ cho CÁI`); }
-            else { setTriBadge('tri-road', null); addLog(`[C.PHỤ] Phân nhánh hỗn loạn.`); }
+            if(rP_c > rB_c) { setTriBadge('tri-road', 'P'); addLog(`[C.PHỤ] ${rP_c}/3 cầu thế Đỏ: CON`); }
+            else if(rB_c > rP_c) { setTriBadge('tri-road', 'B'); addLog(`[C.PHỤ] ${rB_c}/3 cầu thế Đỏ: CÁI`); }
+            else { setTriBadge('tri-road', null); addLog(`[C.PHỤ] Đang phân nhánh.`); }
 
             let nnP = 0, nnB = 0;
             if(dP.eye === 'R') nnP += neuralWeights.eye; else if(dB.eye === 'R') nnB += neuralWeights.eye;
@@ -371,11 +499,11 @@
             if(dP.roach === 'R') nnP += neuralWeights.roach; else if(dB.roach === 'R') nnB += neuralWeights.roach;
             nnB += 0.05; 
 
-            if(nnP > nnB) { scoreP += 35; setTriBadge('tri-ai', 'P'); addLog(`[NƠ-RON] Máy học ưu tiên CON`); }
-            else { scoreB += 35; setTriBadge('tri-ai', 'B'); addLog(`[NƠ-RON] Máy học ưu tiên CÁI`); }
+            if(nnP > nnB) { scoreP += 35; setTriBadge('tri-ai', 'P'); addLog(`[NƠ-RON] Máy học ưu tiên: CON`); }
+            else { scoreB += 35; setTriBadge('tri-ai', 'B'); addLog(`[NƠ-RON] Máy học ưu tiên: CÁI`); }
 
             lastPredictions = { eye: dP.eye === 'R' ? 'P' : (dB.eye === 'R' ? 'B' : null), small: dP.small === 'R' ? 'P' : (dB.small === 'R' ? 'B' : null), roach: dP.roach === 'R' ? 'P' : (dB.roach === 'R' ? 'B' : null) };
-            localStorage.setItem('bacc_preds_v125', JSON.stringify(lastPredictions));
+            localStorage.setItem('bacc_preds_v162', JSON.stringify(lastPredictions));
 
             let total = scoreP + scoreB; if(total === 0) total = 1; 
             let probP = Math.round((scoreP / total) * 100); let probB = Math.round((scoreB / total) * 100);
@@ -387,9 +515,9 @@
             let isSkip = false; let finalPred = probP > probB ? 'P' : 'B'; let maxProb = Math.max(probP, probB);
 
             if (maxProb < 70) {
-                isSkip = true; addLog(`[LỆNH] Rủi ro cao (${maxProb}% < 70%). BỎ QUA.`);
+                isSkip = true; addLog(`[CẢNH BÁO] Hội tụ thấp (${maxProb}%). Lệnh: BỎ QUA.`);
             } else if (aiStreak.length > 5 && (aiStreak.filter(x=>x==='W').length / aiStreak.length) < 0.3) {
-                isSkip = true; addLog(`[LỆNH] Phong độ AI tụt giảm. BỎ QUA.`);
+                isSkip = true; addLog(`[CẢNH BÁO] Phong độ chạm đáy. Lệnh: BỎ QUA.`);
             }
 
             if (isSkip) {
@@ -398,11 +526,10 @@
                 currentAiPrediction = finalPred;
                 if (finalPred === 'P') { predEl.textContent = "CHỐT: PLAYER"; predEl.className = 'ai-result res-p'; } 
                 else { predEl.textContent = "CHỐT: BANKER"; predEl.className = 'ai-result res-b'; }
-                addLog(`[LỆNH] An toàn. Vào tiền ${finalPred === 'P' ? 'CON' : 'CÁI'}.`);
+                addLog(`[VÀO TIỀN] Form chuẩn. Đánh cửa ${finalPred === 'P' ? 'CON' : 'CÁI'}.`);
             }
-            localStorage.setItem('bacc_curr_v125', currentAiPrediction);
+            localStorage.setItem('bacc_curr_v162', currentAiPrediction);
         }
     </script>
 </body>
 </html>
-
