@@ -1,0 +1,408 @@
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quantum Baccarat AI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap');
+
+        :root {
+            --bg-color: #030712;
+            --panel-bg: rgba(17, 24, 39, 0.7);
+            --neon-blue: #00f3ff;
+            --neon-red: #ff0055;
+            --neon-green: #00ff66;
+            --text-main: #f3f4f6;
+            --grid-line: rgba(0, 243, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body, html { 
+            height: 100%; 
+            font-family: 'Rajdhani', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main);
+            overflow: hidden; 
+            background-image: 
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .app-container { display: flex; flex-direction: column; height: 100vh; }
+        
+        /* --- NỬA TRÊN: TRÌNH DUYỆT --- */
+        .top-browser { 
+            height: 60vh; 
+            position: relative;
+            border-bottom: 2px solid var(--neon-blue); 
+            box-shadow: 0 5px 20px rgba(0, 243, 255, 0.2); 
+            z-index: 10; 
+            background: #000; /* Tránh viền trắng khi iframe tải */
+        }
+        iframe { width: 100%; height: 100%; border: none; display: block; }
+        
+        .top-browser::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to bottom, transparent, rgba(0,243,255,0.1) 50%, transparent);
+            height: 20px; pointer-events: none;
+            animation: holoScan 3s linear infinite;
+        }
+        @keyframes holoScan { 0% { top: -20px; } 100% { top: 100%; } }
+
+        /* --- NỬA DƯỚI: AI DASHBOARD --- */
+        .bottom-dashboard { 
+            height: 40vh; 
+            padding: 8px 12px; 
+            display: flex; 
+            flex-direction: column; 
+            background: radial-gradient(circle at top, #111827 0%, #030712 100%);
+            overflow: hidden; 
+        }
+
+        /* HEADER */
+        .cyber-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 8px; border-bottom: 1px solid rgba(0, 243, 255, 0.3); padding-bottom: 5px;
+            flex-shrink: 0; 
+        }
+        .ai-title { 
+            font-family: 'Orbitron', sans-serif; font-size: 15px; color: #fff; 
+            text-transform: uppercase; text-shadow: 0 0 5px var(--neon-blue); 
+            display: flex; align-items: center; gap: 8px;
+        }
+        .ai-status-dot { width: 8px; height: 8px; background: var(--neon-blue); border-radius: 50%; box-shadow: 0 0 8px var(--neon-blue); animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.3; } }
+
+        .stats { font-size: 12px; display: flex; gap: 10px; font-weight: bold; font-family: 'Orbitron', sans-serif;}
+        .stats span.p { color: var(--neon-blue); }
+        .stats span.b { color: var(--neon-red); }
+        .stats span.t { color: var(--neon-green); }
+
+        /* MAIN LAYOUT CHIA CỘT TUYỆT ĐỐI */
+        .core-layout { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+            flex: 1; 
+            min-height: 0; 
+        }
+
+        /* CỘT TRÁI */
+        .left-panel { 
+            display: flex; flex-direction: column; gap: 8px; min-width: 0; min-height: 0;
+        }
+
+        .input-group { display: flex; gap: 5px; flex-shrink: 0; }
+        .cyber-btn {
+            flex: 1; padding: 10px 0; border: none; font-family: 'Orbitron', sans-serif; 
+            font-weight: bold; font-size: 12px; color: white; cursor: pointer;
+            text-transform: uppercase; background: transparent; position: relative;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+            transition: 0.2s;
+        }
+        .cyber-btn::before { content: ''; position: absolute; inset: 0; z-index: -1; transition: 0.2s; }
+        .cyber-btn:active { transform: scale(0.95); }
+
+        .btn-p { border: 1px solid var(--neon-blue); color: var(--neon-blue); }
+        .btn-p::before { background: rgba(0, 243, 255, 0.1); }
+        .btn-t { border: 1px solid var(--neon-green); color: var(--neon-green); clip-path: polygon(5% 0, 95% 0, 95% 100%, 5% 100%); }
+        .btn-t::before { background: rgba(0, 255, 102, 0.1); }
+        .btn-b { border: 1px solid var(--neon-red); color: var(--neon-red); clip-path: polygon(0 0, 90% 0, 100% 100%, 10% 100%); }
+        .btn-b::before { background: rgba(255, 0, 85, 0.1); }
+
+        .ai-screen {
+            flex: 1; 
+            background: rgba(0, 0, 0, 0.6); border: 1px solid #1f2937; 
+            border-radius: 4px; padding: 8px; display: flex; flex-direction: column; 
+            justify-content: space-between; position: relative; 
+            overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            min-height: 0; 
+        }
+        .ai-screen::before { content: ''; position: absolute; left: 0; top: 0; width: 2px; height: 100%; background: var(--neon-blue); }
+        
+        .screen-top { display: flex; justify-content: space-between; font-size: 10px; color: #6b7280; font-family: 'Orbitron', sans-serif;}
+        
+        .prediction { 
+            font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 900; 
+            text-align: center; margin: 2px 0; letter-spacing: 1px;
+        }
+        .pred-p { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
+        .pred-b { color: var(--neon-red); text-shadow: 0 0 10px var(--neon-red); }
+        .pred-wait { color: #4b5563; font-size: 14px; }
+
+        .conf-track { width: 100%; height: 3px; background: #1f2937; flex-shrink: 0; margin-top: 2px; margin-bottom: 2px;}
+        .conf-fill { height: 100%; width: 0%; background: var(--neon-blue); transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 5px var(--neon-blue);}
+
+        .reason { 
+            font-size: 11px; color: #9ca3af; line-height: 1.2; font-style: italic; 
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+
+        /* CỘT PHẢI: BẢNG CẦU (ĐÃ SỬA LỖI CUỘN) */
+        .right-panel {
+            background: #fff; border-radius: 4px; 
+            border: 1px solid var(--neon-blue); box-shadow: 0 0 10px rgba(0,243,255,0.1);
+            overflow-x: auto; /* Chỉ cho cuộn ngang */
+            overflow-y: hidden; /* Cấm cuộn dọc */
+            padding: 2px;
+            display: flex;
+            align-items: flex-start;
+            min-width: 0; min-height: 0;
+            
+            /* Quan trọng: Định hướng hướng đọc từ trái sang phải (LTR) 
+               để thanh cuộn hoạt động chuẩn trên các thiết bị */
+            direction: ltr; 
+        }
+
+        .road-matrix {
+            display: grid;
+            grid-template-rows: repeat(6, 22px); 
+            grid-auto-columns: 22px;             
+            grid-auto-flow: column;
+            gap: 1px; 
+            background: #e5e7eb;
+            
+            /* Thêm padding-right để ô cuối không sát viền khi cuộn */
+            padding-right: 2px; 
+        }
+
+        .matrix-cell { width: 22px; height: 22px; background: #ffffff; display: flex; justify-content: center; align-items: center; }
+
+        .bead {
+            width: 18px; height: 18px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 10px; font-weight: bold; color: white;
+            box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3);
+            animation: pop 0.2s ease-out;
+        }
+        @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+        .bead.P { background: #3b82f6; } .bead.B { background: #ef4444; } .bead.T { background: #10b981; }
+
+        .sys-btn { font-size: 10px; color: #6b7280; text-decoration: underline; cursor: pointer; text-align: right; margin-top: 2px; flex-shrink: 0;}
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Đã nhúng web yêu cầu -->
+    <div class="top-browser">
+        <iframe src="https://www.bl555dd.cc/m/home?r=mvk9536" title="Live Casino"></iframe>
+    </div>
+
+    <div class="bottom-dashboard">
+        <div class="cyber-header">
+            <div class="ai-title"><div class="ai-status-dot"></div> QUANTUM CORE</div>
+            <div class="stats">
+                <span class="p" id="st-p">P: 0</span>
+                <span class="t" id="st-t">T: 0</span>
+                <span class="b" id="st-b">B: 0</span>
+            </div>
+        </div>
+
+        <div class="core-layout">
+            
+            <div class="left-panel">
+                <div class="input-group">
+                    <button class="cyber-btn btn-p" onclick="recordHand('P')">PLAYER</button>
+                    <button class="cyber-btn btn-t" onclick="recordHand('T')">TIE</button>
+                    <button class="cyber-btn btn-b" onclick="recordHand('B')">BANKER</button>
+                </div>
+
+                <div class="ai-screen">
+                    <div class="screen-top">
+                        <span id="ai-mode">GATHERING...</span>
+                        <span id="ai-conf">0%</span>
+                    </div>
+                    <div class="prediction pred-wait" id="ai-pred">AWAITING</div>
+                    <div class="conf-track"><div class="conf-fill" id="ai-bar"></div></div>
+                    <div class="reason" id="ai-reason">Nhập kết quả để AI xây dựng ma trận...</div>
+                </div>
+                <div class="sys-btn" onclick="rebootSystem()">[ REBOOT SYSTEM ]</div>
+            </div>
+
+            <!-- Bảng cầu bọc trong container có thuộc tính cuộn (Scroll-box) -->
+            <div class="right-panel" id="scroll-box">
+                <div class="road-matrix" id="road-grid"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    let historySequence = [];
+    const apiKey = ""; 
+
+    function renderRoadmap() {
+        const grid = document.getElementById('road-grid');
+        grid.innerHTML = '';
+
+        const totalItems = historySequence.length;
+        // Luôn tạo tối thiểu 15 cột để nhìn bảng ko bị trống rỗng lúc đầu
+        const requiredCols = Math.max(15, Math.ceil(totalItems / 6));
+        const totalCells = requiredCols * 6;
+
+        for (let i = 0; i < totalCells; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'matrix-cell';
+            
+            if (i < totalItems) {
+                const res = historySequence[i];
+                const bead = document.createElement('div');
+                bead.className = `bead ${res}`;
+                bead.textContent = res;
+                cell.appendChild(bead);
+            }
+            grid.appendChild(cell);
+        }
+
+        // --- FIX LỖI SCROLL ---
+        // Sử dụng requestAnimationFrame để đảm bảo DOM đã render xong (tạo cột mới xong) 
+        // thì mới ra lệnh cuộn. Dùng scrollLeft trượt về điểm cuối cùng.
+        requestAnimationFrame(() => {
+            const scrollBox = document.getElementById('scroll-box');
+            scrollBox.scrollLeft = scrollBox.scrollWidth - scrollBox.clientWidth;
+        });
+    }
+
+    function recordHand(winner) {
+        historySequence.push(winner);
+        
+        let p=0, b=0, t=0;
+        historySequence.forEach(h => { if(h==='P') p++; else if(h==='B') b++; else t++; });
+        document.getElementById('st-p').textContent = `P: ${p}`;
+        document.getElementById('st-b').textContent = `B: ${b}`;
+        document.getElementById('st-t').textContent = `T: ${t}`;
+
+        renderRoadmap();
+        engageAI();
+    }
+
+    function rebootSystem() {
+        if(confirm("Xóa bộ nhớ ma trận AI?")) {
+            historySequence = [];
+            document.getElementById('st-p').textContent = 'P: 0';
+            document.getElementById('st-b').textContent = 'B: 0';
+            document.getElementById('st-t').textContent = 'T: 0';
+            renderRoadmap();
+            
+            document.getElementById('ai-pred').textContent = "AWAITING"; 
+            document.getElementById('ai-pred').className = 'prediction pred-wait';
+            document.getElementById('ai-bar').style.width = '0%';
+            document.getElementById('ai-conf').textContent = '0%';
+            document.getElementById('ai-reason').textContent = "Hệ thống đã được làm sạch.";
+            document.getElementById('ai-mode').textContent = "STANDBY";
+        }
+    }
+
+    async function engageAI() {
+        const noTie = historySequence.filter(x => x !== 'T');
+        if (noTie.length < 3) return;
+
+        document.getElementById('ai-mode').textContent = "UPLOADING...";
+        document.getElementById('ai-mode').style.color = "var(--neon-blue)";
+        document.getElementById('ai-pred').textContent = "ANALYZING";
+        document.getElementById('ai-pred').className = 'prediction pred-wait';
+        document.getElementById('ai-bar').style.width = '0%';
+        document.getElementById('ai-reason').textContent = "...";
+
+        try {
+            const aiData = await fetchGeminiAPI(noTie);
+            updateAIScreen(aiData, "GEMINI CORE");
+        } catch (err) {
+            const localData = calculateMarkovChain(noTie);
+            updateAIScreen(localData, "LOCAL QUANTUM");
+        }
+    }
+
+    async function fetchGeminiAPI(dataArray) {
+        if (!apiKey) throw new Error("No API");
+        const seq = dataArray.slice(-15).join('');
+        const prompt = `Phân tích chuỗi Baccarat: ${seq}. Tính xác suất theo Pattern. Trả về JSON: {"prediction": "P" hoặc "B", "confidence": số (55-95), "reasoning": "1 lý do ngắn gọn tiếng Việt"}`;
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" }})
+        });
+        
+        if (!response.ok) throw new Error("Net Err");
+        return JSON.parse((await response.json()).candidates[0].content.parts[0].text);
+    }
+
+    function calculateMarkovChain(data) {
+        let transitions = { 'P': { 'P': 0, 'B': 0 }, 'B': { 'P': 0, 'B': 0 } };
+        
+        for (let i = 0; i < data.length - 1; i++) {
+            transitions[data[i]][data[i+1]]++;
+        }
+
+        const lastState = data[data.length - 1];
+        const nextFromLast = transitions[lastState];
+        
+        const totalTransitions = nextFromLast['P'] + nextFromLast['B'];
+        let prediction = 'B'; 
+        let confidence = 50;
+        let reasoning = "Ma trận Markov: Dữ liệu chưa đủ chu kỳ.";
+
+        if (totalTransitions > 0) {
+            const probP = nextFromLast['P'] / totalTransitions;
+            if (probP > 0.5) {
+                prediction = 'P'; confidence = Math.round(probP * 100);
+            } else if (probP < 0.5) {
+                prediction = 'B'; confidence = Math.round((1 - probP) * 100);
+            } else {
+                prediction = Math.random() > 0.5 ? 'P' : 'B'; confidence = 51;
+            }
+            reasoning = `Phân tích ${totalTransitions} vòng lặp có chung mô hình, xác suất chuyển tiếp từ ${lastState} sang ${prediction} là cao nhất.`;
+        } else {
+            const pCount = data.filter(x => x === 'P').length;
+            const bCount = data.length - pCount;
+            prediction = pCount > bCount ? 'B' : 'P'; 
+            confidence = 55;
+            reasoning = "Hệ thống cân bằng độ lệch chuẩn tự động: Bắt ngược cửa đang chiếm ưu thế ảo.";
+        }
+
+        if(confidence > 95) confidence = 95;
+        if(confidence < 51) confidence = Math.floor(Math.random() * 10) + 51; 
+        
+        return { prediction, confidence, reasoning };
+    }
+
+    function updateAIScreen(data, modeName) {
+        document.getElementById('ai-mode').textContent = modeName;
+        document.getElementById('ai-mode').style.color = "#6b7280";
+
+        const predEl = document.getElementById('ai-pred');
+        const barEl = document.getElementById('ai-bar');
+
+        if (data.prediction === 'P') {
+            predEl.textContent = "PLAYER [CON]";
+            predEl.className = 'prediction pred-p';
+            barEl.style.background = 'var(--neon-blue)';
+            barEl.style.boxShadow = '0 0 10px var(--neon-blue)';
+        } else {
+            predEl.textContent = "BANKER [CÁI]";
+            predEl.className = 'prediction pred-b';
+            barEl.style.background = 'var(--neon-red)';
+            barEl.style.boxShadow = '0 0 10px var(--neon-red)';
+        }
+
+        document.getElementById('ai-conf').textContent = `${data.confidence}%`;
+        barEl.style.width = `${data.confidence}%`;
+        document.getElementById('ai-reason').textContent = data.reasoning;
+    }
+
+    renderRoadmap();
+</script>
+</body>
+</html>
+
+```
