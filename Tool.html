@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Quantum AI V16.2 (Compact Flex)</title>
+    <title>Quantum AI V18.0 (Compact - BG Casino)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -22,7 +21,7 @@
         
         #app-wrapper { width: 100%; max-width: 600px; background: #000; height: 100%; display: flex; flex-direction: column; position: relative; overflow: hidden; }
 
-        /* --- 1. WEB NHÀ CÁI (CHIẾM ~70% MÀN HÌNH KHI TOOL MỞ) --- */
+        /* --- 1. WEB NHÀ CÁI --- */
         .top-browser { 
             flex: 1; min-height: 0;
             position: relative; background: #000; 
@@ -31,7 +30,7 @@
             z-index: 1; transition: flex 0.3s ease;
         }
         
-        .iframe-warning { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: var(--text-muted); font-size: 0.8rem; z-index: 1; padding: 20px; width: 80%; border: 1px dashed var(--border-color); border-radius: 8px; }
+        .iframe-warning { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: var(--text-muted); font-size: 0.8rem; z-index: 1; padding: 20px; width: 80%; border: 1px dashed var(--border-color); border-radius: 8px; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);}
         .top-browser iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; pointer-events: auto; z-index: 2; background: transparent; }
         #drag-shield { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 9998; display: none; background: rgba(0,0,0,0.1); }
 
@@ -52,20 +51,19 @@
         #fab.hidden { opacity: 0 !important; transform: scale(0) !important; pointer-events: none !important; }
         @keyframes breathe { 0% { box-shadow: 0 0 10px rgba(139, 92, 246, 0.5); } 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.9); } }
 
-        /* --- 3. BẢNG TOOL AI (CHIẾM ĐÚNG 30-35% MÀN HÌNH) --- */
+        /* --- 3. BẢNG TOOL AI --- */
         .bottom-panel { 
             height: 0; opacity: 0; overflow: hidden;
             background: var(--bg-dark); z-index: 10; flex-shrink: 0; 
             transition: height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s ease, padding 0.3s ease;
             display: flex; flex-direction: column; gap: 6px;
-            border-top: 0px solid var(--accent);
             padding: 0 10px;
         }
         
         .bottom-panel.open { 
-            height: 35vh; /* CHIẾM 35% CHIỀU CAO MÀN HÌNH */
-            min-height: 290px; /* Chống méo trên iPhone đời cũ */
-            max-height: 380px; 
+            height: 40vh; /* Tăng nhẹ để chứa thanh Info */
+            min-height: 320px; 
+            max-height: 420px; 
             opacity: 1;
             padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) 10px; 
             border-top: 2px solid var(--accent);
@@ -81,27 +79,36 @@
         .btn-close { color: #fff; cursor: pointer; display: flex; align-items: center; gap: 4px; border: 1px solid rgba(255, 255, 255, 0.3); padding: 2px 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.15); transition: 0.2s;}
         .btn-close:active { transform: scale(0.95); background: rgba(255,255,255,0.3);}
 
-        /* LƯỚI TỰ ĐỘNG CO GIÃN ĐỂ PHÙ HỢP VỚI 35VH */
+        /* THANH THÔNG TIN BẢN QUYỀN / CẢNH BÁO */
+        .author-info {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.55rem; color: #fbbf24; background: rgba(245, 158, 11, 0.1);
+            padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(245, 158, 11, 0.2);
+            flex-shrink: 0; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;
+        }
+        .author-info i { margin-right: 3px; }
+
+        /* LƯỚI TỰ ĐỘNG CO GIÃN */
         .core-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 6px; flex: 1; min-height: 0;}
         
         .ai-box { background: var(--bg-panel); border-radius: 6px; padding: 6px; display: flex; flex-direction: column; border: 1px solid #3f3f46; position: relative; overflow: hidden; justify-content: flex-start; gap: 2px; height: 100%;}
-        .trinity-indicators { display: flex; justify-content: space-between; gap: 4px; z-index: 2; flex-shrink: 0;}
-        .tri-badge { font-size: 0.45rem; padding: 2px 0; border-radius: 3px; background: #000; border: 1px solid #3f3f46; color: #71717a; font-weight: 700; text-align: center; flex: 1;}
-        .tri-badge.active-p { background: rgba(59, 130, 246, 0.15); border-color: var(--color-p); color: var(--color-p); box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);}
-        .tri-badge.active-b { background: rgba(239, 68, 68, 0.15); border-color: var(--color-b); color: var(--color-b); box-shadow: 0 0 5px rgba(239, 68, 68, 0.3);}
+        
+        /* HUD CẦU ĐẸP BÊN TRONG CỘT AI */
+        .pattern-mini-hud { font-size: 0.55rem; padding: 3px 0; border-radius: 3px; background: #000; border: 1px solid #3f3f46; color: #71717a; font-weight: 800; text-align: center; flex-shrink: 0; text-transform: uppercase;}
+        .pattern-mini-hud.active { background: rgba(245, 158, 11, 0.15); border-color: #f59e0b; color: #f59e0b; box-shadow: 0 0 5px rgba(245, 158, 11, 0.3);}
 
-        .ai-result { flex-shrink: 0; font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 900; text-align: center; z-index: 2; margin-top: 2px;}
+        .ai-result { flex-shrink: 0; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 900; text-align: center; z-index: 2; margin-top: 4px;}
         .res-p { color: #60a5fa; text-shadow: 0 0 10px rgba(59, 130, 246, 0.8); }
         .res-b { color: #f87171; text-shadow: 0 0 10px rgba(239, 68, 68, 0.8); }
         .res-w { color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.8); } 
         .res-wait { color: #52525b; font-size: 0.8rem; font-family: 'Inter', sans-serif; }
 
-        .progress-wrapper { flex-shrink: 0; margin-bottom: 2px;}
+        .progress-wrapper { flex-shrink: 0; margin-bottom: 2px; margin-top: auto;}
         .progress-track { width: 100%; height: 3px; background: #000; border-radius: 2px; overflow: hidden; z-index: 2; display: flex; }
         .pt-p { height: 100%; background: var(--color-p); transition: width 0.3s;}
         .pt-b { height: 100%; background: var(--color-b); transition: width 0.3s;}
         
-        .ai-reasoning { flex: 1; min-height: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: #a1a1aa; line-height: 1.3; display: flex; flex-direction: column; gap: 2px; z-index: 2; overflow-y: auto;}
+        .ai-reasoning { flex: 1; min-height: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: #a1a1aa; line-height: 1.3; display: flex; flex-direction: column; gap: 2px; z-index: 2; overflow-y: auto; margin-top: 4px;}
         .ai-reasoning span { padding-left: 5px; border-left: 2px solid #3f3f46;}
 
         .ai-box.scanning::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: rgba(139, 92, 246, 0.9); box-shadow: 0 0 10px #8b5cf6, 0 0 20px #8b5cf6; animation: scanline 0.8s linear infinite alternate; z-index: 1; pointer-events: none;}
@@ -110,9 +117,10 @@
         .right-col { display: flex; flex-direction: column; gap: 4px; height: 100%;}
         .road-box { background: #ffffff; border-radius: 4px; padding: 2px; border: 1px solid #3f3f46; overflow-x: auto; overflow-y: hidden; direction: ltr; display: flex; align-items: flex-start; flex: 1; min-height: 0;}
         .road-grid { display: grid; grid-template-rows: repeat(6, 1fr); grid-auto-columns: 12px; grid-auto-flow: column; gap: 1px; background: #cbd5e1; padding-right: 2px; height: 100%; min-width: 100%;}
-        .road-cell { width: 12px; height: 100%; background: #fff; display: flex; justify-content: center; align-items: center; }
-        .bead { width: 8px; height: 8px; border-radius: 50%; font-size: 5px; font-weight: 800; color: #fff; display: flex; justify-content: center; align-items: center; box-shadow: inset -1px -1px 2px rgba(0,0,0,0.3); }
+        .road-cell { width: 12px; height: 100%; background: #fff; display: flex; justify-content: center; align-items: center; position: relative;}
+        .bead { width: 9px; height: 9px; border-radius: 50%; font-size: 5px; font-weight: 900; color: #fff; display: flex; justify-content: center; align-items: center; box-shadow: inset -1px -1px 2px rgba(0,0,0,0.3); z-index: 2;}
         .bead.P { background: var(--color-p); } .bead.B { background: var(--color-b); } .bead.T { background: var(--color-t); }
+        .tie-line { position: absolute; width: 12px; height: 2px; background: var(--color-t); transform: rotate(-45deg); z-index: 3;}
 
         .neural-stats { background: #000; border-radius: 4px; padding: 4px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; height: 26px; min-height: 26px;}
         .nn-node { display: flex; flex-direction: column; align-items: center; gap: 1px; }
@@ -143,17 +151,19 @@
 
     <div id="app-wrapper">
         
-        <!-- 1. KHU VỰC WEB (SẼ HIỂN THỊ RẤT RỘNG RÃI) -->
+        <!-- 1. KHU VỰC WEB -->
         <div class="top-browser">
             <div class="iframe-warning">
-                <i class="fas fa-satellite-dish" style="font-size: 2rem; margin-bottom: 10px; color: #52525b;"></i><br>
-                Đang kết nối tín hiệu...<br><span style="font-size:0.75rem; color: var(--accent);">Bấm Nút Tròn để Mở Tool</span>
+                <i class="fas fa-shield-alt" style="font-size: 2rem; margin-bottom: 10px; color: #fbbf24;"></i><br>
+                Đang kết nối sảnh <b>Casino BG</b>...<br><span style="font-size:0.75rem; color: var(--accent);">Bấm Nút Tròn để Mở Tool</span><br>
+                <span style="display:inline-block; margin-top: 10px; font-size:0.65rem; color: #a1a1aa; border: 1px solid #3f3f46; padding: 3px 8px; border-radius: 10px;">Tele: Giacatlon</span>
             </div>
+            <!-- BẠN CÓ THỂ ĐỔI LINK NHÀ CÁI Ở ĐÂY -->
             <iframe src="https://03llwin.com/?id=132097934" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
             <div id="drag-shield"></div>
         </div>
 
-        <!-- 2. BẢNG TOOL AI (CHIẾM ĐÚNG 35% MÀN HÌNH DƯỚI) -->
+        <!-- 2. BẢNG TOOL AI COMPACT FLEX -->
         <div class="bottom-panel" id="ai-tool">
             <div class="tool-header">
                 <div class="stats-badge">
@@ -168,17 +178,28 @@
                 </div>
             </div>
 
+            <!-- THANH THÔNG TIN BẢN QUYỀN / CẢNH BÁO -->
+            <div class="author-info">
+                <span><i class="fas fa-exclamation-triangle"></i> Chỉ Áp Dụng Sảnh Casino BG</span>
+                <span><i class="fab fa-telegram"></i> Tele: Giacatlon_26</span>
+            </div>
+
             <div class="core-grid">
-                <!-- Cột AI (Co giãn linh hoạt) -->
+                <!-- Cột AI -->
                 <div class="ai-box" id="ai-container">
-                    <div class="trinity-indicators">
-                        <div class="tri-badge" id="tri-form">FORM</div>
-                        <div class="tri-badge" id="tri-ai">AI</div>
-                        <div class="tri-badge" id="tri-road">PHỤ</div>
+                    
+                    <div class="pattern-mini-hud" id="pt-hud">
+                        <i class="fas fa-search"></i> ĐANG QUÉT CẦU ĐẸP
                     </div>
                     
                     <div class="ai-result res-wait" id="ai-pred">CHỜ DATA</div>
                     
+                    <div class="ai-reasoning" id="ai-reason">
+                        <span>> Khởi động V18 Compact Flex...</span>
+                        <span>> Đã nạp dữ liệu 11 Cầu Đẹp.</span>
+                        <span>> Nhập kết quả để chạy phân tích.</span>
+                    </div>
+
                     <div class="progress-wrapper">
                         <div style="display:flex; justify-content:space-between; font-size:0.5rem; color:#a1a1aa; padding:0 2px; margin-bottom:2px;">
                             <span id="rate-p">50%</span><span id="rate-b">50%</span>
@@ -188,21 +209,15 @@
                             <div class="pt-b" id="bar-b" style="width: 50%;"></div>
                         </div>
                     </div>
-                    
-                    <div class="ai-reasoning" id="ai-reason">
-                        <span>> Khởi động Trinity Compact Flex...</span>
-                        <span>> Tối ưu hóa không gian 35%.</span>
-                        <span>> Nhập 4 tay cược để chạy AI.</span>
-                    </div>
                 </div>
 
-                <!-- Cột Bảng -->
+                <!-- Cột Bảng & Cầu Phụ -->
                 <div class="right-col">
                     <div class="road-box" id="scroll-wrapper"><div class="road-grid" id="bead-road"></div></div>
                     <div class="neural-stats">
-                        <div class="nn-node"><div class="icon-eye"></div><span class="nn-label">M.Lớn</span><span class="nn-val" id="w-eye">1.0</span></div>
-                        <div class="nn-node"><div class="icon-small"></div><span class="nn-label">C.Tiểu</span><span class="nn-val" id="w-small">1.0</span></div>
-                        <div class="nn-node"><div class="icon-roach"></div><span class="nn-label">C.Gián</span><span class="nn-val" id="w-roach">1.0</span></div>
+                        <div class="nn-node"><div class="icon-eye"></div><span class="nn-label">M.Lớn</span><span class="nn-val" id="w-eye">-</span></div>
+                        <div class="nn-node"><div class="icon-small"></div><span class="nn-label">C.Tiểu</span><span class="nn-val" id="w-small">-</span></div>
+                        <div class="nn-node"><div class="icon-roach"></div><span class="nn-label">C.Gián</span><span class="nn-val" id="w-roach">-</span></div>
                     </div>
                 </div>
             </div>
@@ -224,10 +239,8 @@
             </div>
         </div>
 
-        <!-- 3. NÚT NỔI (CHỈ ĐỂ MỞ TOOL) -->
-        <div id="fab">
-            <i class="fas fa-robot"></i>
-        </div>
+        <!-- 3. NÚT NỔI -->
+        <div id="fab"><i class="fas fa-robot"></i></div>
 
     </div>
 
@@ -239,8 +252,7 @@
         const aiTool = document.getElementById('ai-tool');
         const dragShield = document.getElementById('drag-shield');
         
-        let isDragging = false;
-        let hasMoved = false; 
+        let isDragging = false, hasMoved = false; 
         let startX, startY, initialFabX, initialFabY;
 
         const dragStart = (e) => {
@@ -248,88 +260,47 @@
             let event = e.type.includes('mouse') ? e : e.touches[0];
             startX = event.clientX; startY = event.clientY;
             initialFabX = fab.offsetLeft; initialFabY = fab.offsetTop;
-            
-            dragShield.style.display = 'block'; 
-            fab.style.transition = 'none'; 
+            dragShield.style.display = 'block'; fab.style.transition = 'none'; 
         };
 
         const dragAction = (e) => {
             if (!isDragging) return;
             let event = e.type.includes('mouse') ? e : e.touches[0];
-            let diffX = event.clientX - startX;
-            let diffY = event.clientY - startY;
-
+            let diffX = event.clientX - startX; let diffY = event.clientY - startY;
             if (Math.abs(diffX) > 5 || Math.abs(diffY) > 5) hasMoved = true;
-
-            let newX = initialFabX + diffX;
-            let newY = initialFabY + diffY;
-
-            newX = Math.max(5, Math.min(newX, window.innerWidth - fab.offsetWidth - 5));
-            newY = Math.max(5, Math.min(newY, window.innerHeight - fab.offsetHeight - 5));
-
-            fab.style.left = newX + 'px';
-            fab.style.top = newY + 'px';
+            let newX = Math.max(5, Math.min(initialFabX + diffX, window.innerWidth - fab.offsetWidth - 5));
+            let newY = Math.max(5, Math.min(initialFabY + diffY, window.innerHeight - fab.offsetHeight - 5));
+            fab.style.left = newX + 'px'; fab.style.top = newY + 'px';
         };
 
         const dragEnd = () => {
-            isDragging = false;
-            dragShield.style.display = 'none';
+            isDragging = false; dragShield.style.display = 'none';
             fab.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s, left 0.3s, top 0.3s';
-            
-            if (hasMoved) {
-                let currentX = fab.offsetLeft;
-                if (currentX < window.innerWidth / 2) {
-                    fab.style.left = '10px';
-                } else {
-                    fab.style.left = (window.innerWidth - fab.offsetWidth - 10) + 'px';
-                }
-            } else {
-                openTool();
-            }
+            if (hasMoved) { fab.style.left = (fab.offsetLeft < window.innerWidth / 2) ? '10px' : (window.innerWidth - fab.offsetWidth - 10) + 'px'; } 
+            else { openTool(); }
         };
 
-        fab.addEventListener('mousedown', dragStart);
-        fab.addEventListener('touchstart', dragStart, {passive: false});
-        document.addEventListener('mousemove', dragAction);
-        document.addEventListener('touchmove', dragAction, {passive: false});
-        document.addEventListener('mouseup', dragEnd);
-        document.addEventListener('touchend', dragEnd);
+        fab.addEventListener('mousedown', dragStart); fab.addEventListener('touchstart', dragStart, {passive: false});
+        document.addEventListener('mousemove', dragAction); document.addEventListener('touchmove', dragAction, {passive: false});
+        document.addEventListener('mouseup', dragEnd); document.addEventListener('touchend', dragEnd);
 
-        // HÀM MỞ TOOL
-        function openTool() {
-            aiTool.classList.add('open');
-            fab.classList.add('hidden');
-            
-            setTimeout(() => {
-                const w = document.getElementById('scroll-wrapper');
-                if(w) w.scrollLeft = w.scrollWidth;
-            }, 300);
-        }
-
-        // HÀM ĐÓNG TOOL
-        function closeTool() {
-            aiTool.classList.remove('open');
-            fab.classList.remove('hidden');
-        }
+        function openTool() { aiTool.classList.add('open'); fab.classList.add('hidden'); setTimeout(() => { const w = document.getElementById('scroll-wrapper'); if(w) w.scrollLeft = w.scrollWidth; }, 300); }
+        function closeTool() { aiTool.classList.remove('open'); fab.classList.remove('hidden'); }
 
 
         // ==========================================
-        // 2. LOGIC AI (TRINITY ENGINE)
+        // 2. LÕI AI V18 MASTER PATTERN (11 CẦU ĐẸP)
         // ==========================================
-        let historySequence = JSON.parse(localStorage.getItem('bacc_hist_v162')) || [];
-        let aiStreak = JSON.parse(localStorage.getItem('bacc_stk_v162')) || []; 
-        let currentAiPrediction = localStorage.getItem('bacc_curr_v162') || null; 
-        let neuralWeights = JSON.parse(localStorage.getItem('bacc_wgt_v162')) || { eye: 1.0, small: 1.0, roach: 1.0 };
-        let lastPredictions = JSON.parse(localStorage.getItem('bacc_preds_v162')) || null;
+        let historySequence = JSON.parse(localStorage.getItem('v18c_hist')) || [];
+        let aiStreak = JSON.parse(localStorage.getItem('v18c_stk')) || []; 
+        let currentAiPrediction = localStorage.getItem('v18c_curr') || null; 
         let isAnalyzing = false;
 
         window.onload = () => {
-            updateStatsUI(); renderRoadmap(); updateWeightsUI(); updateStreakUI();
+            updateStatsUI(); renderRoadmap(); updateStreakUI(); updateSubRoadsUI();
             if(currentAiPrediction && currentAiPrediction !== 'SKIP') {
                 document.getElementById('ai-pred').textContent = "ĐANG THEO LỆNH";
-                addLog(`[HỆ THỐNG] Đang chốt lệnh ${currentAiPrediction === 'P' ? 'CON' : 'CÁI'}. Nhập kết quả để xem độ chuẩn.`);
-            } else if(historySequence.filter(x=>x!=='T').length >= 4) {
-                document.getElementById('ai-pred').textContent = "SẴN SÀNG";
+                addLog(`[HỆ THỐNG] Đang chờ kết quả tay ${currentAiPrediction === 'P' ? 'CON' : 'CÁI'} để đánh giá.`);
             }
         };
 
@@ -341,12 +312,21 @@
         function renderRoadmap() {
             const grid = document.getElementById('bead-road'); grid.innerHTML = '';
             const total = historySequence.length; const cols = Math.max(14, Math.ceil(total / 6)); 
+            
             for (let i = 0; i < cols * 6; i++) {
                 const cell = document.createElement('div'); cell.className = 'road-cell';
                 if (i < total) {
-                    const bead = document.createElement('div');
-                    bead.className = `bead ${historySequence[i]}`; bead.textContent = historySequence[i];
-                    cell.appendChild(bead);
+                    const res = historySequence[i];
+                    if (res === 'P' || res === 'B') {
+                        const bead = document.createElement('div');
+                        bead.className = `bead ${res}`; bead.textContent = res;
+                        cell.appendChild(bead);
+                    } else if (res === 'T') {
+                        // Vẽ chấm Hòa
+                        const bead = document.createElement('div');
+                        bead.className = `bead T`; bead.textContent = 'T';
+                        cell.appendChild(bead);
+                    }
                 }
                 grid.appendChild(cell);
             }
@@ -356,11 +336,9 @@
         function rebootSystem() {
             if(isAnalyzing) return;
             if(confirm("Xóa trắng bản đồ cầu và bộ nhớ học máy AI?")) {
-                historySequence = []; aiStreak = []; currentAiPrediction = null; lastPredictions = null;
-                neuralWeights = { eye: 1.0, small: 1.0, roach: 1.0 };
-                localStorage.clear();
-                updateStatsUI(); renderRoadmap(); updateWeightsUI(); updateStreakUI();
-                resetTrinityBadges();
+                historySequence = []; aiStreak = []; currentAiPrediction = null; localStorage.clear();
+                updateStatsUI(); renderRoadmap(); updateStreakUI(); updateSubRoadsUI();
+                updateHUD(null);
                 document.getElementById('ai-pred').textContent = "CHỜ DỮ LIỆU"; document.getElementById('ai-pred').className = 'ai-result res-wait';
                 document.getElementById('bar-p').style.width = '50%'; document.getElementById('bar-b').style.width = '50%';
                 document.getElementById('rate-p').textContent = '50%'; document.getElementById('rate-b').textContent = '50%';
@@ -368,15 +346,14 @@
             }
         }
 
-        function updateWeightsUI() {
-            document.getElementById('w-eye').textContent = neuralWeights.eye.toFixed(1);
-            document.getElementById('w-small').textContent = neuralWeights.small.toFixed(1);
-            document.getElementById('w-roach').textContent = neuralWeights.roach.toFixed(1);
-        }
-
         function addLog(text) {
             const box = document.getElementById('ai-reason');
-            const span = document.createElement('span'); span.textContent = text;
+            const span = document.createElement('span'); 
+            
+            if(text.includes('PLAYER') || text.includes('CON')) span.style.color = '#60a5fa';
+            else if (text.includes('BANKER') || text.includes('CÁI')) span.style.color = '#f87171';
+            
+            span.textContent = text;
             box.appendChild(span);
             if(box.children.length > 6) box.removeChild(box.firstChild);
             box.scrollTop = box.scrollHeight;
@@ -397,11 +374,16 @@
             rateLabel.textContent = `${winRate}%`; rateLabel.style.color = winRate >= 70 ? '#34d399' : (winRate <= 40 ? '#f87171' : '#fff');
         }
 
-        function setTriBadge(id, side) {
-            const el = document.getElementById(id); el.className = 'tri-badge';
-            if(side === 'P') el.classList.add('active-p'); else if(side === 'B') el.classList.add('active-b');
+        function updateHUD(pattern) {
+            const hud = document.getElementById('pt-hud');
+            if (pattern) {
+                hud.classList.add('active');
+                hud.innerHTML = `<i class="fas fa-gem"></i> ${pattern.name}`;
+            } else {
+                hud.classList.remove('active');
+                hud.innerHTML = `<i class="fas fa-search"></i> ĐANG QUÉT CẦU ĐẸP`;
+            }
         }
-        function resetTrinityBadges() { setTriBadge('tri-form', null); setTriBadge('tri-ai', null); setTriBadge('tri-road', null); }
 
         function getColumnsData(data) {
             let cols = []; let cur = null; let count = 0;
@@ -409,48 +391,64 @@
             if(cur) cols.push({val: cur, count: count}); return cols;
         }
 
-        function detectForm(noTieHistory) {
-            if(noTieHistory.length < 4) return null;
-            let cols = getColumnsData(noTieHistory); let lastCol = cols[cols.length-1]; let len = cols.length;
+        // =====================================
+        // NHẬN DIỆN 11 CẦU ĐẸP
+        // =====================================
+        function detectBeautifulPatterns(noTieHistory) {
+            let cols = getColumnsData(noTieHistory);
+            let len = cols.length;
+            if (len < 2) return null;
+            
+            let last = cols[len-1]; let prev = cols[len-2];
 
-            if(lastCol.val === 'B' && lastCol.count >= 3) return { suggest: 'B', name: "Bệt Cái" };
-            if(lastCol.val === 'P' && lastCol.count >= 3) return { suggest: 'P', name: "Bệt Con" };
-            if(len >= 4 && cols.slice(-4).every(c => c.count === 1)) return { suggest: lastCol.val === 'P' ? 'B' : 'P', name: "Cầu 1-1" };
-            if(len >= 3) {
-                let isDouble = true; for(let i=len-3; i<len-1; i++) { if(cols[i].count !== 2) isDouble = false; }
-                if(isDouble) {
-                    if(lastCol.count === 1) return { suggest: lastCol.val, name: "Cầu 2-2" };
-                    if(lastCol.count === 2) return { suggest: lastCol.val === 'P' ? 'B' : 'P', name: "Cầu 2-2" };
-                }
+            // 1 & 2: Bệt (>= 4)
+            if (last.val === 'B' && last.count >= 4) return { id: 1, name: "Bệt Cái", next: 'B', conf: 85, msg: `Cái đang bệt ${last.count} tay.` };
+            if (last.val === 'P' && last.count >= 4) return { id: 2, name: "Bệt Con", next: 'P', conf: 85, msg: `Con đang bệt ${last.count} tay.` };
+
+            // 3: Cầu Đơn (1-1) - 5 tay
+            let count11 = 0;
+            for(let i=len-1; i>=0 && i>=len-5; i--) { if(cols[i].count === 1) count11++; else break; }
+            if (count11 >= 5) return { id: 3, name: "Cầu 1-1", next: last.val==='P'?'B':'P', conf: 80, msg: "Cầu đơn liên tục." };
+
+            // 4: Cầu Đôi (2-2) - 4 cặp
+            let count22 = 0; let lastWas1 = false;
+            for(let i=len-1; i>=0 && i>=len-4; i--) {
+                if (cols[i].count === 2) count22++;
+                else if (i === len-1 && cols[i].count === 1) { count22++; lastWas1 = true; }
+                else break;
             }
-            if(len >= 3 && cols.slice(-3).every(c => c.count >= 2) && lastCol.count === 1) return { suggest: lastCol.val, name: "Cầu 232" };
-            return null;
-        }
+            if (count22 >= 4) return { id: 4, name: "Cầu 2-2", next: lastWas1 ? last.val : (last.val==='P'?'B':'P'), conf: 80, msg: "Cặp 2-2 cực đẹp." };
 
-        function recordHand(result) {
-            if(isAnalyzing) return;
-            if (currentAiPrediction !== null && currentAiPrediction !== 'SKIP' && result !== 'T') {
-                if (result === currentAiPrediction) aiStreak.unshift('W'); else aiStreak.unshift('L');
-                if (aiStreak.length > 25) aiStreak.pop(); 
-                localStorage.setItem('bacc_stk_v162', JSON.stringify(aiStreak));
-                updateStreakUI();
+            // 5: Cầu 232
+            if (len >= 3 && last.count >= 2 && prev.count >= 2 && cols[len-3].count >= 2) return { id: 5, name: "Cầu 232", next: last.count === 1 ? last.val : (last.count >= 2 ? (last.val==='P'?'B':'P') : last.val), conf: 75, msg: "Các cột đều dài." };
+
+            // 6: 1 Cái 2 Con
+            if (len >= 4 && last.val === 'P' && prev.val === 'B' && prev.count === 1 && cols[len-3].val === 'P' && cols[len-3].count === 2 && cols[len-4].val === 'B' && cols[len-4].count === 1) return { id: 6, name: "1 Cái 2 Con", next: last.count === 1 ? 'P' : 'B', conf: 78, msg: "Lặp 1B-2P" };
+            
+            // 7: 1 Con 2 Cái
+            if (len >= 4 && last.val === 'B' && prev.val === 'P' && prev.count === 1 && cols[len-3].val === 'B' && cols[len-3].count === 2 && cols[len-4].val === 'P' && cols[len-4].count === 1) return { id: 7, name: "1 Con 2 Cái", next: last.count === 1 ? 'B' : 'P', conf: 78, msg: "Lặp 1P-2B" };
+
+            // 10 & 11: Dính Cái / Dính Con (Mở 3 lần)
+            let bAlways1 = true, countB = 0;
+            for(let i=len-1; i>=0; i--) { if(cols[i].val === 'B') { countB++; if(cols[i].count > 1) {bAlways1 = false; break;} } if(countB>=3) break; }
+            if (bAlways1 && countB >= 3 && last.val === 'B') return { id: 10, name: "Cầu Dính Cái", next: 'P', conf: 82, msg: "Cái chỉ xuống 1 chân." };
+
+            let pAlways1 = true, countP = 0;
+            for(let i=len-1; i>=0; i--) { if(cols[i].val === 'P') { countP++; if(cols[i].count > 1) {pAlways1 = false; break;} } if(countP>=3) break; }
+            if (pAlways1 && countP >= 3 && last.val === 'P') return { id: 11, name: "Cầu Dính Con", next: 'B', conf: 82, msg: "Con chỉ xuống 1 chân." };
+
+            // 8 & 9: Cầu Nghiêng
+            if (len >= 5) {
+                let pHeavy = 0, bHeavy = 0;
+                cols.slice(-5).forEach(c => { if(c.count >= 2) { if(c.val === 'P') pHeavy++; else bHeavy++; } });
+                if (bHeavy >= 3 && pHeavy <= 1) return { id: 8, name: "Nghiêng Cái", next: 'B', conf: 70, msg: "Xu hướng Cái mạnh." };
+                if (pHeavy >= 3 && bHeavy <= 1) return { id: 9, name: "Nghiêng Con", next: 'P', conf: 70, msg: "Xu hướng Con mạnh." };
             }
 
-            historySequence.push(result); localStorage.setItem('bacc_hist_v162', JSON.stringify(historySequence));
-            updateStatsUI(); renderRoadmap();
-            if (result !== 'T') { trainNeural(result); engageTrinity(); }
+            return null; 
         }
 
-        function trainNeural(actualResult) {
-            if (!lastPredictions) return;
-            const lr = 0.15;
-            if (lastPredictions.eye === actualResult) neuralWeights.eye += lr; else neuralWeights.eye -= lr;
-            if (lastPredictions.small === actualResult) neuralWeights.small += lr; else neuralWeights.small -= lr;
-            if (lastPredictions.roach === actualResult) neuralWeights.roach += lr; else neuralWeights.roach -= lr;
-            for(let key in neuralWeights) { neuralWeights[key] = Math.max(0.1, Math.min(neuralWeights[key], 3.0)); }
-            localStorage.setItem('bacc_wgt_v162', JSON.stringify(neuralWeights)); updateWeightsUI();
-        }
-
+        // TÍNH CẦU PHỤ (SUB-ROADS)
         function getColsArray(data) { let c=[], cur=null, col=[]; data.forEach(r=>{if(r!==cur){if(col.length)c.push(col);col=[r];cur=r;}else col.push(r);}); if(col.length)c.push(col); return c; }
         function getDeriv(cols, off) {
             if(cols.length <= off+1) return null;
@@ -458,52 +456,89 @@
             if(r===0) return cols[c-1].length === cols[c-(off+1)].length ? 'R' : 'B';
             return (r < cols[c-off].length || r > cols[c-off].length) ? 'R' : 'B';
         }
-        function testDerived(test, data) {
+        function testSubRoads(test, data) {
             let f = [...data, test], c = getColsArray(f);
             return { eye: getDeriv(c, 1), small: getDeriv(c, 2), roach: getDeriv(c, 3) };
         }
-
-        function engageTrinity() {
+        function updateSubRoadsUI() {
             const noTie = historySequence.filter(x => x !== 'T');
-            if (noTie.length < 4) { currentAiPrediction = null; localStorage.removeItem('bacc_curr_v162'); return; }
+            if (noTie.length < 2) {
+                document.getElementById('w-eye').textContent = "-"; document.getElementById('w-small').textContent = "-"; document.getElementById('w-roach').textContent = "-"; return;
+            }
+            let c = getColsArray(noTie);
+            let eye = getDeriv(c, 1); let small = getDeriv(c, 2); let roach = getDeriv(c, 3);
             
-            isAnalyzing = true; clearLog(); resetTrinityBadges();
-            const aiContainer = document.getElementById('ai-container'); aiContainer.classList.add('scanning');
-            document.getElementById('ai-pred').className = 'ai-result res-wait'; document.getElementById('ai-pred').textContent = "FUSION START...";
-            addLog("> Đang tổng hợp 3 luồng dữ liệu...");
-            
-            setTimeout(() => { aiContainer.classList.remove('scanning'); processFusion(noTie); isAnalyzing = false; }, 900);
+            const setRoadColor = (id, val) => {
+                const el = document.getElementById(id);
+                if(val === 'R') { el.textContent = "ĐỎ"; el.style.color = "#f87171"; }
+                else if(val === 'B') { el.textContent = "XANH"; el.style.color = "#60a5fa"; }
+                else { el.textContent = "-"; el.style.color = "#fff"; }
+            };
+            setRoadColor('w-eye', eye); setRoadColor('w-small', small); setRoadColor('w-roach', roach);
         }
 
-        function processFusion(noTie) {
+        function recordHand(result) {
+            if(isAnalyzing) return;
+            
+            // Tính toán Streak dựa trên dự đoán cũ
+            if (currentAiPrediction !== null && currentAiPrediction !== 'SKIP' && result !== 'T') {
+                if (result === currentAiPrediction) aiStreak.unshift('W'); else aiStreak.unshift('L');
+                if (aiStreak.length > 20) aiStreak.pop(); 
+                localStorage.setItem('v18c_stk', JSON.stringify(aiStreak));
+                updateStreakUI();
+            }
+
+            historySequence.push(result); localStorage.setItem('v18c_hist', JSON.stringify(historySequence));
+            updateStatsUI(); renderRoadmap(); updateSubRoadsUI();
+            
+            // XỬ LÝ HÒA ĐẶC BIỆT
+            if (result === 'T') {
+                if (historySequence.length > 1) executeFusionScan(true); 
+                return;
+            }
+
+            executeFusionScan(false);
+        }
+
+        function executeFusionScan(isAfterTie) {
+            const noTie = historySequence.filter(x => x !== 'T');
+            if (noTie.length < 4) { currentAiPrediction = null; localStorage.removeItem('v18c_curr'); return; }
+            
+            isAnalyzing = true; clearLog(); updateHUD(null);
+            const aiContainer = document.getElementById('ai-container'); aiContainer.classList.add('scanning');
+            document.getElementById('ai-pred').className = 'ai-result res-wait'; document.getElementById('ai-pred').textContent = "FUSION SCAN...";
+            
+            setTimeout(() => { aiContainer.classList.remove('scanning'); processFusion(noTie, isAfterTie); isAnalyzing = false; }, 800);
+        }
+
+        function processFusion(noTie, isAfterTie) {
             clearLog(); let scoreP = 0, scoreB = 0;
             
-            let form = detectForm(noTie);
-            if(form) {
-                if(form.suggest === 'P') { scoreP += 35; setTriBadge('tri-form', 'P'); addLog(`[FORM] ${form.name}: CON`); }
-                else { scoreB += 35; setTriBadge('tri-form', 'B'); addLog(`[FORM] ${form.name}: CÁI`); }
-            } else { setTriBadge('tri-form', null); addLog(`[FORM] Không rõ khuôn mẫu.`); }
+            let pattern = detectBeautifulPatterns(noTie);
+            updateHUD(pattern);
 
-            let dP = testDerived('P', noTie); let dB = testDerived('B', noTie);
+            if(pattern) {
+                addLog(`[CẦU CHÍNH] Nhận diện: ${pattern.name}`);
+                if(pattern.next === 'P') scoreP += pattern.conf; else scoreB += pattern.conf;
+            } else {
+                addLog(`[CẦU CHÍNH] Cầu loạn/Gãy nhịp.`);
+                let last = noTie[noTie.length-1]; let prev = noTie[noTie.length-2];
+                if (last === prev) { if(last === 'P') scoreP+=40; else scoreB+=40; }
+                else { if(last === 'P') scoreB+=40; else scoreP+=40; }
+            }
+
+            // Cầu Phụ
+            let dP = testSubRoads('P', noTie); let dB = testSubRoads('B', noTie);
             let rP_c = (dP.eye==='R'?1:0) + (dP.small==='R'?1:0) + (dP.roach==='R'?1:0);
             let rB_c = (dB.eye==='R'?1:0) + (dB.small==='R'?1:0) + (dB.roach==='R'?1:0);
-            scoreP += (rP_c * 10); scoreB += (rB_c * 10);
             
-            if(rP_c > rB_c) { setTriBadge('tri-road', 'P'); addLog(`[C.PHỤ] ${rP_c}/3 cầu thế Đỏ: CON`); }
-            else if(rB_c > rP_c) { setTriBadge('tri-road', 'B'); addLog(`[C.PHỤ] ${rB_c}/3 cầu thế Đỏ: CÁI`); }
-            else { setTriBadge('tri-road', null); addLog(`[C.PHỤ] Đang phân nhánh.`); }
+            if(rP_c > rB_c) { scoreP += 15; addLog(`[CẦU PHỤ] ${rP_c}/3 cầu thế Đỏ ủng hộ: CON`); }
+            else if(rB_c > rP_c) { scoreB += 15; addLog(`[CẦU PHỤ] ${rB_c}/3 cầu thế Đỏ ủng hộ: CÁI`); }
 
-            let nnP = 0, nnB = 0;
-            if(dP.eye === 'R') nnP += neuralWeights.eye; else if(dB.eye === 'R') nnB += neuralWeights.eye;
-            if(dP.small === 'R') nnP += neuralWeights.small; else if(dB.small === 'R') nnB += neuralWeights.small;
-            if(dP.roach === 'R') nnP += neuralWeights.roach; else if(dB.roach === 'R') nnB += neuralWeights.roach;
-            nnB += 0.05; 
-
-            if(nnP > nnB) { scoreP += 35; setTriBadge('tri-ai', 'P'); addLog(`[NƠ-RON] Máy học ưu tiên: CON`); }
-            else { scoreB += 35; setTriBadge('tri-ai', 'B'); addLog(`[NƠ-RON] Máy học ưu tiên: CÁI`); }
-
-            lastPredictions = { eye: dP.eye === 'R' ? 'P' : (dB.eye === 'R' ? 'B' : null), small: dP.small === 'R' ? 'P' : (dB.small === 'R' ? 'B' : null), roach: dP.roach === 'R' ? 'P' : (dB.roach === 'R' ? 'B' : null) };
-            localStorage.setItem('bacc_preds_v162', JSON.stringify(lastPredictions));
+            if(isAfterTie) {
+                addLog(`[TIE-BYPASS] Bỏ qua Hòa, giữ nguyên form cũ.`);
+                scoreP *= 1.1; scoreB *= 1.1; // Tăng nhẹ do Hòa thường củng cố form
+            }
 
             let total = scoreP + scoreB; if(total === 0) total = 1; 
             let probP = Math.round((scoreP / total) * 100); let probB = Math.round((scoreB / total) * 100);
@@ -514,10 +549,8 @@
             const predEl = document.getElementById('ai-pred');
             let isSkip = false; let finalPred = probP > probB ? 'P' : 'B'; let maxProb = Math.max(probP, probB);
 
-            if (maxProb < 70) {
-                isSkip = true; addLog(`[CẢNH BÁO] Hội tụ thấp (${maxProb}%). Lệnh: BỎ QUA.`);
-            } else if (aiStreak.length > 5 && (aiStreak.filter(x=>x==='W').length / aiStreak.length) < 0.3) {
-                isSkip = true; addLog(`[CẢNH BÁO] Phong độ chạm đáy. Lệnh: BỎ QUA.`);
+            if (maxProb < 60) {
+                isSkip = true; addLog(`[CẢNH BÁO] Hội tụ quá thấp (${maxProb}%). Lệnh: BỎ QUA.`);
             }
 
             if (isSkip) {
@@ -526,9 +559,9 @@
                 currentAiPrediction = finalPred;
                 if (finalPred === 'P') { predEl.textContent = "CHỐT: PLAYER"; predEl.className = 'ai-result res-p'; } 
                 else { predEl.textContent = "CHỐT: BANKER"; predEl.className = 'ai-result res-b'; }
-                addLog(`[VÀO TIỀN] Form chuẩn. Đánh cửa ${finalPred === 'P' ? 'CON' : 'CÁI'}.`);
+                addLog(`[QUYẾT ĐỊNH] Form chuẩn. Vào cửa ${finalPred === 'P' ? 'CON' : 'CÁI'}.`);
             }
-            localStorage.setItem('bacc_curr_v162', currentAiPrediction);
+            localStorage.setItem('v18c_curr', currentAiPrediction);
         }
     </script>
 </body>
