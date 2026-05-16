@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -23,10 +24,10 @@
 </head>
 <body class="h-screen bg-gray-100 flex items-center justify-center font-sans overflow-hidden text-gray-800 select-none">
 
-    <!-- KHUNG APP (Đã bo góc và overflow-hidden để chứa hiệu ứng trượt) -->
+    <!-- KHUNG APP -->
     <div class="w-full max-w-[400px] h-[100dvh] sm:h-[800px] sm:max-h-[90vh] bg-[#F4F7F9] sm:rounded-[24px] shadow-2xl relative overflow-hidden flex flex-col border border-gray-200/50">
         
-        <!-- ==================== HỘP THOẠI BẮT BUỘC THANH TOÁN ĐƠN CŨ ==================== -->
+        <!-- HỘP THOẠI -->
         <div id="pending-modal" class="hidden absolute inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm transition-opacity">
             <div class="bg-white w-[85%] max-w-[320px] rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center transform transition-all scale-100">
                 <div class="w-14 h-14 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mb-4">
@@ -45,10 +46,9 @@
             </div>
         </div>
 
-        <!-- ==================== BƯỚC 1: TRANG CHỦ (FORM) ==================== -->
+        <!-- BƯỚC 1: TRANG CHỦ -->
         <div id="view-form" class="flex flex-col h-full bg-[#F8FAFC] relative animate-fade-in z-10">
             <div class="flex items-center justify-between px-5 py-3.5 bg-white sticky top-0 shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.02)] relative z-20">
-                <!-- NÚT THOÁT ĐIỀU HƯỚNG VỀ TRANG CHỦ -->
                 <button onclick="window.location.href='https://hupetkiemtien.github.io/HUPETTL/trangchu.html'" class="text-gray-500 hover:text-gray-800 transition-colors z-10 p-1 -ml-1">
                     <i data-lucide="chevron-left" class="w-6 h-6"></i>
                 </button>
@@ -65,7 +65,6 @@
             </div>
 
             <div class="flex-1 overflow-y-auto pb-28">
-                <!-- Alert Đang Chờ (Sẽ tự mất khi hết hạn hoặc thành công) -->
                 <div id="alert-pending" class="hidden mx-5 mt-5 bg-blue-50 border border-blue-100 p-3.5 rounded-2xl flex items-center justify-between shadow-sm">
                     <div class="flex items-center gap-2.5 text-[#115ec4]">
                         <div class="bg-white p-1.5 rounded-full shadow-sm">
@@ -133,12 +132,10 @@
             </div>
         </div>
 
-        <!-- ==================== BƯỚC 2: TRANG QR (HIỆU ỨNG TRƯỢT LÊN LÀM LỚP PHỦ) ==================== -->
-        <!-- Đổi class: absolute, translate-y-full (Giấu bên dưới), transition-transform -->
+        <!-- BƯỚC 2: TRANG QR (TRƯỢT LÊN) -->
         <div id="view-qr" class="absolute inset-0 z-40 flex flex-col h-full bg-[#f4f7f9] overflow-hidden transform translate-y-full transition-transform duration-300 ease-out shadow-[0_-10px_40px_rgba(0,0,0,0.15)]">
             <div class="bg-gradient-to-b from-[#115ec4] to-[#1a85e4] px-5 pt-4 pb-8 rounded-b-[24px] relative shrink-0 shadow-sm">
                 <div class="flex items-center justify-between text-white mb-4">
-                    <!-- Nút quay lại sẽ hạ lớp phủ xuống -->
                     <button onclick="closeQr()" class="p-2 -ml-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
                         <i data-lucide="chevron-down" class="w-6 h-6"></i>
                     </button>
@@ -201,7 +198,7 @@
             </div>
         </div>
 
-        <!-- ==================== BƯỚC 3: TRANG LỊCH SỬ ==================== -->
+        <!-- BƯỚC 3: TRANG LỊCH SỬ -->
         <div id="view-history" class="hidden flex-col h-full bg-[#F4F7F9] animate-fade-in z-10">
             <div class="flex items-center justify-between px-5 py-3.5 bg-white shadow-sm shrink-0 sticky top-0 z-20 relative">
                 <button onclick="switchView('form')" class="text-gray-500 hover:text-gray-800 transition-colors p-1 -ml-1 z-10">
@@ -212,9 +209,7 @@
             </div>
 
             <div class="flex-1 overflow-y-auto p-5">
-                <div id="history-container" class="flex flex-col gap-4">
-                    <!-- Rendered via JS -->
-                </div>
+                <div id="history-container" class="flex flex-col gap-4"></div>
             </div>
         </div>
 
@@ -222,6 +217,7 @@
 
     <!-- JS LOGIC -->
     <script>
+        // Đường dẫn API của bạn
         const API_CHECK_URL = 'https://script.google.com/macros/s/AKfycbwevH_rct_kFf_6bCnOYd3q5e6SR26DXiJ7giZp02RV43NEBdRTMmg6SLYakMoNZ2Eb_Q/exec';
         let paymentCheckInterval = null;
 
@@ -279,41 +275,34 @@
             updateFormUI();
         }
 
-        // ============ LOGIC MỚI: MỞ/ĐÓNG LỚP PHỦ QR ============
         function openQr() {
             updateQrUI(); 
             startCheckingPayment();
-            // Trượt lên
             el.viewQr.classList.remove('translate-y-full');
             el.viewQr.classList.add('translate-y-0');
         }
 
         function closeQr() {
-            // Trượt xuống giấu đi
             el.viewQr.classList.remove('translate-y-0');
             el.viewQr.classList.add('translate-y-full');
             stopCheckingPayment();
-            // Cập nhật lại UI nền bên dưới
             updateFormUI();
             renderHistory();
         }
 
-        // ============ CHUYỂN TRANG NỀN (FORM / HISTORY) ============
         function switchView(viewName) {
             state.view = viewName;
             el.viewForm.classList.add('hidden'); 
             el.viewHistory.classList.add('hidden');
             
             if(viewName === 'form') {
-                el.viewForm.classList.remove('hidden'); 
-                updateFormUI(); 
+                el.viewForm.classList.remove('hidden'); updateFormUI(); 
             } else if(viewName === 'history') {
-                el.viewHistory.classList.remove('hidden'); 
-                renderHistory(); 
+                el.viewHistory.classList.remove('hidden'); renderHistory(); 
             }
         }
 
-        // ============ KIỂM TRA API THANH TOÁN ============
+        // ============ CƠ CHẾ KIỂM TRA THANH TOÁN (CHỐNG CACHE) ============
         function startCheckingPayment() {
             stopCheckingPayment(); 
             paymentCheckInterval = setInterval(async () => {
@@ -322,19 +311,29 @@
                     stopCheckingPayment(); return;
                 }
                 try {
-                    const response = await fetch(API_CHECK_URL);
+                    // Thêm tham số timestamp để phá cache trình duyệt
+                    const urlNoCache = `${API_CHECK_URL}?t=${Date.now()}`;
+                    const response = await fetch(urlNoCache, { method: 'GET', mode: 'cors' });
                     const textData = await response.text();
                     
-                    if (textData.includes(tx.id)) {
+                    // In ra console để bạn kiểm tra (Bấm F12 -> Console)
+                    console.log(`Đang dò tìm mã [${tx.id}] trong dữ liệu:`, textData);
+                    
+                    // Dò tìm không phân biệt chữ hoa/thường (Bỏ qua các đoạn nối thêm như FT...)
+                    if (textData.toUpperCase().includes(tx.id.toUpperCase())) {
+                        console.log('✅ ĐÃ TÌM THẤY THANH TOÁN!');
                         tx.status = 'success';
                         saveState();
                         stopCheckingPayment();
                         updateQrUI(); 
+                        
                         setTimeout(() => {
                             window.location.href = 'https://hupetkiemtien.github.io/HUPETTL/thanhtoan.html';
                         }, 2000);
                     }
-                } catch (error) {}
+                } catch (error) {
+                    console.error('Lỗi khi fetch API:', error);
+                }
             }, 5000); 
         }
 
@@ -372,7 +371,7 @@
             saveState();
             state.amount = ''; el.inputAmount.value = '';
             renderAmounts(); validateForm(); 
-            openQr(); // Gọi lớp phủ trượt lên
+            openQr();
         }
 
         function continuePendingTx() {
@@ -493,7 +492,6 @@
                 return tx;
             });
 
-            // Nếu đang mở lớp phủ QR thì update đồng hồ
             if (!el.viewQr.classList.contains('translate-y-full') && state.activeTxId) {
                 const tx = state.transactions.find(t => t.id === state.activeTxId);
                 if(tx) updateTimeLeft(tx);
@@ -528,7 +526,7 @@
                 if(tx.status === 'success') {
                     statusHtml = `<div class="bg-emerald-50 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i><span class="text-[12px] font-bold text-emerald-600">Thành công</span></div>`;
                 } else if(tx.status === 'failed') {
-                    statusHtml = `<div class="bg-red-50 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="x-circle" class="w-3.5 h-3.5 text-red-500"></i><span class="text-[12px] font-bold text-red-500">Thất bại / Hết hạn</span></div>`;
+                    statusHtml = `<div class="bg-red-50 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="x-circle" class="w-3.5 h-3.5 text-red-500"></i><span class="text-[12px] font-bold text-red-500">Thất bại / Hết</span></div>`;
                 } else {
                     statusHtml = `<div class="bg-blue-50 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-[#115ec4]"></i><span class="text-[12px] font-bold text-[#115ec4]">Đang chờ...</span></div>`;
                 }
