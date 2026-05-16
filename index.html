@@ -118,7 +118,7 @@
 
 <!-- FIREBASE SCRIPT -->
 <script type="module">
-    // CẤU HÌNH FIREBASE (Giữ nguyên của bạn)
+    // CẤU HÌNH FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyAQuq-52qZ4FfsP66pVEVgYCP50zBNVKo4",
       authDomain: "hc88-dcaab.firebaseapp.com",
@@ -188,7 +188,7 @@
         }
     };
 
-    // Hiển thị thông báo (Bản UI Tailwind mới)
+    // Hiển thị thông báo
     const showMsg = (text, type = 'error') => {
         if (!text) {
             msgContainer.classList.add('hidden');
@@ -232,7 +232,7 @@
             // Đã đăng nhập -> Chuyển hướng sang trang Tôi (Profile)
             window.location.href = "profile.html";
         } else {
-            // Chưa đăng nhập -> Form hiển thị bình thường
+            // Chưa đăng nhập -> Hiện form auth
             document.querySelectorAll('input').forEach(i => i.value = '');
         }
     });
@@ -293,35 +293,39 @@
         }
     });
 
-    // --- XỬ LÝ ĐĂNG NHẬP ---
+    // --- XỬ LÝ ĐĂNG NHẬP CHỈ BẰNG USERNAME ---
     document.getElementById('btnLogin').addEventListener('click', async () => {
         showMsg("");
         const input = loginInput.value.trim();
         const pass = loginPass.value.trim();
 
-        if (!input || !pass) return showMsg("Vui lòng nhập tài khoản và mật khẩu.");
+        if (!input || !pass) return showMsg("Vui lòng nhập tên tài khoản và mật khẩu.");
+
+        // Chặn nếu người dùng cố tình nhập email
+        if (input.includes('@')) {
+            return showMsg("Vui lòng chỉ đăng nhập bằng Tên tài khoản, không dùng Email.");
+        }
 
         setLoading('btnLogin', true);
 
         try {
-            let emailToLogin = input;
-            // Dù placeholder chỉ ghi "Tên tài khoản", logic cũ vẫn xử lý được nếu người dùng cố tình nhập email
-            const isEmail = input.includes('@');
+            const usernameClean = input.toLowerCase().replace(/\s+/g, '');
+            let emailToLogin = "";
 
-            if (!isEmail) {
-                const usernameClean = input.toLowerCase().replace(/\s+/g, '');
-                const q = query(collection(db, "users"), where("username", "==", usernameClean));
-                const querySnapshot = await getDocs(q);
+            // Tra cứu Database để tìm Email dựa trên Tên tài khoản (username)
+            const q = query(collection(db, "users"), where("username", "==", usernameClean));
+            const querySnapshot = await getDocs(q);
 
-                if (querySnapshot.empty) {
-                    throw new Error("Tên tài khoản không tồn tại.");
-                }
-
-                querySnapshot.forEach((docSnap) => {
-                    emailToLogin = docSnap.data().email;
-                });
+            if (querySnapshot.empty) {
+                throw new Error("Tên tài khoản không tồn tại.");
             }
 
+            // Lấy email từ document tìm được
+            querySnapshot.forEach((docSnap) => {
+                emailToLogin = docSnap.data().email;
+            });
+
+            // Đăng nhập Firebase bằng Email lấy được
             await signInWithEmailAndPassword(auth, emailToLogin, pass);
             showMsg("Đăng nhập thành công!", "success");
 
@@ -331,7 +335,11 @@
             if (err.code === 'auth/user-not-found' ||
                 err.code === 'auth/wrong-password' ||
                 err.code === 'auth/invalid-credential') {
-                message = "Tài khoản hoặc mật khẩu không chính xác.";
+                message = "Mật khẩu không chính xác.";
+            } else if (err.message === "Tên tài khoản không tồn tại.") {
+                message = err.message;
+            } else {
+                message = "Có lỗi xảy ra, vui lòng thử lại sau.";
             }
             showMsg(message);
         } finally {
@@ -339,7 +347,7 @@
         }
     });
 
-    // Gắn sự kiện nhấn Enter để đăng nhập/đăng ký
+    // Gắn sự kiện nhấn Enter
     document.getElementById('loginPass').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') document.getElementById('btnLogin').click();
     });
