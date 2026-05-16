@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nạp Tiền Tự Động</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.25s ease-out forwards; }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; margin: 0; 
+        }
+    </style>
+</head>
+<body class="h-screen bg-gray-100 flex items-center justify-center font-sans overflow-hidden text-gray-800 select-none">
+
+    <!-- KHUNG APP -->
+    <div class="w-full max-w-[400px] h-[100dvh] sm:h-[800px] sm:max-h-[90vh] bg-[#F4F7F9] sm:rounded-[24px] shadow-2xl relative overflow-hidden flex flex-col border border-gray-200/50">
+        
+        <!-- ==================== HỘP THOẠI XÁC NHẬN ĐƠN CHỜ ==================== -->
+        <div id="pending-modal" class="hidden absolute inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm transition-opacity">
+            <div class="bg-white w-[85%] max-w-[320px] rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center transform transition-all scale-100">
+                <div class="w-14 h-14 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mb-4">
+                    <i data-lucide="alert-circle" class="w-7 h-7"></i>
+                </div>
+                <h3 class="text-[18px] font-bold text-gray-900 mb-2">Đơn nạp đang chờ</h3>
+                <!-- Hiển thị rõ số tiền của đơn cũ -->
+                <p id="modal-desc" class="text-[14px] text-gray-500 mb-6 leading-relaxed px-2">Bạn đang có 1 đơn nạp chưa hoàn tất. Bạn muốn tiếp tục thanh toán đơn này?</p>
+                <div class="flex flex-col w-full gap-3">
+                    <button onclick="continueFromModal()" class="w-full py-3.5 bg-[#115ec4] text-white font-bold rounded-xl text-[15px] shadow-md hover:bg-[#0e4e9c] transition-colors active:scale-[0.98]">
+                        Tiếp tục thanh toán
+                    </button>
+                    <button onclick="cancelOldAndCreateNew()" class="w-full py-3.5 bg-gray-100 text-gray-700 font-bold rounded-xl text-[15px] hover:bg-gray-200 transition-colors active:scale-[0.98]">
+                        Huỷ đơn cũ & Tạo mới
+                    </button>
+                    <button onclick="closeModal()" class="w-full py-2 text-gray-400 text-[14px] font-medium mt-1 hover:text-gray-600 transition-colors">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== BƯỚC 1: TRANG CHỦ (FORM) ==================== -->
+        <div id="view-form" class="flex flex-col h-full bg-[#F8FAFC] relative animate-fade-in">
+            <div class="flex items-center justify-between px-5 py-3.5 bg-white z-10 sticky top-0 shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.02)] relative">
+                <button class="text-gray-500 hover:text-gray-800 transition-colors z-10 p-1 -ml-1">
+                    <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                </button>
+                <h1 class="absolute left-1/2 -translate-x-1/2 text-[17px] font-bold text-gray-900 z-0">Nạp Tiền</h1>
+                <div class="flex items-center gap-1 text-gray-500 z-10">
+                    <button class="hover:bg-gray-100 p-2 rounded-full transition-colors text-gray-500">
+                        <i data-lucide="headphones" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="switchView('history')" class="hover:bg-gray-100 p-2 rounded-full transition-colors relative text-gray-500">
+                        <i data-lucide="receipt-text" class="w-5 h-5"></i>
+                        <span id="badge-pending" class="hidden absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto pb-28">
+                <!-- Alert Đang Chờ -->
+                <div id="alert-pending" class="hidden mx-5 mt-5 bg-blue-50 border border-blue-100 p-3.5 rounded-2xl flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-2.5 text-[#115ec4]">
+                        <div class="bg-white p-1.5 rounded-full shadow-sm">
+                            <i data-lucide="clock" class="w-4 h-4 animate-pulse"></i>
+                        </div>
+                        <span class="text-[14px] font-semibold">Bạn có 1 đơn chưa hoàn tất</span>
+                    </div>
+                    <button onclick="continuePendingTx()" class="text-[13px] font-bold bg-[#115ec4] text-white px-4 py-2 rounded-xl hover:bg-[#0e4e9c] transition-colors shadow-sm">
+                        Tiếp tục
+                    </button>
+                </div>
+
+                <div class="px-5 pt-6 pb-2">
+                    <h2 class="font-bold text-gray-900 text-[15px] mb-4">Phương Thức Thanh Toán</h2>
+                    <div class="flex border-b border-gray-200 mb-4">
+                        <button class="pb-3 flex items-center justify-center gap-2 border-b-2 border-[#115ec4] text-[#115ec4] font-bold text-[14px] px-2">
+                            <i data-lucide="smartphone" class="w-4.5 h-4.5"></i> Nạp tiền trực tuyến
+                        </button>
+                    </div>
+                    <div id="method-container" class="grid grid-cols-2 gap-3"></div>
+                </div>
+
+                <div class="mx-5 my-2 border-t border-gray-200/60"></div>
+
+                <div class="px-5 pt-3">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-bold text-gray-900 text-[15px]">Số tiền nạp</h2>
+                        <span class="text-[11px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-md uppercase tracking-wide">1 = 1,000đ</span>
+                    </div>
+                    
+                    <div id="amount-container" class="grid grid-cols-4 gap-2.5 mb-5"></div>
+
+                    <div class="relative flex items-center mb-2">
+                        <div class="absolute left-4 text-gray-500 font-bold text-[16px]">₫</div>
+                        <input
+                            id="input-amount"
+                            type="number"
+                            placeholder="Nhập số tiền (Tối thiểu 20)"
+                            oninput="onAmountInput(this.value)"
+                            class="w-full pl-9 pr-4 py-4 border-2 border-gray-200 bg-white rounded-2xl text-[16px] font-bold text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#115ec4] focus:ring-4 focus:ring-[#115ec4]/10 transition-all shadow-sm"
+                        />
+                    </div>
+                    <p class="text-[13px] font-medium text-gray-500 mb-6 ml-1">Ví dụ: Nhập <span class="font-bold text-gray-700">20</span> = <span class="font-bold text-[#115ec4]">20,000 VND</span></p>
+
+                    <div class="bg-gray-100/80 p-4 rounded-2xl border border-gray-200/60">
+                        <div class="flex items-start gap-2.5">
+                            <i data-lucide="info" class="w-4 h-4 text-gray-400 mt-0.5 shrink-0"></i>
+                            <p class="text-[12px] text-gray-500 leading-relaxed font-medium">
+                                Đăng nhập lấy thông tin mới nhất cho mỗi lần nạp tiền. <span class="text-gray-700 font-semibold">Nhập đúng nội dung</span> để tự động cập nhật!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-0 left-0 w-full p-5 bg-white border-t border-gray-100 z-20 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] rounded-b-[24px]">
+                <button
+                    id="btn-submit"
+                    onclick="handleDeposit()"
+                    class="w-full py-4 rounded-2xl text-gray-400 font-bold text-[16px] transition-all bg-gray-100 cursor-not-allowed"
+                    disabled
+                >
+                    Nạp Tiền Ngay
+                </button>
+            </div>
+        </div>
+
+        <!-- ==================== BƯỚC 2: TRANG QR ==================== -->
+        <div id="view-qr" class="hidden flex-col h-full bg-[#f4f7f9] overflow-hidden animate-fade-in">
+            <div class="bg-gradient-to-b from-[#115ec4] to-[#1a85e4] px-5 pt-4 pb-8 rounded-b-[24px] relative shrink-0 shadow-sm">
+                <div class="flex items-center justify-between text-white mb-4">
+                    <button onclick="switchView('form')" class="p-2 -ml-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
+                        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                    </button>
+                    <!-- ĐÃ XOÁ BIỂU TƯỢNG TELEGRAM TẠI ĐÂY -->
+                    <div class="w-10"></div>
+                </div>
+
+                <div class="text-white text-center">
+                    <p class="text-[12px] text-blue-100 font-medium mb-1.5 uppercase tracking-wide">Mã GD / Nội dung</p>
+                    <p id="qr-txid" class="text-[15px] font-bold tracking-widest mb-4 opacity-100 bg-white/15 inline-block px-4 py-1.5 rounded-xl border border-white/20 shadow-sm backdrop-blur-sm">NAP...</p>
+
+                    <div class="flex flex-col items-center">
+                        <p class="text-[12px] text-blue-100 mb-0.5 uppercase tracking-wide">Hết hạn sau</p>
+                        <p id="qr-time" class="text-[36px] font-bold tracking-wider leading-none">10:00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white mx-5 rounded-3xl -mt-5 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col items-center relative z-10 border border-gray-100 flex-1 mb-5 justify-between">
+                <div class="w-full flex flex-col items-center">
+                    <h2 class="text-[#115ec4] font-extrabold text-[16px] mb-1 tracking-tight">QR CODE</h2>
+                    <p class="text-[13px] font-medium text-gray-500 mb-4">Quét mã QR qua ứng dụng ngân hàng</p>
+
+                    <div class="mb-4 bg-white p-2.5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] w-[180px] h-[180px] flex items-center justify-center border border-gray-100 relative">
+                        <div id="qr-expired-overlay" class="hidden absolute inset-0 bg-white/90 backdrop-blur-[2px] flex items-center justify-center flex-col z-20 rounded-2xl">
+                            <i data-lucide="x-circle" class="w-10 h-10 text-red-500 mb-1.5"></i>
+                            <span class="font-bold text-red-600 text-[14px]">QR Hết Hạn</span>
+                        </div>
+                        <div id="qr-success-overlay" class="hidden absolute inset-0 bg-white/95 backdrop-blur-[2px] flex items-center justify-center flex-col z-20 rounded-2xl">
+                            <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-2">
+                                <i data-lucide="check" class="w-6 h-6 text-emerald-500"></i>
+                            </div>
+                            <span class="font-bold text-emerald-600 text-[15px] text-center leading-tight">Thanh Toán<br>Thành Công</span>
+                        </div>
+                        <!-- Bỏ mix-blend-multiply và crossorigin để đảm bảo ảnh load chuẩn trên mọi trình duyệt -->
+                        <img id="qr-img" src="" alt="VietQR Code" class="w-full h-full object-contain" />
+                    </div>
+
+                    <div class="flex items-center gap-2.5 mb-3">
+                        <div class="flex items-center text-[#115ec4] font-bold italic text-[15px]">
+                            napas <span class="text-[#00a3e0] ml-1">247</span>
+                        </div>
+                        <div class="w-px h-4 bg-gray-200"></div>
+                        <div class="text-[#115ec4] font-black text-[17px] tracking-tight">BIDV</div>
+                    </div>
+                    
+                    <div class="text-center mb-3">
+                        <p class="text-[15px] font-bold text-gray-900 uppercase tracking-wide">HA SY DINH MINH</p>
+                        <p class="text-[14px] font-semibold text-gray-500 tracking-wide mt-0.5">V3CASS8898876444</p>
+                    </div>
+
+                    <div id="qr-amount" class="text-[26px] font-black text-[#115ec4] mb-3 tracking-tight">0 VND</div>
+
+                    <p class="text-[11.5px] text-red-500 font-semibold text-center leading-snug px-3 bg-red-50 py-2 rounded-xl w-full mb-2">
+                        * Vui lòng quét mã QR để tự động điền số tiền/nội dung.
+                    </p>
+                </div>
+
+                <div id="qr-status-text" class="w-full text-[13px] font-medium text-center px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 mt-auto transition-all">
+                    <!-- Dynamic -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== BƯỚC 3: TRANG LỊCH SỬ ==================== -->
+        <div id="view-history" class="hidden flex-col h-full bg-[#F4F7F9] animate-fade-in">
+            <div class="flex items-center justify-between px-5 py-3.5 bg-white shadow-sm shrink-0 sticky top-0 z-10 relative">
+                <button onclick="switchView('form')" class="text-gray-500 hover:text-gray-800 transition-colors p-1 -ml-1 z-10">
+                    <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                </button>
+                <h1 class="absolute left-1/2 -translate-x-1/2 text-[17px] font-bold text-gray-900 z-0">Lịch Sử Nạp Tiền</h1>
+                <div class="w-8 z-10"></div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-5">
+                <div id="history-container" class="flex flex-col gap-4">
+                    <!-- Rendered via JS -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JS LOGIC -->
+    <script>
+        const API_CHECK_URL = 'https://script.google.com/macros/s/AKfycbwevH_rct_kFf_6bCnOYd3q5e6SR26DXiJ7giZp02RV43NEBdRTMmg6SLYakMoNZ2Eb_Q/exec';
+        let paymentCheckInterval = null;
+
+        const state = {
+            view: 'form',
+            amount: '',
+            method: 'qr',
+            transactions: [],
+            activeTxId: null
+        };
+
+        const paymentMethods = [
+            { id: 'qr', name: 'Quét Mã QR', icon: 'qr-code', color: 'text-[#115ec4]' },
+            { id: 'fast', name: 'Nạp Nhanh', icon: 'zap', color: 'text-orange-500' }
+        ];
+        const amounts = ['100', '200', '300', '500', '1000', '3000', '5000', '10000'];
+
+        const el = {
+            viewForm: document.getElementById('view-form'),
+            viewQr: document.getElementById('view-qr'),
+            viewHistory: document.getElementById('view-history'),
+            modal: document.getElementById('pending-modal'),
+            modalDesc: document.getElementById('modal-desc'),
+            
+            methodContainer: document.getElementById('method-container'),
+            amountContainer: document.getElementById('amount-container'),
+            inputAmount: document.getElementById('input-amount'),
+            btnSubmit: document.getElementById('btn-submit'),
+            alertPending: document.getElementById('alert-pending'),
+            badgePending: document.getElementById('badge-pending'),
+            
+            qrTxId: document.getElementById('qr-txid'),
+            qrTime: document.getElementById('qr-time'),
+            qrImg: document.getElementById('qr-img'),
+            qrAmount: document.getElementById('qr-amount'),
+            qrExpiredOverlay: document.getElementById('qr-expired-overlay'),
+            qrSuccessOverlay: document.getElementById('qr-success-overlay'),
+            qrStatusText: document.getElementById('qr-status-text'),
+            
+            historyContainer: document.getElementById('history-container')
+        };
+
+        function saveState() { localStorage.setItem('naptien_transactions', JSON.stringify(state.transactions)); }
+        function loadState() {
+            const saved = localStorage.getItem('naptien_transactions');
+            if (saved) state.transactions = JSON.parse(saved);
+        }
+
+        function init() {
+            loadState();
+            renderMethods();
+            renderAmounts();
+            lucide.createIcons();
+            setInterval(updateGlobalTimer, 1000);
+            updateFormUI();
+        }
+
+        function startCheckingPayment() {
+            stopCheckingPayment(); 
+            paymentCheckInterval = setInterval(async () => {
+                const tx = state.transactions.find(t => t.id === state.activeTxId);
+                if (!tx || tx.status !== 'pending' || Date.now() >= tx.expiresAt) {
+                    stopCheckingPayment(); return;
+                }
+                try {
+                    const response = await fetch(API_CHECK_URL);
+                    const textData = await response.text();
+                    
+                    if (textData.includes(tx.id)) {
+                        tx.status = 'success';
+                        saveState();
+                        stopCheckingPayment();
+                        updateQrUI(); 
+                        setTimeout(() => {
+                            window.location.href = 'https://hupetkiemtien.github.io/HUPETTL/thanhtoan.html';
+                        }, 2000);
+                    }
+                } catch (error) {}
+            }, 5000); 
+        }
+
+        function stopCheckingPayment() {
+            if (paymentCheckInterval) { clearInterval(paymentCheckInterval); paymentCheckInterval = null; }
+        }
+
+        function switchView(viewName) {
+            state.view = viewName;
+            el.viewForm.classList.add('hidden'); el.viewQr.classList.add('hidden'); el.viewHistory.classList.add('hidden');
+            
+            if(viewName === 'form') {
+                el.viewForm.classList.remove('hidden'); el.viewForm.style.display = 'flex';
+                updateFormUI(); stopCheckingPayment();
+            } else if(viewName === 'qr') {
+                el.viewQr.classList.remove('hidden'); el.viewQr.style.display = 'flex';
+                updateQrUI(); startCheckingPayment();
+            } else if(viewName === 'history') {
+                el.viewHistory.classList.remove('hidden'); el.viewHistory.style.display = 'flex';
+                renderHistory(); stopCheckingPayment();
+            }
+        }
+
+        function handleDeposit() {
+            if (!state.amount || parseInt(state.amount) < 20) return;
+            const existingPending = state.transactions.find(t => t.status === 'pending');
+            if (existingPending) {
+                // Cập nhật thông báo Modal với số tiền của đơn cũ để người dùng nắm rõ
+                const oldActualVnd = (parseInt(existingPending.amount) * 1000).toLocaleString('vi-VN');
+                el.modalDesc.innerHTML = `Bạn đang có 1 đơn nạp <b class="text-gray-800">${oldActualVnd} VND</b> chưa hoàn tất. Bạn muốn tiếp tục thanh toán đơn này?`;
+                el.modal.classList.remove('hidden'); 
+                lucide.createIcons(); 
+                return;
+            }
+            createNewTransaction();
+        }
+
+        function closeModal() { el.modal.classList.add('hidden'); }
+        function continueFromModal() { closeModal(); continuePendingTx(); }
+        
+        function cancelOldAndCreateNew() {
+            closeModal();
+            state.transactions = state.transactions.map(tx => tx.status === 'pending' ? { ...tx, status: 'failed' } : tx);
+            saveState(); createNewTransaction();
+        }
+
+        function createNewTransaction() {
+            const randomId = Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
+            const newTx = {
+                id: `NAP${randomId}`,
+                amount: state.amount, status: 'pending',
+                createdAt: Date.now(), expiresAt: Date.now() + 10 * 60 * 1000,
+                method: state.method
+            };
+            state.transactions.unshift(newTx);
+            state.activeTxId = newTx.id;
+            saveState();
+            state.amount = ''; el.inputAmount.value = '';
+            renderAmounts(); validateForm(); switchView('qr');
+        }
+
+        function continuePendingTx() {
+            const pendingTx = state.transactions.find(t => t.status === 'pending');
+            if(pendingTx) { state.activeTxId = pendingTx.id; switchView('qr'); }
+        }
+
+        function renderMethods() {
+            el.methodContainer.innerHTML = paymentMethods.map(m => {
+                const isActive = state.method === m.id;
+                const baseClass = "relative flex flex-row items-center justify-center gap-2.5 px-3 py-3 rounded-xl border transition-all duration-200 cursor-pointer";
+                const activeClass = "border-[#115ec4] bg-[#f0f5ff] text-[#115ec4] shadow-sm";
+                const inactiveClass = "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 text-gray-600";
+                
+                return `
+                <button onclick="setMethod('${m.id}')" class="${baseClass} ${isActive ? activeClass : inactiveClass}">
+                    <i data-lucide="${m.icon}" class="w-5 h-5 ${isActive ? 'text-[#115ec4]' : m.color}"></i>
+                    <span class="text-[13px] font-bold">${m.name}</span>
+                </button>
+            `}).join('');
+            lucide.createIcons();
+        }
+
+        function renderAmounts() {
+            el.amountContainer.innerHTML = amounts.map(val => {
+                const isActive = state.amount === val;
+                const baseClass = "py-3 rounded-2xl border-2 flex items-center justify-center transition-all duration-200 cursor-pointer";
+                const activeClass = "border-[#115ec4] bg-[#115ec4] text-white shadow-md transform scale-[1.02]";
+                const inactiveClass = "border-gray-100 bg-white text-gray-700 hover:border-gray-200 hover:bg-gray-50";
+                
+                return `
+                <button onclick="setAmount('${val}')" class="${baseClass} ${isActive ? activeClass : inactiveClass}">
+                    <span class="font-bold text-[15px]">${val}</span>
+                </button>
+            `}).join('');
+        }
+
+        function setMethod(id) { state.method = id; renderMethods(); }
+        function setAmount(val) { state.amount = val; el.inputAmount.value = val; renderAmounts(); validateForm(); }
+        function onAmountInput(val) { state.amount = val; renderAmounts(); validateForm(); }
+
+        function validateForm() {
+            const isValid = state.amount && parseInt(state.amount) >= 20;
+            if(isValid) {
+                el.btnSubmit.disabled = false;
+                el.btnSubmit.className = "w-full py-4 rounded-2xl text-white font-bold text-[16px] transition-all duration-200 bg-[#115ec4] hover:bg-[#0e4e9c] shadow-[0_6px_20px_rgba(17,94,196,0.3)] active:scale-[0.98]";
+            } else {
+                el.btnSubmit.disabled = true;
+                el.btnSubmit.className = "w-full py-4 rounded-2xl text-gray-400 font-bold text-[16px] transition-all duration-200 bg-gray-100 cursor-not-allowed";
+            }
+        }
+
+        function updateFormUI() {
+            const hasPending = state.transactions.some(t => t.status === 'pending');
+            if(hasPending) {
+                el.alertPending.classList.remove('hidden'); el.badgePending.classList.remove('hidden');
+            } else {
+                el.alertPending.classList.add('hidden'); el.badgePending.classList.add('hidden');
+            }
+        }
+
+        function updateQrUI() {
+            const tx = state.transactions.find(t => t.id === state.activeTxId);
+            if(!tx) return;
+
+            const actualVnd = parseInt(tx.amount) * 1000;
+            el.qrTxId.innerText = tx.id;
+            el.qrAmount.innerText = actualVnd.toLocaleString('vi-VN') + ' VND';
+            
+            // Gắn URL mới mỗi lần chuyển view để đảm bảo hình ảnh Load chuẩn
+            const qrUrl = `https://img.vietqr.io/image/BIDV-V3CASS8898876444-qr_only.png?amount=${actualVnd}&addInfo=${tx.id}&accountName=HA%20SY%20DINH%20MINH`;
+            el.qrImg.src = qrUrl;
+
+            updateTimeLeft(tx);
+        }
+
+        function updateTimeLeft(tx) {
+            const now = Date.now();
+            const isExpired = now >= tx.expiresAt;
+            
+            el.qrExpiredOverlay.classList.add('hidden'); el.qrExpiredOverlay.classList.remove('flex');
+            el.qrSuccessOverlay.classList.add('hidden'); el.qrSuccessOverlay.classList.remove('flex');
+
+            if (tx.status === 'success') {
+                el.qrSuccessOverlay.classList.remove('hidden'); el.qrSuccessOverlay.classList.add('flex');
+                el.qrTime.innerText = "00:00";
+                el.qrStatusText.className = "w-full text-[13px] font-bold text-emerald-600 bg-emerald-50 text-center px-4 py-3 rounded-xl flex items-center justify-center gap-2 border border-emerald-100/50 mt-auto shadow-sm";
+                el.qrStatusText.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4"></i> Đang chuyển hướng...`;
+            } else if (isExpired) {
+                el.qrExpiredOverlay.classList.remove('hidden'); el.qrExpiredOverlay.classList.add('flex');
+                el.qrTime.innerText = "00:00";
+                el.qrStatusText.className = "w-full text-[13px] font-bold text-red-500 bg-red-50 text-center px-4 py-3 rounded-xl flex items-center justify-center gap-2 border border-red-100/50 mt-auto shadow-sm";
+                el.qrStatusText.innerHTML = `<i data-lucide="x-circle" class="w-4 h-4"></i> Mã QR đã hết hạn`;
+            } else {
+                const diff = Math.max(0, Math.floor((tx.expiresAt - now) / 1000));
+                const m = Math.floor(diff / 60).toString().padStart(2, '0');
+                const s = (diff % 60).toString().padStart(2, '0');
+                el.qrTime.innerText = `${m}:${s}`;
+                
+                el.qrStatusText.className = "w-full text-[13px] font-semibold text-[#115ec4] bg-blue-50 text-center px-4 py-3 rounded-xl flex items-center justify-center gap-2.5 border border-blue-100/50 mt-auto shadow-sm";
+                el.qrStatusText.innerHTML = `<i data-lucide="loader-2" class="w-4.5 h-4.5 animate-spin"></i> Tự động kiểm tra thanh toán...`;
+            }
+            lucide.createIcons();
+        }
+
+        function updateGlobalTimer() {
+            const now = Date.now();
+            let stateChanged = false;
+
+            state.transactions = state.transactions.map(tx => {
+                if (tx.status === 'pending' && now >= tx.expiresAt) {
+                    stateChanged = true; return { ...tx, status: 'failed' };
+                }
+                return tx;
+            });
+
+            if (state.view === 'qr' && state.activeTxId) {
+                const tx = state.transactions.find(t => t.id === state.activeTxId);
+                if(tx) updateTimeLeft(tx);
+            }
+
+            if (stateChanged) {
+                saveState();
+                if (state.view === 'form') updateFormUI();
+                if (state.view === 'history') renderHistory();
+            }
+        }
+
+        function renderHistory() {
+            if (state.transactions.length === 0) {
+                el.historyContainer.innerHTML = `
+                    <div class="h-[60vh] flex flex-col items-center justify-center text-gray-400">
+                        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
+                            <i data-lucide="receipt-text" class="w-10 h-10 text-gray-300"></i>
+                        </div>
+                        <p class="font-medium text-[15px]">Chưa có giao dịch nào</p>
+                    </div>
+                `;
+                lucide.createIcons(); return;
+            }
+
+            el.historyContainer.innerHTML = state.transactions.map(tx => {
+                const actualVnd = (parseInt(tx.amount) * 1000).toLocaleString('vi-VN');
+                const date = new Date(tx.createdAt);
+                const dateStr = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+                
+                let statusHtml = '';
+                if(tx.status === 'success') {
+                    statusHtml = `<div class="bg-emerald-50 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i><span class="text-[12px] font-bold text-emerald-600">Thành công</span></div>`;
+                } else if(tx.status === 'failed') {
+                    statusHtml = `<div class="bg-red-50 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="x-circle" class="w-3.5 h-3.5 text-red-500"></i><span class="text-[12px] font-bold text-red-500">Thất bại / Hết hạn</span></div>`;
+                } else {
+                    statusHtml = `<div class="bg-blue-50 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-[#115ec4]"></i><span class="text-[12px] font-bold text-[#115ec4]">Đang chờ...</span></div>`;
+                }
+
+                const actionBtn = tx.status === 'pending' 
+                    ? `<button onclick="state.activeTxId='${tx.id}'; switchView('qr');" class="flex items-center gap-1.5 text-[12px] font-bold text-white bg-[#115ec4] px-4 py-2.5 rounded-xl hover:bg-[#0e4e9c] transition-colors shadow-sm active:scale-95">Tiếp tục <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>` 
+                    : '';
+
+                return `
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <p class="text-[12px] font-medium text-gray-400 mb-1">${dateStr}</p>
+                                <p class="font-bold text-[15px] text-gray-900 tracking-wide">${tx.id}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-black text-[#115ec4] text-[17px]">${actualVnd} <span class="text-[13px] font-bold text-gray-500">₫</span></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between mt-1 pt-4 border-t border-gray-100">
+                            ${statusHtml}
+                            ${actionBtn}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            lucide.createIcons();
+        }
+
+        init();
+    </script>
+</body>
+</html>
