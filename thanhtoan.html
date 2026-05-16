@@ -27,7 +27,7 @@
     <!-- KHUNG APP -->
     <div class="w-full max-w-[400px] h-[100dvh] sm:h-[800px] sm:max-h-[90vh] bg-[#F4F7F9] sm:rounded-[24px] shadow-2xl relative overflow-hidden flex flex-col border border-gray-200/50">
         
-        <!-- HỘP THOẠI -->
+        <!-- ==================== HỘP THOẠI BẮT BUỘC THANH TOÁN ĐƠN CŨ ==================== -->
         <div id="pending-modal" class="hidden absolute inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm transition-opacity">
             <div class="bg-white w-[85%] max-w-[320px] rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center transform transition-all scale-100">
                 <div class="w-14 h-14 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mb-4">
@@ -46,7 +46,7 @@
             </div>
         </div>
 
-        <!-- BƯỚC 1: TRANG CHỦ -->
+        <!-- ==================== BƯỚC 1: TRANG CHỦ (FORM) ==================== -->
         <div id="view-form" class="flex flex-col h-full bg-[#F8FAFC] relative animate-fade-in z-10">
             <div class="flex items-center justify-between px-5 py-3.5 bg-white sticky top-0 shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.02)] relative z-20">
                 <button onclick="window.location.href='https://hupetkiemtien.github.io/HUPETTL/trangchu.html'" class="text-gray-500 hover:text-gray-800 transition-colors z-10 p-1 -ml-1">
@@ -65,6 +65,7 @@
             </div>
 
             <div class="flex-1 overflow-y-auto pb-28">
+                <!-- Alert Đang Chờ -->
                 <div id="alert-pending" class="hidden mx-5 mt-5 bg-blue-50 border border-blue-100 p-3.5 rounded-2xl flex items-center justify-between shadow-sm">
                     <div class="flex items-center gap-2.5 text-[#115ec4]">
                         <div class="bg-white p-1.5 rounded-full shadow-sm">
@@ -132,7 +133,7 @@
             </div>
         </div>
 
-        <!-- BƯỚC 2: TRANG QR (TRƯỢT LÊN) -->
+        <!-- ==================== BƯỚC 2: TRANG QR (TRƯỢT LÊN) ==================== -->
         <div id="view-qr" class="absolute inset-0 z-40 flex flex-col h-full bg-[#f4f7f9] overflow-hidden transform translate-y-full transition-transform duration-300 ease-out shadow-[0_-10px_40px_rgba(0,0,0,0.15)]">
             <div class="bg-gradient-to-b from-[#115ec4] to-[#1a85e4] px-5 pt-4 pb-8 rounded-b-[24px] relative shrink-0 shadow-sm">
                 <div class="flex items-center justify-between text-white mb-4">
@@ -198,7 +199,7 @@
             </div>
         </div>
 
-        <!-- BƯỚC 3: TRANG LỊCH SỬ -->
+        <!-- ==================== BƯỚC 3: TRANG LỊCH SỬ ==================== -->
         <div id="view-history" class="hidden flex-col h-full bg-[#F4F7F9] animate-fade-in z-10">
             <div class="flex items-center justify-between px-5 py-3.5 bg-white shadow-sm shrink-0 sticky top-0 z-20 relative">
                 <button onclick="switchView('form')" class="text-gray-500 hover:text-gray-800 transition-colors p-1 -ml-1 z-10">
@@ -217,8 +218,8 @@
 
     <!-- JS LOGIC -->
     <script>
-        // Đường dẫn API của bạn
-        const API_CHECK_URL = 'https://script.google.com/macros/s/AKfycbwevH_rct_kFf_6bCnOYd3q5e6SR26DXiJ7giZp02RV43NEBdRTMmg6SLYakMoNZ2Eb_Q/exec';
+        // CẬP NHẬT ĐƯỜNG DẪN API MỚI
+        const API_CHECK_URL = 'https://script.google.com/macros/s/AKfycbx6WzEXd1sDxUliMnJlxtLsp8tbvlr4qM8vv3ejPGMAXx0o8RZIzqhjn185uWClVh0NQA/exec';
         let paymentCheckInterval = null;
 
         const state = {
@@ -302,7 +303,7 @@
             }
         }
 
-        // ============ CƠ CHẾ KIỂM TRA THANH TOÁN (CHỐNG CACHE) ============
+        // ============ CƠ CHẾ KIỂM TRA THANH TOÁN (CẬP NHẬT THEO YÊU CẦU MỚI) ============
         function startCheckingPayment() {
             stopCheckingPayment(); 
             paymentCheckInterval = setInterval(async () => {
@@ -311,17 +312,25 @@
                     stopCheckingPayment(); return;
                 }
                 try {
-                    // Thêm tham số timestamp để phá cache trình duyệt
-                    const urlNoCache = `${API_CHECK_URL}?t=${Date.now()}`;
+                    // Gửi kèm mã GD lên Google Script và thêm t=Date.now() để ép trình duyệt không cache kết quả cũ
+                    const urlNoCache = `${API_CHECK_URL}?ma_gd=${tx.id}&t=${Date.now()}`;
                     const response = await fetch(urlNoCache, { method: 'GET', mode: 'cors' });
-                    const textData = await response.text();
                     
-                    // In ra console để bạn kiểm tra (Bấm F12 -> Console)
-                    console.log(`Đang dò tìm mã [${tx.id}] trong dữ liệu:`, textData);
+                    // Thử parse JSON, nếu server chưa thiết lập trả về JSON thì đọc Text chống lỗi
+                    let isSuccess = false;
+                    try {
+                        const result = await response.json();
+                        console.log(`Đang check đơn [${tx.id}]:`, result);
+                        if (result && result.success === true) isSuccess = true;
+                    } catch(e) {
+                        // Backup nếu API vẫn trả về dạng Text thuần
+                        const textData = await response.text();
+                        console.log(`Đang check dạng text đơn [${tx.id}]:`, textData);
+                        if(textData.toUpperCase().includes(tx.id.toUpperCase())) isSuccess = true;
+                    }
                     
-                    // Dò tìm không phân biệt chữ hoa/thường (Bỏ qua các đoạn nối thêm như FT...)
-                    if (textData.toUpperCase().includes(tx.id.toUpperCase())) {
-                        console.log('✅ ĐÃ TÌM THẤY THANH TOÁN!');
+                    if (isSuccess) {
+                        console.log('✅ Thanh toán thành công!');
                         tx.status = 'success';
                         saveState();
                         stopCheckingPayment();
@@ -332,9 +341,9 @@
                         }, 2000);
                     }
                 } catch (error) {
-                    console.error('Lỗi khi fetch API:', error);
+                    console.error('Lỗi kết nối API thanh toán:', error);
                 }
-            }, 5000); 
+            }, 4000); // 4 giây check một lần cho mượt
         }
 
         function stopCheckingPayment() {
@@ -526,7 +535,7 @@
                 if(tx.status === 'success') {
                     statusHtml = `<div class="bg-emerald-50 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i><span class="text-[12px] font-bold text-emerald-600">Thành công</span></div>`;
                 } else if(tx.status === 'failed') {
-                    statusHtml = `<div class="bg-red-50 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="x-circle" class="w-3.5 h-3.5 text-red-500"></i><span class="text-[12px] font-bold text-red-500">Thất bại / Hết</span></div>`;
+                    statusHtml = `<div class="bg-red-50 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="x-circle" class="w-3.5 h-3.5 text-red-500"></i><span class="text-[12px] font-bold text-red-500">Thất bại / Hết hạn</span></div>`;
                 } else {
                     statusHtml = `<div class="bg-blue-50 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-[#115ec4]"></i><span class="text-[12px] font-bold text-[#115ec4]">Đang chờ...</span></div>`;
                 }
