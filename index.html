@@ -1,305 +1,125 @@
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hũ Pet - Đăng Nhập</title>
-    <!-- Font Awesome cho Icon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root {
-            --primary-color: #6366f1;
-            --primary-hover: #4f46e5;
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --error-color: #ef4444;
-            --success-color: #22c55e;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-
-        body {
-            background: var(--bg-gradient);
-            color: var(--text-color);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-
-        /* Hiệu ứng nền */
-        body::before {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: #8b5cf6;
-            filter: blur(100px);
-            opacity: 0.3;
-            border-radius: 50%;
-            top: -50px;
-            left: -50px;
-            z-index: -1;
-        }
-        body::after {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: #06b6d4;
-            filter: blur(100px);
-            opacity: 0.2;
-            border-radius: 50%;
-            bottom: -50px;
-            right: -50px;
-            z-index: -1;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 420px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 40px 30px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            position: relative;
-            overflow: hidden;
-        }
-
-        h2 {
-            text-align: center;
-            font-size: 28px;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
-
-        .input-group {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .input-group i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            font-size: 16px;
-            transition: 0.3s;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px 15px 12px 45px;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: white;
-            font-size: 14px;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            border-color: var(--primary-color);
-            background: rgba(15, 23, 42, 0.8);
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
-        }
-
-        input:focus + i {
-            color: var(--primary-color);
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-        }
-
-        button:disabled {
-            background: #475569;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .toggle-text {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        .toggle-text span {
-            color: var(--primary-color);
-            font-weight: 500;
-            cursor: pointer;
-            margin-left: 5px;
-            text-decoration: underline;
-        }
-
-        #msg {
-            text-align: center;
-            font-size: 13px;
-            margin-top: 15px;
-            min-height: 20px;
-        }
-        .msg-error { color: var(--error-color); }
-        .msg-success { color: var(--success-color); }
-
-        /* Ẩn/Hiện Form */
-        .form-section {
-            display: none;
-            animation: fadeIn 0.4s ease-in-out;
-        }
-        .form-section.active {
-            display: block;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        /* Phần sau đăng nhập */
-        #appArea {
-            display: none;
-            text-align: center;
-        }
-        .user-info {
-            background: rgba(255,255,255,0.05);
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 20px;
-            text-align: left;
-        }
-        .user-info p { margin: 8px 0; font-size: 14px; color: #cbd5e1; }
-        .user-info strong { color: #fff; }
-        .btn-logout { background: #ef4444; margin-top: 20px; }
-        .btn-logout:hover { background: #dc2626; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }
-
-        /* Spinner Loading */
-        .spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin: 0 auto;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
         
+        /* Ẩn mũi tên của input number nếu có */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; margin: 0; 
+        }
     </style>
 </head>
-<body>
+<body class="h-screen w-screen bg-gray-200 flex items-center justify-center overflow-hidden select-none">
 
-<div class="container">
-    
-    <!-- AUTH AREA -->
-    <div id="authArea">
-        <h2>Hũ Pet</h2>
-        <p class="subtitle">Kết nối cộng đồng thú cưng</p>
-
-        <!-- Form Đăng Nhập -->
-        <div id="loginForm" class="form-section active">
-            <div class="input-group">
-                <input id="loginInput" type="text" placeholder="Tên tài khoản hoặc Email">
-                <i class="fa-solid fa-user"></i>
-            </div>
-            <div class="input-group">
-                <input id="loginPass" type="password" placeholder="Mật khẩu">
-                <i class="fa-solid fa-lock"></i>
-            </div>
-            <button id="btnLogin">
-                <span class="btn-text">Đăng Nhập</span>
-                <div class="spinner"></div>
-            </button>
-            <p class="toggle-text">
-                Chưa có tài khoản? <span onclick="switchForm('register')">Đăng ký ngay</span>
-            </p>
-        </div>
-
-        <!-- Form Đăng Ký -->
-        <div id="registerForm" class="form-section">
-            <div class="input-group">
-                <input id="regName" type="text" placeholder="Tên tài khoản (Viết liền, không dấu)">
-                <i class="fa-solid fa-user-tag"></i>
-            </div>
-            <div class="input-group">
-                <input id="regPhone" type="tel" placeholder="Số điện thoại">
-                <i class="fa-solid fa-phone"></i>
-            </div>
-            <div class="input-group">
-                <input id="regEmail" type="email" placeholder="Email">
-                <i class="fa-solid fa-envelope"></i>
-            </div>
-            <div class="input-group">
-                <input id="regPass" type="password" placeholder="Mật khẩu (Tối thiểu 6 ký tự)">
-                <i class="fa-solid fa-lock"></i>
-            </div>
-            <button id="btnRegister">
-                <span class="btn-text">Đăng Ký</span>
-                <div class="spinner"></div>
-            </button>
-            <p class="toggle-text">
-                Đã có tài khoản? <span onclick="switchForm('login')">Đăng nhập</span>
-            </p>
-        </div>
-
-        <p id="msg"></p>
-    </div>
-
-    <!-- APP AREA (Sau khi Login) -->
-    <div id="appArea">
-        <i class="fa-solid fa-check-circle" style="font-size: 50px; color: #22c55e; margin-bottom: 10px;"></i>
-        <h2>Xin chào, <span id="uName">User</span>!</h2>
+    <!-- KHUNG APP CỐ ĐỊNH -->
+    <div class="w-full max-w-[400px] h-[100dvh] sm:h-[800px] sm:max-h-[90vh] bg-white sm:rounded-[24px] shadow-2xl relative overflow-hidden flex flex-col border border-gray-200">
         
-        <div class="user-info">
-            <p><i class="fa-solid fa-envelope width-20"></i> Email: <strong id="uEmail">...</strong></p>
-            <p><i class="fa-solid fa-phone width-20"></i> SĐT: <strong id="uPhone">...</strong></p>
-            <p><i class="fa-solid fa-wallet width-20"></i> Số dư: <strong id="uBalance">0</strong> đ</p>
+        <!-- HEADER (Nút quay lại) -->
+        <div class="flex items-center justify-between px-4 py-4 bg-white z-10 sticky top-0 shrink-0">
+            <button onclick="window.location.href='https://hupetkiemtien.github.io/HUPETTL/trangchu.html'" class="text-gray-500 hover:text-gray-800 transition-colors p-2 -ml-2 rounded-full hover:bg-gray-50">
+                <i data-lucide="chevron-left" class="w-6 h-6"></i>
+            </button>
+            <div class="w-10"></div> <!-- Spacer -->
         </div>
 
-        <button class="btn-logout" id="btnLogout">Đăng xuất</button>
-    </div>
+        <!-- NỘI DUNG CUỘN ĐƯỢC BÊN TRONG -->
+        <div class="flex-1 overflow-y-auto px-6 pb-8 flex flex-col">
+            
+            <!-- LOGO / TITLE HŨ PET -->
+            <div class="flex flex-col items-center mt-2 mb-8">
+                <div class="w-16 h-16 bg-[#e6f6f2] rounded-2xl flex items-center justify-center mb-3 shadow-inner border border-[#35b899]/20 transform rotate-3">
+                    <i data-lucide="paw-print" class="w-8 h-8 text-[#35b899] -rotate-3 fill-[#35b899]/20"></i>
+                </div>
+                <h2 class="text-3xl font-black text-gray-900 tracking-tight">Hũ Pet</h2>
+                <p class="text-[14px] text-gray-500 font-medium mt-1">Kết nối cộng đồng thú cưng</p>
+            </div>
 
-</div>
+            <div id="authArea" class="w-full">
+                <!-- FORM ĐĂNG NHẬP -->
+                <div id="loginForm" class="flex flex-col animate-fade-in">
+                    <div class="space-y-4">
+                        <div class="relative flex items-center">
+                            <i data-lucide="user" class="absolute left-4 w-5 h-5 text-gray-400"></i>
+                            <input id="loginInput" type="text" placeholder="Tên tài khoản" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-[15px] font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#35b899] focus:bg-white focus:ring-4 focus:ring-[#35b899]/10 transition-all">
+                        </div>
+                        <div class="relative flex items-center">
+                            <i data-lucide="lock" class="absolute left-4 w-5 h-5 text-gray-400"></i>
+                            <input id="loginPass" type="password" placeholder="Mật khẩu" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-[15px] font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#35b899] focus:bg-white focus:ring-4 focus:ring-[#35b899]/10 transition-all">
+                        </div>
+                    </div>
+
+                    <button id="btnLogin" class="w-full mt-6 py-3.5 bg-[#35b899] text-white font-bold rounded-xl text-[16px] shadow-[0_4px_14px_rgba(53,184,153,0.3)] hover:bg-[#2da185] transition-all active:scale-[0.98] flex justify-center items-center h-[52px]">
+                        <span class="btn-text">Đăng Nhập</span>
+                        <i data-lucide="loader-2" class="spinner hidden w-5 h-5 animate-spin"></i>
+                    </button>
+
+                    <p class="text-center mt-6 text-[14px] text-gray-500 font-medium">
+                        Chưa có tài khoản? <span onclick="switchForm('register')" class="text-[#35b899] font-bold cursor-pointer hover:underline">Đăng ký ngay</span>
+                    </p>
+                </div>
+
+                <!-- FORM ĐĂNG KÝ -->
+                <div id="registerForm" class="hidden flex-col animate-fade-in">
+                    <div class="space-y-3.5">
+                        <div class="relative flex items-center">
+                            <i data-lucide="user-plus" class="absolute left-4 w-5 h-5 text-gray-400"></i>
+                            <input id="regName" type="text" placeholder="Tên tài khoản (Viết liền, không dấu)" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-[14px] font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#35b899] focus:bg-white focus:ring-4 focus:ring-[#35b899]/10 transition-all">
+                        </div>
+                        <div class="relative flex items-center">
+                            <i data-lucide="phone" class="absolute left-4 w-5 h-5 text-gray-400"></i>
+                            <input id="regPhone" type="tel" placeholder="Số điện thoại" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-[14px] font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#35b899] focus:bg-white focus:ring-4 focus:ring-[#35b899]/10 transition-all">
+                        </div>
+                        <div class="relative flex items-center">
+                            <i data-lucide="mail" class="absolute left-4 w-5 h-5 text-gray-400"></i>
+                            <input id="regEmail" type="email" placeholder="Email" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-[14px] font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#35b899] focus:bg-white focus:ring-4 focus:ring-[#35b899]/10 transition-all">
+                        </div>
+                        <div class="relative flex items-center">
+                            <i data-lucide="lock" class="absolute left-4 w-5 h-5 text-gray-400"></i>
+                            <input id="regPass" type="password" placeholder="Mật khẩu (Tối thiểu 6 ký tự)" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-[14px] font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#35b899] focus:bg-white focus:ring-4 focus:ring-[#35b899]/10 transition-all">
+                        </div>
+                    </div>
+
+                    <button id="btnRegister" class="w-full mt-6 py-3.5 bg-[#35b899] text-white font-bold rounded-xl text-[16px] shadow-[0_4px_14px_rgba(53,184,153,0.3)] hover:bg-[#2da185] transition-all active:scale-[0.98] flex justify-center items-center h-[52px]">
+                        <span class="btn-text">Đăng Ký</span>
+                        <i data-lucide="loader-2" class="spinner hidden w-5 h-5 animate-spin"></i>
+                    </button>
+
+                    <p class="text-center mt-6 text-[14px] text-gray-500 font-medium">
+                        Đã có tài khoản? <span onclick="switchForm('login')" class="text-[#35b899] font-bold cursor-pointer hover:underline">Đăng nhập</span>
+                    </p>
+                </div>
+
+                <!-- Khu vực hiển thị thông báo lỗi/thành công -->
+                <div id="msgContainer" class="hidden mt-4 px-4 py-3 rounded-lg border flex items-center gap-2">
+                    <i id="msgIcon" class="w-4 h-4 shrink-0"></i>
+                    <p id="msg" class="text-[13px] font-medium leading-tight"></p>
+                </div>
+            </div>
+            
+        </div>
+    </div>
 
 <!-- FIREBASE SCRIPT -->
 <script type="module">
-    // CẤU HÌNH FIREBASE
+    // CẤU HÌNH FIREBASE (Giữ nguyên của bạn)
     const firebaseConfig = {
       apiKey: "AIzaSyAQuq-52qZ4FfsP66pVEVgYCP50zBNVKo4",
       authDomain: "hc88-dcaab.firebaseapp.com",
@@ -311,21 +131,18 @@
       measurementId: "G-9W1W79F84X"
     };
 
-    // Import Modules
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import {
         getAuth,
         onAuthStateChanged,
         createUserWithEmailAndPassword,
         signInWithEmailAndPassword,
-        signOut,
         updateProfile
     } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
     import {
         getFirestore,
         doc,
         setDoc,
-        getDoc,
         collection,
         query,
         where,
@@ -333,17 +150,18 @@
         serverTimestamp
     } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-    // Init
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
+    lucide.createIcons();
+
     // DOM Elements
     const authArea = document.getElementById('authArea');
-    const appArea  = document.getElementById('appArea'); // sẽ không dùng nữa nhưng có cũng không sao
+    const msgContainer = document.getElementById('msgContainer');
     const msg      = document.getElementById('msg');
+    const msgIcon  = document.getElementById('msgIcon');
     
-    // Inputs
     const loginInput = document.getElementById('loginInput');
     const loginPass  = document.getElementById('loginPass');
     
@@ -352,61 +170,75 @@
     const regEmail = document.getElementById('regEmail');
     const regPass  = document.getElementById('regPass');
 
-    // Display Info (chỉ còn dùng nếu bạn muốn test hiển thị tại index, nhưng hiện mình để đó)
-    const uName    = document.getElementById('uName');
-    const uEmail   = document.getElementById('uEmail');
-    const uPhone   = document.getElementById('uPhone');
-    const uBalance = document.getElementById('uBalance');
-
-    // Logic UI: Chuyển đổi tab
+    // Chuyển Form Đăng Nhập / Đăng Ký
     window.switchForm = (type) => {
-        msg.textContent = "";
-        msg.className = "";
+        msgContainer.classList.add('hidden');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        
         if (type === 'login') {
-            document.getElementById('loginForm').classList.add('active');
-            document.getElementById('registerForm').classList.remove('active');
+            loginForm.classList.remove('hidden');
+            loginForm.classList.add('flex');
+            registerForm.classList.add('hidden');
+            registerForm.classList.remove('flex');
         } else {
-            document.getElementById('loginForm').classList.remove('active');
-            document.getElementById('registerForm').classList.add('active');
+            loginForm.classList.add('hidden');
+            loginForm.classList.remove('flex');
+            registerForm.classList.remove('hidden');
+            registerForm.classList.add('flex');
         }
     };
 
-    // Hàm tiện ích: Hiển thị thông báo
+    // Hiển thị thông báo (Bản UI Tailwind mới)
     const showMsg = (text, type = 'error') => {
+        if (!text) {
+            msgContainer.classList.add('hidden');
+            return;
+        }
+        msgContainer.classList.remove('hidden', 'bg-red-50', 'border-red-200', 'text-red-600', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-600');
+        
+        if (type === 'error') {
+            msgContainer.classList.add('bg-red-50', 'border-red-200', 'text-red-600');
+            msgIcon.setAttribute('data-lucide', 'alert-circle');
+        } else {
+            msgContainer.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-600');
+            msgIcon.setAttribute('data-lucide', 'check-circle-2');
+        }
+        
         msg.textContent = text;
-        msg.className = type === 'error' ? 'msg-error' : 'msg-success';
+        lucide.createIcons();
     };
 
-    // Hàm tiện ích: Loading
+    // Nút Loading Spinner
     const setLoading = (btnId, isLoading) => {
         const btn = document.getElementById(btnId);
         const text = btn.querySelector('.btn-text');
         const spinner = btn.querySelector('.spinner');
         if (isLoading) {
             btn.disabled = true;
-            text.style.display = 'none';
-            spinner.style.display = 'block';
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            text.classList.add('hidden');
+            spinner.classList.remove('hidden');
         } else {
             btn.disabled = false;
-            text.style.display = 'block';
-            spinner.style.display = 'none';
+            btn.classList.remove('opacity-80', 'cursor-not-allowed');
+            text.classList.remove('hidden');
+            spinner.classList.add('hidden');
         }
     };
 
-    // --- 1. LẮNG NGHE TRẠNG THÁI AUTH -> CHUYỂN SANG home.html ---
+    // Lắng nghe trạng thái Auth -> Đồng bộ chuyển về Profile
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            // Đã đăng nhập -> chuyển sang dashboard
-            window.location.href = "home.html";
+            // Đã đăng nhập -> Chuyển hướng sang trang Tôi (Profile)
+            window.location.href = "profile.html";
         } else {
-            // Chưa đăng nhập -> hiện form login/register
-            authArea.style.display = "block";
-            appArea.style.display  = "none";
+            // Chưa đăng nhập -> Form hiển thị bình thường
             document.querySelectorAll('input').forEach(i => i.value = '');
         }
     });
 
-    // --- 2. ĐĂNG KÝ (CHECK TRÙNG USERNAME) ---
+    // --- XỬ LÝ ĐĂNG KÝ ---
     document.getElementById('btnRegister').addEventListener('click', async () => {
         showMsg("");
         const name = regName.value.trim();
@@ -414,9 +246,7 @@
         const email = regEmail.value.trim();
         const pass = regPass.value.trim();
 
-        if (!name || !phone || !email || !pass) {
-            return showMsg("Vui lòng điền đầy đủ thông tin.");
-        }
+        if (!name || !phone || !email || !pass) return showMsg("Vui lòng điền đầy đủ thông tin.");
         if (pass.length < 6) return showMsg("Mật khẩu phải từ 6 ký tự trở lên.");
 
         const usernameClean = name.toLowerCase().replace(/\s+/g, '');
@@ -425,7 +255,6 @@
         setLoading('btnRegister', true);
 
         try {
-            // 2.1 Kiểm tra Username đã tồn tại chưa
             const q = query(collection(db, "users"), where("username", "==", usernameClean));
             const querySnapshot = await getDocs(q);
             
@@ -433,14 +262,11 @@
                 throw new Error("Tên tài khoản này đã được sử dụng. Vui lòng chọn tên khác.");
             }
 
-            // 2.2 Tạo Auth
             const userCred = await createUserWithEmailAndPassword(auth, email, pass);
             const user = userCred.user;
 
-            // 2.3 Cập nhật Profile (displayName trên Auth)
             await updateProfile(user, { displayName: name });
 
-            // 2.4 Lưu Firestore – ĐỒNG BỘ VỚI home.html (có balance, isAdmin, saving)
             await setDoc(doc(db, "users", user.uid), {
                 uid: user.uid,
                 email: email,
@@ -451,15 +277,11 @@
                 isAdmin: false,
                 createdAt: serverTimestamp(),
                 saving: {
-                    amount: 0,
-                    profit: 0,
-                    ratePerYear: 0.01,
-                    lastUpdateMs: Date.now()
+                    amount: 0, profit: 0, ratePerYear: 0.01, lastUpdateMs: Date.now()
                 }
             });
 
             showMsg("Đăng ký thành công!", "success");
-            // onAuthStateChanged sẽ tự redirect sang home.html
 
         } catch (err) {
             console.error(err);
@@ -472,7 +294,7 @@
         }
     });
 
-    // --- 3. ĐĂNG NHẬP (HỖ TRỢ USERNAME HOẶC EMAIL) ---
+    // --- XỬ LÝ ĐĂNG NHẬP ---
     document.getElementById('btnLogin').addEventListener('click', async () => {
         showMsg("");
         const input = loginInput.value.trim();
@@ -484,6 +306,7 @@
 
         try {
             let emailToLogin = input;
+            // Dù placeholder chỉ ghi "Tên tài khoản", logic cũ vẫn xử lý được nếu người dùng cố tình nhập email
             const isEmail = input.includes('@');
 
             if (!isEmail) {
@@ -500,10 +323,8 @@
                 });
             }
 
-            // Đăng nhập bằng email (từ input hoặc từ username tra ra)
             await signInWithEmailAndPassword(auth, emailToLogin, pass);
             showMsg("Đăng nhập thành công!", "success");
-            // onAuthStateChanged sẽ redirect sang home.html
 
         } catch (err) {
             console.error(err);
@@ -519,13 +340,17 @@
         }
     });
 
-    // --- 4. ĐĂNG XUẤT (nếu dùng nút logout ở trang này) ---
-    document.getElementById('btnLogout').addEventListener('click', async () => {
-        await signOut(auth);
-        // Sau signOut, onAuthStateChanged sẽ đưa về form đăng nhập
+    // Gắn sự kiện nhấn Enter để đăng nhập/đăng ký
+    document.getElementById('loginPass').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') document.getElementById('btnLogin').click();
+    });
+    document.getElementById('regPass').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') document.getElementById('btnRegister').click();
     });
 
 </script>
 </body>
 </html>
 
+
+```
