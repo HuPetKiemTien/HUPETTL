@@ -14,7 +14,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in { animation: fadeIn 0.25s ease-out forwards; }
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
+        /* Ẩn thanh cuộn nhưng vẫn cho phép cuộn */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; margin: 0; 
@@ -26,7 +28,7 @@
     <!-- KHUNG APP -->
     <div class="w-full max-w-[400px] h-[100dvh] sm:h-[800px] sm:max-h-[90vh] bg-[#F4F7F9] sm:rounded-[24px] shadow-2xl relative overflow-hidden flex flex-col border border-gray-200/50">
         
-        <!-- HỘP THOẠI XÁC NHẬN -->
+        <!-- HỘP THOẠI XÁC NHẬN (MODAL) -->
         <div id="pending-modal" class="hidden absolute inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm transition-opacity">
             <div class="bg-white w-[85%] max-w-[320px] rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center transform transition-all scale-100">
                 <div class="w-14 h-14 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mb-4">
@@ -35,7 +37,7 @@
                 <h3 class="text-[18px] font-bold text-gray-900 mb-2">Đơn nạp đang chờ</h3>
                 <p id="modal-desc" class="text-[14px] text-gray-500 mb-6 leading-relaxed px-1">Bạn đang có 1 đơn nạp chưa hoàn tất. Vui lòng thanh toán hoặc chờ hết thời gian để tạo đơn mới!</p>
                 <div class="flex flex-col w-full gap-3">
-                    <button onclick="continueFromModal()" class="w-full py-3.5 bg-[#115ec4] text-white font-bold rounded-xl text-[15px] shadow-md hover:bg-[#0e4e9c] transition-colors active:scale-[0.98]">
+                    <button onclick="continuePendingTx()" class="w-full py-3.5 bg-[#115ec4] text-white font-bold rounded-xl text-[15px] shadow-md hover:bg-[#0e4e9c] transition-colors active:scale-[0.98]">
                         Tiếp tục thanh toán
                     </button>
                     <button onclick="closeModal()" class="w-full py-2 text-gray-400 text-[14px] font-medium mt-1 hover:text-gray-600 transition-colors">
@@ -63,7 +65,8 @@
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto pb-28">
+            <!-- PHẦN CÓ THỂ CUỘN LÊN XUỐNG CỦA TRANG CHỦ -->
+            <div class="flex-1 overflow-y-auto hide-scrollbar pb-28">
                 <div id="alert-pending" class="hidden mx-5 mt-5 bg-blue-50 border border-blue-100 p-3.5 rounded-2xl flex items-center justify-between shadow-sm">
                     <div class="flex items-center gap-2.5 text-[#115ec4]">
                         <div class="bg-white p-1.5 rounded-full shadow-sm">
@@ -108,7 +111,7 @@
                     </div>
                     <p class="text-[13px] font-medium text-gray-500 mb-6 ml-1">Ví dụ: Nhập <span class="font-bold text-gray-700">20</span> = <span class="font-bold text-[#115ec4]">20,000 VND</span></p>
 
-                    <div class="bg-gray-100/80 p-4 rounded-2xl border border-gray-200/60">
+                    <div class="bg-gray-100/80 p-4 rounded-2xl border border-gray-200/60 mb-5">
                         <div class="flex items-start gap-2.5">
                             <i data-lucide="info" class="w-4 h-4 text-gray-400 mt-0.5 shrink-0"></i>
                             <p class="text-[12px] text-gray-500 leading-relaxed font-medium">
@@ -119,6 +122,7 @@
                 </div>
             </div>
 
+            <!-- NÚT NẠP TIỀN CỐ ĐỊNH Ở DƯỚI CÙNG -->
             <div class="absolute bottom-0 left-0 w-full p-5 bg-white border-t border-gray-100 z-20 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] rounded-b-[24px]">
                 <button
                     id="btn-submit"
@@ -157,7 +161,8 @@
                     <h2 class="text-[#115ec4] font-extrabold text-[16px] mb-1 tracking-tight">QR CODE</h2>
                     <p class="text-[13px] font-medium text-gray-500 mb-4">Quét mã QR qua ứng dụng ngân hàng</p>
 
-                    <div class="mb-4 bg-white p-2.5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] w-[180px] h-[180px] flex items-center justify-center border border-gray-100 relative">
+                    <!-- KHUNG MÃ QR TỰ ĐỘNG CHỈNH TỶ LỆ -->
+                    <div class="mb-4 bg-white p-2 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] w-[200px] sm:w-[220px] aspect-square flex items-center justify-center border border-gray-100 relative">
                         <div id="qr-expired-overlay" class="hidden absolute inset-0 bg-white/90 backdrop-blur-[2px] flex items-center justify-center flex-col z-20 rounded-2xl">
                             <i data-lucide="x-circle" class="w-10 h-10 text-red-500 mb-1.5"></i>
                             <span class="font-bold text-red-600 text-[14px]">QR Hết Hạn</span>
@@ -168,7 +173,8 @@
                             </div>
                             <span class="font-bold text-emerald-600 text-[15px] text-center leading-tight">Thanh Toán<br>Thành Công</span>
                         </div>
-                        <img id="qr-img" src="" alt="VietQR Code" class="w-full h-full object-contain" />
+                        <!-- object-contain để hình ảnh không bị biến dạng -->
+                        <img id="qr-img" src="" alt="VietQR Code" class="max-w-full max-h-full w-auto h-auto object-contain" />
                     </div>
 
                     <div class="flex items-center gap-2.5 mb-3">
@@ -198,7 +204,7 @@
         </div>
 
         <!-- BƯỚC 3: TRANG LỊCH SỬ -->
-        <div id="view-history" class="hidden flex-col h-full bg-[#F4F7F9] animate-fade-in z-10">
+        <div id="view-history" class="hidden flex-col h-full bg-[#F4F7F9] animate-fade-in z-10 relative">
             <div class="flex items-center justify-between px-5 py-3.5 bg-white shadow-sm shrink-0 sticky top-0 z-20 relative">
                 <button onclick="switchView('form')" class="text-gray-500 hover:text-gray-800 transition-colors p-1 -ml-1 z-10">
                     <i data-lucide="chevron-left" class="w-6 h-6"></i>
@@ -207,8 +213,9 @@
                 <div class="w-8 z-10"></div>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-5">
-                <div id="history-container" class="flex flex-col gap-4"></div>
+            <!-- PHẦN DANH SÁCH LỊCH SỬ CÓ THỂ CUỘN ĐƯỢC -->
+            <div class="flex-1 overflow-y-auto hide-scrollbar p-5 pb-10">
+                <div id="history-container" class="flex flex-col gap-5"></div>
             </div>
         </div>
 
@@ -216,8 +223,11 @@
 
     <!-- JS LOGIC -->
     <script>
-        // Cấu hình URL endpoint từ Google App Script để lấy webhook xác nhận từ Casso
+        // ========================================================
+        // 1. THAY LINK CỦA BẠN VÀO ĐÂY SAU KHI LÀM GOOGLE SHEET
+        // ========================================================
         const API_CHECK_URL = 'https://script.google.com/macros/s/AKfycbx6WzEXd1sDxUliMnJlxtLsp8tbvlr4qM8vv3ejPGMAXx0o8RZIzqhjn185uWClVh0NQA/exec';
+        
         let paymentCheckInterval = null;
 
         const state = {
@@ -259,10 +269,43 @@
             historyContainer: document.getElementById('history-container')
         };
 
+        // --- CÁC HÀM XỬ LÝ LƯU TRỮ VÀ THỜI GIAN ---
         function saveState() { localStorage.setItem('naptien_transactions', JSON.stringify(state.transactions)); }
+        
         function loadState() {
             const saved = localStorage.getItem('naptien_transactions');
-            if (saved) state.transactions = JSON.parse(saved);
+            if (saved) {
+                state.transactions = JSON.parse(saved);
+                cleanOldTransactions(); // Xoá giao dịch quá hạn ngay khi tải
+            }
+        }
+
+        // Tự động xoá dữ liệu cũ hơn 7 ngày
+        function cleanOldTransactions() {
+            const now = Date.now();
+            const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+            const originalCount = state.transactions.length;
+            
+            state.transactions = state.transactions.filter(tx => {
+                return (now - tx.createdAt) <= SEVEN_DAYS_MS;
+            });
+
+            if (state.transactions.length !== originalCount) {
+                saveState();
+            }
+        }
+
+        function isToday(dateMs) {
+            const date = new Date(dateMs);
+            const today = new Date();
+            return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+        }
+
+        function isYesterday(dateMs) {
+            const date = new Date(dateMs);
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            return date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth() && date.getFullYear() === yesterday.getFullYear();
         }
 
         function init() {
@@ -286,7 +329,7 @@
             el.viewQr.classList.add('translate-y-full');
             stopCheckingPayment();
             updateFormUI();
-            renderHistory();
+            if (state.view === 'history') renderHistory();
         }
 
         function switchView(viewName) {
@@ -301,7 +344,7 @@
             }
         }
 
-        // ============ CƠ CHẾ KIỂM TRA THANH TOÁN ============
+        // ============ CƠ CHẾ KIỂM TRA API TỪ GOOGLE SHEETS ============
         function startCheckingPayment() {
             stopCheckingPayment(); 
             paymentCheckInterval = setInterval(async () => {
@@ -311,30 +354,26 @@
                 }
                 
                 try {
-                    // Tránh trình duyệt cache API
+                    // Dò tìm trong Text Google Sheets trả về
                     const urlNoCache = `${API_CHECK_URL}?t=${Date.now()}`;
                     const response = await fetch(urlNoCache);
-                    
                     const textData = await response.text();
-                    console.log(`Đang dò tìm giao dịch [${tx.id}]...`);
                     
                     if (textData.toUpperCase().includes(tx.id.toUpperCase())) {
-                        console.log('✅ ĐÃ TÌM THẤY! THANH TOÁN THÀNH CÔNG');
                         tx.status = 'success';
                         saveState();
                         stopCheckingPayment();
                         updateQrUI(); 
                         
                         setTimeout(() => {
-                            // Cập nhật lại UI sau khi thành công (bạn có thể đổi link redirect sau)
-                            alert("Thanh toán thành công!");
                             closeQr();
+                            switchView('history');
                         }, 2000);
                     }
                 } catch (error) {
-                    console.error('Đang chờ kết nối hoặc lỗi mạng:', error);
+                    console.error('Đang chờ kết nối:', error);
                 }
-            }, 4000); // Check 4s/lần
+            }, 4000);
         }
 
         function stopCheckingPayment() {
@@ -355,7 +394,15 @@
         }
 
         function closeModal() { el.modal.classList.add('hidden'); }
-        function continueFromModal() { closeModal(); continuePendingTx(); }
+        
+        function continuePendingTx() {
+            const pendingTx = state.transactions.find(t => t.status === 'pending');
+            if(pendingTx) { 
+                state.activeTxId = pendingTx.id; 
+                openQr(); 
+                closeModal(); 
+            }
+        }
         
         function createNewTransaction() {
             const randomId = Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
@@ -372,11 +419,6 @@
             state.amount = ''; el.inputAmount.value = '';
             renderAmounts(); validateForm(); 
             openQr();
-        }
-
-        function continuePendingTx() {
-            const pendingTx = state.transactions.find(t => t.status === 'pending');
-            if(pendingTx) { state.activeTxId = pendingTx.id; openQr(); }
         }
 
         function renderMethods() {
@@ -446,7 +488,6 @@
             el.qrTxId.innerText = tx.id;
             el.qrAmount.innerText = actualVnd.toLocaleString('vi-VN') + ' VND';
             
-            // API tạo mã VietQR
             const qrUrl = `https://img.vietqr.io/image/BIDV-V3CASS8898876444-qr_only.png?amount=${actualVnd}&addInfo=${tx.id}&accountName=HA%20SY%20DINH%20MINH`;
             el.qrImg.src = qrUrl;
 
@@ -464,7 +505,7 @@
                 el.qrSuccessOverlay.classList.remove('hidden'); el.qrSuccessOverlay.classList.add('flex');
                 el.qrTime.innerText = "00:00";
                 el.qrStatusText.className = "w-full text-[13px] font-bold text-emerald-600 bg-emerald-50 text-center px-4 py-3 rounded-xl flex items-center justify-center gap-2 border border-emerald-100/50 mt-auto shadow-sm";
-                el.qrStatusText.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4"></i> Đang chuyển hướng...`;
+                el.qrStatusText.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4"></i> Giao dịch thành công`;
             } else if (isExpired) {
                 el.qrExpiredOverlay.classList.remove('hidden'); el.qrExpiredOverlay.classList.add('flex');
                 el.qrTime.innerText = "00:00";
@@ -505,56 +546,96 @@
             }
         }
 
+        function createHistoryItemHtml(tx) {
+            const actualVnd = (parseInt(tx.amount) * 1000).toLocaleString('vi-VN');
+            const date = new Date(tx.createdAt);
+            const dateStr = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')} - ${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+            
+            let statusHtml = '';
+            if(tx.status === 'success') {
+                statusHtml = `<div class="bg-emerald-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i><span class="text-[12px] font-bold text-emerald-600">Thành công</span></div>`;
+            } else if(tx.status === 'failed') {
+                statusHtml = `<div class="bg-red-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="x-circle" class="w-3.5 h-3.5 text-red-500"></i><span class="text-[12px] font-bold text-red-500">Thất bại / Hết hạn</span></div>`;
+            } else {
+                statusHtml = `<div class="bg-blue-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-[#115ec4]"></i><span class="text-[12px] font-bold text-[#115ec4]">Đang chờ...</span></div>`;
+            }
+
+            const actionBtn = tx.status === 'pending' 
+                ? `<button onclick="state.activeTxId='${tx.id}'; openQr();" class="flex items-center gap-1.5 text-[12px] font-bold text-white bg-[#115ec4] px-4 py-2 rounded-xl hover:bg-[#0e4e9c] transition-colors shadow-sm active:scale-95">Tiếp tục <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>` 
+                : '';
+
+            return `
+                <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <p class="font-bold text-[15px] text-gray-900 tracking-wide mb-1">${tx.id}</p>
+                            <p class="text-[12px] font-medium text-gray-400 flex items-center gap-1.5"><i data-lucide="calendar" class="w-3 h-3"></i> ${dateStr}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-black text-[#115ec4] text-[16px]">${actualVnd} <span class="text-[13px] font-bold text-gray-500">₫</span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mt-1 pt-3 border-t border-gray-100/80">
+                        ${statusHtml}
+                        ${actionBtn}
+                    </div>
+                </div>
+            `;
+        }
+
         function renderHistory() {
+            cleanOldTransactions();
+
             if (state.transactions.length === 0) {
                 el.historyContainer.innerHTML = `
                     <div class="h-[60vh] flex flex-col items-center justify-center text-gray-400">
                         <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
                             <i data-lucide="receipt-text" class="w-10 h-10 text-gray-300"></i>
                         </div>
-                        <p class="font-medium text-[15px]">Chưa có giao dịch nào</p>
+                        <p class="font-medium text-[15px]">Chưa có giao dịch nào trong 7 ngày qua</p>
                     </div>
                 `;
                 lucide.createIcons(); return;
             }
 
-            el.historyContainer.innerHTML = state.transactions.map(tx => {
-                const actualVnd = (parseInt(tx.amount) * 1000).toLocaleString('vi-VN');
-                const date = new Date(tx.createdAt);
-                const dateStr = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-                
-                let statusHtml = '';
-                if(tx.status === 'success') {
-                    statusHtml = `<div class="bg-emerald-50 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i><span class="text-[12px] font-bold text-emerald-600">Thành công</span></div>`;
-                } else if(tx.status === 'failed') {
-                    statusHtml = `<div class="bg-red-50 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="x-circle" class="w-3.5 h-3.5 text-red-500"></i><span class="text-[12px] font-bold text-red-500">Thất bại / Hết hạn</span></div>`;
-                } else {
-                    statusHtml = `<div class="bg-blue-50 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-[#115ec4]"></i><span class="text-[12px] font-bold text-[#115ec4]">Đang chờ...</span></div>`;
-                }
+            const groups = { today: [], yesterday: [], thisWeek: [] };
+            
+            state.transactions.forEach(tx => {
+                if (isToday(tx.createdAt)) groups.today.push(tx);
+                else if (isYesterday(tx.createdAt)) groups.yesterday.push(tx);
+                else groups.thisWeek.push(tx);
+            });
 
-                const actionBtn = tx.status === 'pending' 
-                    ? `<button onclick="state.activeTxId='${tx.id}'; openQr();" class="flex items-center gap-1.5 text-[12px] font-bold text-white bg-[#115ec4] px-4 py-2.5 rounded-xl hover:bg-[#0e4e9c] transition-colors shadow-sm active:scale-95">Tiếp tục <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>` 
-                    : '';
+            let finalHtml = '';
 
-                return `
-                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:shadow-md transition-shadow">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <p class="text-[12px] font-medium text-gray-400 mb-1">${dateStr}</p>
-                                <p class="font-bold text-[15px] text-gray-900 tracking-wide">${tx.id}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-black text-[#115ec4] text-[17px]">${actualVnd} <span class="text-[13px] font-bold text-gray-500">₫</span></p>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between mt-1 pt-4 border-t border-gray-100">
-                            ${statusHtml}
-                            ${actionBtn}
-                        </div>
+            if (groups.today.length > 0) {
+                finalHtml += `
+                    <div class="mb-5">
+                        <h3 class="text-[13px] font-bold text-gray-500 uppercase tracking-wider mb-3 px-1">Hôm nay</h3>
+                        <div class="flex flex-col gap-3">${groups.today.map(createHistoryItemHtml).join('')}</div>
                     </div>
                 `;
-            }).join('');
-            
+            }
+
+            if (groups.yesterday.length > 0) {
+                finalHtml += `
+                    <div class="mb-5">
+                        <h3 class="text-[13px] font-bold text-gray-500 uppercase tracking-wider mb-3 px-1">Hôm qua</h3>
+                        <div class="flex flex-col gap-3">${groups.yesterday.map(createHistoryItemHtml).join('')}</div>
+                    </div>
+                `;
+            }
+
+            if (groups.thisWeek.length > 0) {
+                finalHtml += `
+                    <div class="mb-2">
+                        <h3 class="text-[13px] font-bold text-gray-500 uppercase tracking-wider mb-3 px-1">Tuần này</h3>
+                        <div class="flex flex-col gap-3">${groups.thisWeek.map(createHistoryItemHtml).join('')}</div>
+                    </div>
+                `;
+            }
+
+            el.historyContainer.innerHTML = finalHtml;
             lucide.createIcons();
         }
 
