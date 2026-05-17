@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nạp Tiền Tự Động</title>
+    <title>Nạp Tiền Tự Động - Tích hợp Casso</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -48,8 +47,8 @@
 
         <!-- BƯỚC 1: TRANG CHỦ -->
         <div id="view-form" class="flex flex-col h-full bg-[#F8FAFC] relative animate-fade-in z-10">
-            <div class="flex items-center justify-between px-5 py-3.5 bg-white sticky top-0 shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.02)] relative z-20">
-                <button onclick="window.location.href='https://hupetkiemtien.github.io/HUPETTL/trangchu.html'" class="text-gray-500 hover:text-gray-800 transition-colors z-10 p-1 -ml-1">
+            <div class="flex items-center justify-between px-5 py-3.5 bg-white sticky top-0 shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.02)] z-20">
+                <button class="text-gray-500 hover:text-gray-800 transition-colors z-10 p-1 -ml-1">
                     <i data-lucide="chevron-left" class="w-6 h-6"></i>
                 </button>
                 <h1 class="absolute left-1/2 -translate-x-1/2 text-[17px] font-bold text-gray-900 z-0">Nạp Tiền</h1>
@@ -193,7 +192,7 @@
                 </div>
 
                 <div id="qr-status-text" class="w-full text-[13px] font-medium text-center px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 mt-auto transition-all">
-                    <!-- Dynamic -->
+                    <!-- Dynamic Status -->
                 </div>
             </div>
         </div>
@@ -217,6 +216,7 @@
 
     <!-- JS LOGIC -->
     <script>
+        // Cấu hình URL endpoint từ Google App Script để lấy webhook xác nhận từ Casso
         const API_CHECK_URL = 'https://script.google.com/macros/s/AKfycbx6WzEXd1sDxUliMnJlxtLsp8tbvlr4qM8vv3ejPGMAXx0o8RZIzqhjn185uWClVh0NQA/exec';
         let paymentCheckInterval = null;
 
@@ -301,7 +301,7 @@
             }
         }
 
-        // ============ CƠ CHẾ KIỂM TRA THANH TOÁN (TỐI ƯU CỰC MẠNH) ============
+        // ============ CƠ CHẾ KIỂM TRA THANH TOÁN ============
         function startCheckingPayment() {
             stopCheckingPayment(); 
             paymentCheckInterval = setInterval(async () => {
@@ -311,15 +311,13 @@
                 }
                 
                 try {
-                    // Gắn thời gian để phá cache hoàn toàn
+                    // Tránh trình duyệt cache API
                     const urlNoCache = `${API_CHECK_URL}?t=${Date.now()}`;
                     const response = await fetch(urlNoCache);
                     
-                    // Lấy Toàn Bộ Dữ Liệu dạng Chữ (Raw Text)
                     const textData = await response.text();
-                    console.log(`Đang dò tìm [${tx.id}]...`);
+                    console.log(`Đang dò tìm giao dịch [${tx.id}]...`);
                     
-                    // Kiểm tra không phân biệt chữ hoa/thường
                     if (textData.toUpperCase().includes(tx.id.toUpperCase())) {
                         console.log('✅ ĐÃ TÌM THẤY! THANH TOÁN THÀNH CÔNG');
                         tx.status = 'success';
@@ -328,7 +326,9 @@
                         updateQrUI(); 
                         
                         setTimeout(() => {
-                            window.location.href = 'https://hupetkiemtien.github.io/HUPETTL/thanhtoan.html';
+                            // Cập nhật lại UI sau khi thành công (bạn có thể đổi link redirect sau)
+                            alert("Thanh toán thành công!");
+                            closeQr();
                         }, 2000);
                     }
                 } catch (error) {
@@ -446,6 +446,7 @@
             el.qrTxId.innerText = tx.id;
             el.qrAmount.innerText = actualVnd.toLocaleString('vi-VN') + ' VND';
             
+            // API tạo mã VietQR
             const qrUrl = `https://img.vietqr.io/image/BIDV-V3CASS8898876444-qr_only.png?amount=${actualVnd}&addInfo=${tx.id}&accountName=HA%20SY%20DINH%20MINH`;
             el.qrImg.src = qrUrl;
 
